@@ -1,0 +1,275 @@
+/* ========================================
+   K UI - Universal Style Root
+   Light / Dark / OLED Themes
+   ======================================== */
+
+/* ========== LIGHT THEME (Default) ========== */
+.k-ui,
+.k-ui[data-theme="light"] {
+    /* Backgrounds */
+    --k-bg: #ffffff;
+    --k-surface: #f8fafc;
+    --k-surface-hover: #f1f5f9;
+    
+    /* Text Colors */
+    --k-text-primary: #1e293b;
+    --k-text-secondary: #64748b;
+    --k-text-muted: #94a3b8;
+    --k-placeholder: #cbd5e1;
+    
+    /* Borders */
+    --k-border: #e2e8f0;
+    --k-border-focus: #1db954;
+    --k-border-error: #ef4444;
+    --k-border-success: #10b981;
+    
+    /* Accents (brand — override on .k-ui for your own color) */
+    --k-primary: #1db954;
+    --k-primary-hover: #17a34a;
+    --k-primary-light: #e3f8ec;
+    
+    --k-success: #10b981;
+    --k-success-light: #d1fae5;
+    
+    --k-warning: #f59e0b;
+    --k-warning-light: #fef3c7;
+    
+    --k-error: #ef4444;
+    --k-error-light: #fee2e2;
+    
+    --k-info: #8b5cf6;
+    --k-info-light: #ede9fe;
+    
+    /* Shadows */
+    --k-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --k-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.22);
+    --k-shadow-error: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    
+    /* Sizing */
+    --k-radius-sm: 6px;
+    --k-radius-md: 8px;
+    --k-radius-lg: 12px;
+    --k-radius-round: 40px;
+    --k-radius-full: 9999px;
+    
+    --k-height-sm: 32px;
+    --k-height-md: 40px;
+    --k-height-lg: 48px;
+    
+    /* Spacing */
+    --k-padding-x: 12px;
+    --k-padding-y: 8px;
+    --k-gap: 8px;
+    
+    /* Font */
+    --k-font-family: "yekan-bakh";
+    --k-font-size: 14px;
+    --k-font-size-sm: 12px;
+    --k-font-size-lg: 16px;
+}
+
+/* ========== DARK THEME (neutral gray — no blue undertone) ========== */
+.k-ui[data-theme="dark"] {
+    /* Backgrounds */
+    --k-bg: #18181b;
+    --k-surface: #242428;
+    --k-surface-hover: #333338;
+    
+    /* Text Colors */
+    --k-text-primary: #f4f4f5;
+    --k-text-secondary: #a1a1aa;
+    --k-text-muted: #71717a;
+    --k-placeholder: #52525b;
+    
+    /* Borders */
+    --k-border: #3f3f46;
+    --k-border-focus: #1db954;
+    --k-border-error: #f87171;
+    --k-border-success: #34d399;
+    
+    /* Accents (brand) */
+    --k-primary: #1db954;
+    --k-primary-hover: #2abf62;
+    --k-primary-light: color-mix(in srgb, #1db954 16%, transparent);
+    
+    --k-success: #34d399;
+    --k-success-light: #064e3b;
+    
+    --k-warning: #fbbf24;
+    --k-warning-light: #78350f;
+    
+    --k-error: #f87171;
+    --k-error-light: #7f1d1d;
+    
+    --k-info: #a78bfa;
+    --k-info-light: #4c1d95;
+    
+    /* Shadows */
+    --k-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --k-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2);
+    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.22);
+    --k-shadow-error: 0 0 0 2px rgba(248, 113, 113, 0.2);
+}
+
+/* ========== OLED THEME (Pure Black) ========== */
+.k-ui[data-theme="oled"] {
+    /* Backgrounds */
+    --k-bg: #000000;
+    --k-surface: #0a0a0a;
+    --k-surface-hover: #111111;
+    
+    /* Text Colors */
+    --k-text-primary: #ffffff;
+    --k-text-secondary: #a0a0a0;
+    --k-text-muted: #666666;
+    --k-placeholder: #333333;
+    
+    /* Borders */
+    --k-border: #1a1a1a;
+    --k-border-focus: #1db954;
+    --k-border-error: #ef4444;
+    --k-border-success: #10b981;
+    
+    /* Accents (brand) */
+    --k-primary: #1db954;
+    --k-primary-hover: #2abf62;
+    --k-primary-light: color-mix(in srgb, #1db954 18%, transparent);
+    
+    --k-success: #10b981;
+    --k-success-light: #0a2a1a;
+    
+    --k-warning: #f59e0b;
+    --k-warning-light: #2a1a0a;
+    
+    --k-error: #ef4444;
+    --k-error-light: #2a0a0a;
+    
+    --k-info: #8b5cf6;
+    --k-info-light: #1a0a2a;
+    
+    /* Shadows */
+    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.28);
+    --k-shadow-error: 0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+/* ========== BASE STYLES ========== */
+.k-ui {
+    font-family: var(--k-font-family);
+    font-size: var(--k-font-size);
+    color: var(--k-text-primary);
+    line-height: 1.5;
+    direction: rtl;
+}
+
+/* ========== GLOBAL RESET FOR PARS COMPONENTS ========== */
+.k-ui *,
+.k-ui *::before,
+.k-ui *::after {
+    box-sizing: border-box;
+}
+
+/* ========== SCROLLBAR STYLING ========== */
+.k-ui ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.k-ui ::-webkit-scrollbar-track {
+    background: var(--k-surface);
+    border-radius: var(--k-radius-full);
+}
+
+.k-ui ::-webkit-scrollbar-thumb {
+    background: var(--k-text-muted);
+    border-radius: var(--k-radius-full);
+}
+
+.k-ui ::-webkit-scrollbar-thumb:hover {
+    background: var(--k-text-secondary);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes k-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+@keyframes k-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes k-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes k-ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ========== DARK-THEME COMPONENT FIXES ==========
+   Components with fixed foreground colors get light text
+   on dark surfaces so they stay readable. */
+.k-ui[data-theme="dark"] .k-alert,
+.k-ui[data-theme="oled"] .k-alert {
+    color: #ffffff;
+}
+
+.k-ui[data-theme="dark"] .k-alert .k-alert-desc,
+.k-ui[data-theme="oled"] .k-alert .k-alert-desc {
+    opacity: 0.88;
+}
+
+.k-ui[data-theme="dark"] .k-alert-close,
+.k-ui[data-theme="oled"] .k-alert-close {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.k-ui[data-theme="dark"] .k-alert-close:hover,
+.k-ui[data-theme="oled"] .k-alert-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+}
+
+/* ========== TRANSITIONS ========== */
+.k-slide-down-enter-active,
+.k-slide-down-leave-active {
+    transition: all 0.2s ease;
+}
+
+.k-slide-down-enter-from {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+.k-slide-down-leave-to {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+.k-fade-enter-active,
+.k-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.k-fade-enter-from,
+.k-fade-leave-to {
+    opacity: 0;
+}
+
+.k-icon-fade-enter-active,
+.k-icon-fade-leave-active {
+    transition: all 0.15s ease;
+}
+
+.k-icon-fade-enter-from,
+.k-icon-fade-leave-to {
+    opacity: 0;
+    transform: scale(0.8);
+}

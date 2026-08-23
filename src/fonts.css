@@ -1,0 +1,16 @@
+/* Local font: yekan-bakh (fa-num variant — Latin digits already rendered as Persian) */
+@font-face {
+    font-family: 'yekan-bakh';
+    src: url('./assets/fonts/yekan-bakh-fa-num-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'yekan-bakh';
+    src: url('./assets/fonts/yekan-bakh-fa-num-regular.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "ui-test",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Showcase app for the K UI kit (ui-kit)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^1.0.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.0",
+    "vue-tsc": "^2.1.10"
+  }
+}

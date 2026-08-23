@@ -1,0 +1,11 @@
+{
+    "success": true,
+    "data": {
+        "total": 3,
+        "customers": [
+            { "id": 1, "name": "علی رضایی", "plan": "طلا", "balance": 1845000 },
+            { "id": 2, "name": "مریم حسینی", "plan": "نقره", "balance": 720000 },
+            { "id": 3, "name": "رضا محمدی", "plan": "برنز", "balance": 128000 }
+        ]
+    }
+}

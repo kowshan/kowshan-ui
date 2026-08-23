@@ -1,0 +1,109 @@
+/* Shared styles for the Iranian-identifier inputs (کد ملی / کارت / شبا / کد پستی) */
+
+.k-iran-input {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.k-iran-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--k-text-secondary, #64748b);
+}
+
+.k-iran-required {
+    color: var(--k-error, #ef4444);
+    margin-inline-start: 2px;
+}
+
+.k-iran-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 12px;
+    background: var(--k-bg, #ffffff);
+    border: 1px solid var(--k-border, #e2e8f0);
+    border-radius: 10px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.k-iran-field:focus-within {
+    border-color: var(--k-primary, #1db954);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-primary, #1db954) 16%, transparent);
+}
+
+.k-iran-input.is-valid .k-iran-field {
+    border-color: color-mix(in srgb, var(--k-success, #16a34a) 50%, var(--k-border, #e2e8f0));
+}
+
+.k-iran-input.is-invalid .k-iran-field {
+    border-color: var(--k-error, #ef4444);
+}
+
+.k-iran-input.is-disabled .k-iran-field {
+    opacity: 0.6;
+}
+
+.k-iran-text {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--k-text-primary, #1e293b);
+}
+
+.k-iran-text::placeholder {
+    letter-spacing: 0;
+    font-weight: 400;
+    color: var(--k-text-muted, #94a3b8);
+}
+
+.k-iran-text[dir='ltr'] {
+    text-align: left;
+}
+
+.k-iran-status {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.k-iran-status .is-valid {
+    color: var(--k-success, #16a34a);
+}
+
+.k-iran-status .is-invalid {
+    color: var(--k-error, #ef4444);
+}
+
+.k-iran-message {
+    font-size: 0.66rem;
+    font-weight: 600;
+}
+
+.k-iran-message.is-error {
+    color: var(--k-error, #ef4444);
+}
+
+.k-iran-message.is-ok {
+    color: var(--k-success, #16a34a);
+}
+
+/* bank chip shown inside the field (card / shiba) */
+.k-iran-bank {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
