@@ -3,10 +3,11 @@
     <div
         class="k-avatar"
         :class="[
-            `k-avatar-${size}`,
+            typeof size === 'string' ? `k-avatar-${size}` : 'k-avatar-pixel',
             `k-avatar-${shape}`,
             { 'is-bordered': bordered, 'is-status': status }
         ]"
+        :style="typeof size === 'number' ? { width: size + 'px', height: size + 'px' } : undefined"
         :title="name || undefined"
     >
         <!-- Image -->
@@ -35,7 +36,7 @@ import { computed, ref, watch } from 'vue'
 const props = withDefaults(defineProps<{
     src?: string
     name?: string
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
     shape?: 'circle' | 'square' | 'rounded'
     status?: 'online' | 'offline' | 'away' | 'busy'
     statusPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
@@ -109,6 +110,8 @@ const onImgError = () => { imgFailed.value = true }
     align-items: center;
     justify-content: center;
     color: #ffffff;
+    /* match the container shape so initials aren't square on circles */
+    border-radius: inherit;
 }
 
 .k-avatar-initials {
@@ -130,6 +133,8 @@ const onImgError = () => { imgFailed.value = true }
 /* Sizes */
 .k-avatar-xs { width: 24px; height: 24px; }
 .k-avatar-xs .k-avatar-initials { font-size: 0.6rem; }
+
+.k-avatar-pixel .k-avatar-initials { font-size: 1rem; }
 
 .k-avatar-sm { width: 32px; height: 32px; }
 .k-avatar-sm .k-avatar-initials { font-size: 0.7rem; }

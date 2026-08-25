@@ -167,7 +167,7 @@
                         title="همگام‌سازی خودکار"
                         description="اتصال به تقویم شمسی و یادآوری‌های خودکار قرارها"
                         :icon="RefreshCw"
-                        icon-bg="linear-gradient(135deg, #499DF3, #2563eb)"
+                        icon-bg="linear-gradient(135deg, #1db954, #2563eb)"
                         @click="onFeature"
                     />
                 </div>

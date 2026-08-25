@@ -26,13 +26,20 @@ export function parseJalali(value?: string | null, now?: JalaliDate): JalaliDate
     if (parts.length !== 3 || parts.some(n => isNaN(n))) return { ...fallback }
 
     const [a, b, c] = parts
-    // heuristic: 4-digit first part = Jalali; 4-digit last = Gregorian
+    // heuristic: 4-digit first part in the Jalali era = Jalali "1405/05/20";
+    // otherwise a 4-digit first part = Gregorian "2026-08-11" (year first);
+    // legacy year-last Gregorian "11/08/2026" is also accepted.
     if (a >= 1200 && a <= 1600) {
         return {
             year: a,
             month: Math.min(12, Math.max(1, b)),
             day: Math.min(getJalaliMonthDays(a, Math.min(12, Math.max(1, b))), Math.max(1, c))
         }
+    }
+    if (a >= 1000 && a <= 9999) {
+        const g = new Date(a, Math.min(12, Math.max(1, b)) - 1, Math.max(1, c))
+        const j = toJalali(g)
+        return { year: j.year, month: j.month, day: j.day }
     }
     if (c >= 1200 && c <= 1600) {
         const g = new Date(c, b - 1, a)

@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
     glow?: boolean
     radius?: string
 }>(), {
-    color: '#499DF3',
+    color: '#1db954',
     glow: true,
     radius: '16px'
 })

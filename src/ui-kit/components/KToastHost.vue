@@ -7,8 +7,10 @@
                     v-for="t in toastsFor(pos)"
                     :key="t.id"
                     class="k-toast"
-                    :class="`is-${t.type}`"
+                    :class="[`is-${t.type}`, { 'is-paused': pausedIds.has(t.id) }]"
                     role="status"
+                    @mouseenter="pauseClose(t.id)"
+                    @mouseleave="resumeClose(t.id)"
                 >
                     <span class="k-toast-icon">
                         <component :is="t.icon || variantIcon(t.type)" class="icon" />
@@ -58,6 +60,7 @@
                     <span
                         v-if="t.duration > 0"
                         class="k-toast-timer"
+                        :class="{ 'is-paused': pausedIds.has(t.id) }"
                         :style="{ animationDuration: (t.duration / 1000) + 's' }"
                         @animationend="removeToast(t.id)"
                     />
@@ -68,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { X, Info, CheckCircle2, AlertTriangle, XCircle } from 'lucide-vue-next'
 import { useToastStore } from '../stores/toastStore'
 import type { ToastType, ToastButton } from '../stores/toastStore'
@@ -113,12 +116,20 @@ const toastsFor = (pos: string) => toasts.filter(t => normalizePos(t.position) =
 
 /* Autoclose: real timeout per toast (the timer bar is the visual cue) */
 const timers = new Map<number, ReturnType<typeof setTimeout>>()
+const deadlines = new Map<number, number>()
+const pausedIds = ref(new Set<number>())
+
+const scheduleClose = (id: number, delay: number) => {
+    clearTimeout(timers.get(id))
+    deadlines.set(id, Date.now() + delay)
+    timers.set(id, setTimeout(() => removeToast(id), delay))
+}
 
 watch(toasts, (list) => {
     // schedule close for new sticky-less toasts
     list.forEach(t => {
         if (t.duration > 0 && !timers.has(t.id)) {
-            timers.set(t.id, setTimeout(() => removeToast(t.id), t.duration))
+            scheduleClose(t.id, t.duration)
         }
     })
     // clear timers for removed toasts
@@ -126,13 +137,36 @@ watch(toasts, (list) => {
         if (!list.some(t => t.id === id)) {
             clearTimeout(timer)
             timers.delete(id)
+            deadlines.delete(id)
+            pausedIds.value.delete(id)
         }
     })
 }, { deep: true })
 
+/* Pause-on-hover: hold the auto-dismiss (JS timer + CSS bar) while the mouse is over the toast */
+const pauseClose = (id: number) => {
+    if (!timers.has(id) || pausedIds.value.has(id)) return
+    clearTimeout(timers.get(id))
+    timers.delete(id)
+    pausedIds.value = new Set(pausedIds.value).add(id)
+}
+
+const resumeClose = (id: number) => {
+    if (!pausedIds.value.has(id)) return
+    const next = new Set(pausedIds.value)
+    next.delete(id)
+    pausedIds.value = next
+    const deadline = deadlines.get(id)
+    if (!deadline) return
+    const remaining = Math.max(0, deadline - Date.now())
+    if (remaining > 0) scheduleClose(id, remaining)
+    else removeToast(id)
+}
+
 onBeforeUnmount(() => {
     timers.forEach(timer => clearTimeout(timer))
     timers.clear()
+    deadlines.clear()
 })
 
 const runButton = (t: any, b: ToastButton) => {
@@ -147,7 +181,7 @@ const runButton = (t: any, b: ToastButton) => {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 9999;
+    z-index: 10001;
     width: min(380px, calc(100vw - 32px));
     pointer-events: none;
 }
@@ -345,6 +379,10 @@ const runButton = (t: any, b: ToastButton) => {
     height: 3px;
     background: color-mix(in srgb, var(--k-primary, #1db954) 55%, transparent);
     animation: k-toast-timer linear forwards;
+}
+
+.k-toast-timer.is-paused {
+    animation-play-state: paused;
 }
 
 @keyframes k-toast-timer {

@@ -6,9 +6,13 @@ export interface Column {
     label: string
     align?: 'left' | 'center' | 'right'
     sortable?: boolean
-    format?: (value: any, row: any) => any
+    /** receives the WHOLE row — access nested keys like row.displays.type or any other column */
+    format?: (row: any) => any
     slot?: boolean
+    /** minimum width hint for the column */
     width?: string
+    /** allow the cell text to wrap instead of forcing one line */
+    wrap?: boolean
 }
 
 export interface DataTableOptions {

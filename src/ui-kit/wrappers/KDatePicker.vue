@@ -312,7 +312,8 @@ defineExpose({
 
 .k-datepicker-cal {
     color: var(--k-text-muted);
-    margin-right: 2px;
+    margin-right: 10px;
+    margin-left: 10px;
     flex-shrink: 0;
 }
 

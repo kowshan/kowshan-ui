@@ -4,7 +4,6 @@
         :visible="visible"
         :title="title"
         size="sm"
-        :closable="false"
         @update:visible="onOverlay"
     >
         <!-- Live preview + today -->
@@ -148,12 +147,18 @@ watch(() => props.visible, (v) => {
         const parts = props.modelValue.split('-').join('/').split('/').map(Number)
         if (parts.length === 3 && parts.every(n => !isNaN(n))) {
             const [a, b, c] = parts
-            // heuristic: 4-digit first part = jalali; 4-digit last = gregorian
+            // heuristic: 4-digit first part = jalali "1405/05/20";
+            // otherwise 4-digit first part = gregorian "2026-08-11" (year first)
             if (a >= 1200 && a <= 1600) {
                 // jalali "1405/05/20"
                 y = a; m = b; d = Math.min(c, getJalaliMonthDays(a, b))
-            } else if (c >= 1200 && c <= 1600) {
+            } else if (a >= 1000 && a <= 9999) {
                 // gregorian "2026-08-11" → convert to jalali
+                const g = new Date(a, b - 1, Math.max(1, c))
+                const j = toJalali(g)
+                y = j.year; m = j.month; d = j.day
+            } else if (c >= 1200 && c <= 1600) {
+                // legacy gregorian "11/08/2026" → convert to jalali
                 const g = new Date(c, b - 1, a)
                 const j = toJalali(g)
                 y = j.year; m = j.month; d = j.day

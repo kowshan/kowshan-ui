@@ -27,14 +27,29 @@
                         aria-modal="true"
                         :aria-label="config?.title"
                     >
-                        <span class="k-confirm-icon" :class="`is-${config?.variant || 'primary'}`">
-                            <AlertTriangle v-if="(config?.variant || 'primary') !== 'primary'" :size="22" />
-                            <HelpCircle v-else :size="22" />
-                        </span>
+                        <!-- Header -->
+                        <div class="k-confirm-header">
+                            <span class="k-confirm-title">{{ config?.title }}</span>
+                            <button
+                                type="button"
+                                class="k-confirm-close"
+                                aria-label="بستن"
+                                @click="cancel"
+                            >
+                                <X class="icon" />
+                            </button>
+                        </div>
 
-                        <div class="k-confirm-title">{{ config?.title }}</div>
-                        <p class="k-confirm-message">{{ config?.message }}</p>
+                        <!-- Body -->
+                        <div class="k-confirm-body">
+                            <span class="k-confirm-icon" :class="`is-${config?.variant || 'primary'}`">
+                                <AlertTriangle v-if="(config?.variant || 'primary') !== 'primary'" :size="22" />
+                                <HelpCircle v-else :size="22" />
+                            </span>
+                            <p class="k-confirm-message">{{ config?.message }}</p>
+                        </div>
 
+                        <!-- Footer -->
                         <div class="k-confirm-actions">
                             <button type="button" class="k-confirm-btn is-cancel" @click="cancel">
                                 {{ config?.cancelText }}
@@ -58,7 +73,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { AlertTriangle, HelpCircle } from 'lucide-vue-next'
+import { AlertTriangle, HelpCircle, X } from 'lucide-vue-next'
 import { useKitTheme } from '../composables/useKitTheme'
 import { useModalStore } from '../stores/modalStore'
 import { useFocusTrap } from '../composables/useFocusTrap'
@@ -103,8 +118,7 @@ onUnmounted(() => {
     position: fixed;
     inset: 0;
     z-index: 10001;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -114,57 +128,104 @@ onUnmounted(() => {
 
 .k-confirm {
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     background: var(--k-bg, #fff);
-    border-radius: 16px;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
-    padding: 24px 22px 18px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+}
+
+.k-confirm-header {
+    display: flex;
     align-items: center;
-    text-align: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--k-border, #e2e8f0);
+    flex-shrink: 0;
+}
+
+.k-confirm-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--k-text-primary, #1e293b);
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.k-confirm-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--k-text-secondary, #64748b);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.k-confirm-close:hover {
+    background: var(--k-error-light, #fee2e2);
+    color: var(--k-error, #ef4444);
+}
+
+.k-confirm-close .icon {
+    width: 15px;
+    height: 15px;
+}
+
+.k-confirm-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 16px;
+    flex: 1;
 }
 
 .k-confirm-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    margin-bottom: 4px;
+    flex-shrink: 0;
 }
 
-.k-confirm-icon.is-primary { background: var(--k-primary-light, #e3f8ec); color: var(--k-primary, #1db954); }
+.k-confirm-icon.is-primary { background: var(--k-primary-light, #e3f0fd); color: var(--k-primary, #1db954); }
 .k-confirm-icon.is-danger { background: var(--k-error-light, #fee2e2); color: var(--k-error, #ef4444); }
 .k-confirm-icon.is-warning { background: var(--k-warning-light, #fef3c7); color: var(--k-warning, #f59e0b); }
 
-.k-confirm-title {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--k-text-primary, #1e293b);
-}
-
 .k-confirm-message {
     margin: 0;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     line-height: 1.8;
     color: var(--k-text-secondary, #64748b);
+    padding-top: 9px;
 }
 
 .k-confirm-actions {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
-    width: 100%;
-    margin-top: 14px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--k-border, #e2e8f0);
+    flex-shrink: 0;
 }
 
 .k-confirm-btn {
-    flex: 1;
-    height: 40px;
+    height: 36px;
+    padding: 0 18px;
     border: 1px solid var(--k-border, #e2e8f0);
-    border-radius: 10px;
+    border-radius: 6px;
     background: var(--k-bg, #fff);
     color: var(--k-text-primary, #1e293b);
     font-size: 0.78rem;

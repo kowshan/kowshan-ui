@@ -17,8 +17,6 @@ export function useDateTimeValidation(partConfigs: Record<string, any>) {
                     const month = parseInt(values['mm'])
                     if (!isNaN(year) && !isNaN(month) && year > 0 && month >= 1 && month <= 12) {
                         const maxDay = getMaxDayInMonth(year, month)
-                        console.log(maxDay);
-                        
                         return maxDay.toString().padStart(2, '0')
                     }
                 }

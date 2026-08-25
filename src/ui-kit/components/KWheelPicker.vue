@@ -39,13 +39,13 @@
                 <div class="k-wheel-col-pad"></div>
             </div>
 
-            <!-- Click zones (top / bottom of each column) -->
+            <!-- Click zones (top / bottom of EACH column) -->
             <div
                 v-for="(col, ci) in columns"
                 :key="'z' + ci"
                 class="k-wheel-zone"
                 :class="'zone-' + ci"
-                :style="{ top: 0, height: zoneH + 'px' }"
+                :style="zoneStyle(ci, 'top')"
                 @click="step(ci, -1)"
             >
                 <ChevronUp class="zone-icon" />
@@ -55,7 +55,7 @@
                 :key="'zb' + ci"
                 class="k-wheel-zone is-bottom"
                 :class="'zone-' + ci"
-                :style="{ bottom: 0, height: zoneH + 'px' }"
+                :style="zoneStyle(ci, 'bottom')"
                 @click="step(ci, 1)"
             >
                 <ChevronDown class="zone-icon" />
@@ -102,6 +102,14 @@ const itemHeight = computed(() => props.itemHeight)
 const viewHeight = computed(() => props.rows * props.itemHeight)
 const bandTop = computed(() => ((props.rows - 1) / 2) * props.itemHeight)
 const zoneH = computed(() => ((props.rows - 1) / 2) * props.itemHeight)
+
+/** each zone only covers its own column (top or bottom strip) */
+const zoneStyle = (ci: number, edge: 'top' | 'bottom') => ({
+    [edge]: 0,
+    height: zoneH.value + 'px',
+    left: `${(ci / props.columns.length) * 100}%`,
+    width: `${100 / props.columns.length}%`
+})
 
 /* Live (pre-finalize) indexes — drives the highlight so it follows the scroll */
 const liveIndexes = ref<number[]>([...props.modelValue])
@@ -334,11 +342,9 @@ onMounted(() => {
     z-index: 1;
 }
 
-/* ── Invisible click zones (top / bottom of each column) ── */
+/* ── Click zones (top / bottom of each column — positioned per column) ── */
 .k-wheel-zone {
     position: absolute;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;

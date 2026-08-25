@@ -354,7 +354,7 @@ watch(() => props.modelValue, (newVal) => {
             if (inputRef.value) inputRef.value.value = ''
         }
     }
-})
+}, { immediate: true })
 
 // Expose
 defineExpose({

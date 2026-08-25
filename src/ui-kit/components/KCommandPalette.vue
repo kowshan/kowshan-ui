@@ -196,8 +196,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     position: fixed;
     inset: 0;
     z-index: 10050;
-    background: rgba(2, 6, 23, 0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: flex-start;
     justify-content: center;

@@ -13,6 +13,6 @@ withDefaults(defineProps<{
     /** toast stack corner: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' */
     position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'
 }>(), {
-    position: 'bottom-left'
+    position: 'top-right'
 })
 </script>

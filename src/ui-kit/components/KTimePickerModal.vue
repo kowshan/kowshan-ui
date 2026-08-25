@@ -4,7 +4,6 @@
         :visible="visible"
         :title="title"
         size="sm"
-        :closable="false"
         @update:visible="onOverlay"
     >
         <!-- Live preview + now -->

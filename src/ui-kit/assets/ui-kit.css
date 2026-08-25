@@ -4,6 +4,7 @@
    ======================================== */
 
 /* ========== LIGHT THEME (Default) ========== */
+:root,
 .k-ui,
 .k-ui[data-theme="light"] {
     /* Backgrounds */
@@ -25,8 +26,8 @@
     
     /* Accents (brand — override on .k-ui for your own color) */
     --k-primary: #1db954;
-    --k-primary-hover: #17a34a;
-    --k-primary-light: #e3f8ec;
+    --k-primary-hover: #3a7dcc;
+    --k-primary-light: #e3f0fd;
     
     --k-success: #10b981;
     --k-success-light: #d1fae5;
@@ -37,13 +38,13 @@
     --k-error: #ef4444;
     --k-error-light: #fee2e2;
     
-    --k-info: #8b5cf6;
-    --k-info-light: #ede9fe;
+    --k-info: #1db954;
+    --k-info-light: #e3f0fd;
     
     /* Shadows */
     --k-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --k-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.22);
+    --k-shadow-focus: 0 0 0 2px rgba(73, 157, 243, 0.22);
     --k-shadow-error: 0 0 0 2px rgba(239, 68, 68, 0.2);
     
     /* Sizing */
@@ -63,7 +64,7 @@
     --k-gap: 8px;
     
     /* Font */
-    --k-font-family: "yekan-bakh";
+    --k-font-family: "shabnam";
     --k-font-size: 14px;
     --k-font-size-sm: 12px;
     --k-font-size-lg: 16px;
@@ -89,9 +90,9 @@
     --k-border-success: #34d399;
     
     /* Accents (brand) */
-    --k-primary: #1db954;
-    --k-primary-hover: #2abf62;
-    --k-primary-light: color-mix(in srgb, #1db954 16%, transparent);
+    --k-primary: #60a5fa;
+    --k-primary-hover: #7cb8f7;
+    --k-primary-light: color-mix(in srgb, #60a5fa 16%, transparent);
     
     --k-success: #34d399;
     --k-success-light: #064e3b;
@@ -102,13 +103,13 @@
     --k-error: #f87171;
     --k-error-light: #7f1d1d;
     
-    --k-info: #a78bfa;
-    --k-info-light: #4c1d95;
+    --k-info: #60a5fa;
+    --k-info-light: rgba(96, 165, 250, 0.16);
     
     /* Shadows */
     --k-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
     --k-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2);
-    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.22);
+    --k-shadow-focus: 0 0 0 2px rgba(73, 157, 243, 0.22);
     --k-shadow-error: 0 0 0 2px rgba(248, 113, 113, 0.2);
 }
 
@@ -132,9 +133,9 @@
     --k-border-success: #10b981;
     
     /* Accents (brand) */
-    --k-primary: #1db954;
-    --k-primary-hover: #2abf62;
-    --k-primary-light: color-mix(in srgb, #1db954 18%, transparent);
+    --k-primary: #60a5fa;
+    --k-primary-hover: #7cb8f7;
+    --k-primary-light: color-mix(in srgb, #60a5fa 18%, transparent);
     
     --k-success: #10b981;
     --k-success-light: #0a2a1a;
@@ -145,11 +146,11 @@
     --k-error: #ef4444;
     --k-error-light: #2a0a0a;
     
-    --k-info: #8b5cf6;
-    --k-info-light: #1a0a2a;
+    --k-info: #60a5fa;
+    --k-info-light: rgba(96, 165, 250, 0.18);
     
     /* Shadows */
-    --k-shadow-focus: 0 0 0 2px rgba(29, 185, 84, 0.28);
+    --k-shadow-focus: 0 0 0 2px rgba(96, 165, 250, 0.28);
     --k-shadow-error: 0 0 0 2px rgba(239, 68, 68, 0.3);
 }
 

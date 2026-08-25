@@ -104,7 +104,7 @@ const props = defineProps<{
     leftIcon?: any
     rightIcon?: any
     clearable?: boolean
-    type?: 'text' | 'email' | 'tel' | 'url' | 'search'
+    type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search'
     placeholder?: string
     disabled?: boolean
     readonly?: boolean

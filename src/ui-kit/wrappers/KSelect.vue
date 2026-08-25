@@ -56,34 +56,60 @@
                 </div>
             </div>
 
-            <!-- Dropdown Menu -->
-            <Transition name="dropdown-fade">
-                <div v-if="isOpen" class="k-select-dropdown" ref="dropdownRef">
-                    <!-- Search Input -->
-                    <div v-if="searchable" class="k-select-search">
-                        <Search class="search-icon" />
-                        <input
-                            ref="searchInputRef"
-                            v-model="searchQuery"
-                            type="text"
-                            :placeholder="searchPlaceholder || 'جستجو...'"
-                            @click.stop
-                            @input="handleSearch"
-                        />
-                        <Loader2 v-if="searchLoading" class="search-loading spin" />
-                    </div>
+        </div>
 
-                    <!-- Options List -->
-                    <div class="k-select-options" :style="{ maxHeight: maxHeight }">
-                        <!-- Grouped Options -->
-                        <template v-if="groupBy">
-                            <div 
-                                v-for="(group, groupName) in groupedOptions"
-                                :key="groupName"
-                            >
-                                <div class="k-select-group-header">{{ groupName }}</div>
+            <!-- Dropdown Menu (teleported so it overlays modals / scroll containers) -->
+            <Transition name="dropdown-fade">
+                <Teleport to="body">
+                    <div v-if="isOpen" class="k-select-dropdown" ref="dropdownRef" :style="dropdownStyle"  @mousedown.stop>
+                        <!-- Search Input -->
+                        <div v-if="searchable" class="k-select-search">
+                            <Search class="search-icon" />
+                            <input
+                                ref="searchInputRef"
+                                v-model="searchQuery"
+                                type="text"
+                                :placeholder="searchPlaceholder || 'جستجو...'"
+                                @click.stop
+                                @input="handleSearch"
+                            />
+                            <Loader2 v-if="searchLoading" class="search-loading spin" />
+                        </div>
+
+                        <!-- Options List -->
+                        <div class="k-select-options" :style="{ maxHeight: maxHeight }" >
+                            <!-- Grouped Options -->
+                            <template v-if="groupBy">
+                                <div 
+                                    v-for="(group, groupName) in groupedOptions"
+                                    :key="groupName"
+                                >
+                                    <div class="k-select-group-header">{{ groupName }}</div>
+                                    <div
+                                        v-for="option in group"
+                                        :key="getOptionValue(option)"
+                                        class="k-select-option"
+                                        :class="{
+                                            'is-selected': isSelected(option),
+                                            'is-disabled': isOptionDisabled(option)
+                                        }"
+                                        @click="selectOption(option)"
+                                    >
+                                        <component 
+                                            v-if="option.icon" 
+                                            :is="option.icon" 
+                                            class="option-icon" 
+                                        />
+                                        <span class="option-label">{{ getOptionLabel(option) }}</span>
+                                        <Check v-if="isSelected(option)" class="check-icon" />
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <!-- Flat Options -->
+                            <template v-else>
                                 <div
-                                    v-for="option in group"
+                                    v-for="option in displayOptions"
                                     :key="getOptionValue(option)"
                                     class="k-select-option"
                                     :class="{
@@ -100,44 +126,21 @@
                                     <span class="option-label">{{ getOptionLabel(option) }}</span>
                                     <Check v-if="isSelected(option)" class="check-icon" />
                                 </div>
+                            </template>
+                            
+                            <!-- Loading More -->
+                            <div v-if="loadingMore" class="k-select-loading">
+                                <Loader2 class="spin" /> در حال بارگذاری...
                             </div>
-                        </template>
-                        
-                        <!-- Flat Options -->
-                        <template v-else>
-                            <div
-                                v-for="option in displayOptions"
-                                :key="getOptionValue(option)"
-                                class="k-select-option"
-                                :class="{
-                                    'is-selected': isSelected(option),
-                                    'is-disabled': isOptionDisabled(option)
-                                }"
-                                @click="selectOption(option)"
-                            >
-                                <component 
-                                    v-if="option.icon" 
-                                    :is="option.icon" 
-                                    class="option-icon" 
-                                />
-                                <span class="option-label">{{ getOptionLabel(option) }}</span>
-                                <Check v-if="isSelected(option)" class="check-icon" />
+                            
+                            <!-- No Results -->
+                            <div v-if="!displayOptions.length && !searchLoading" class="k-select-empty">
+                                موردی یافت نشد
                             </div>
-                        </template>
-                        
-                        <!-- Loading More -->
-                        <div v-if="loadingMore" class="k-select-loading">
-                            <Loader2 class="spin" /> در حال بارگذاری...
-                        </div>
-                        
-                        <!-- No Results -->
-                        <div v-if="!displayOptions.length && !searchLoading" class="k-select-empty">
-                            موردی یافت نشد
                         </div>
                     </div>
-                </div>
+                </Teleport>
             </Transition>
-        </div>
 
         <!-- Message Area -->
         <div class="k-message-area">
@@ -225,6 +228,32 @@ const loadingMore = ref(false)
 const internalValue = ref(props.modelValue)
 const asyncOptions = ref<any[]>([])
 
+// Dropdown position — fixed to the trigger rect so it overlays modals and scroll containers
+const positionTick = ref(0)
+const dropdownStyle = computed(() => {
+    void positionTick.value
+    if (!isOpen.value || !triggerRef.value) return {}
+
+    const rect = triggerRef.value.getBoundingClientRect()
+    const estHeight = 264 // dropdown max-height + search box + borders
+    const spaceBelow = window.innerHeight - rect.bottom - 8
+    const openUp = spaceBelow < estHeight && rect.top > estHeight
+
+    return {
+        position: 'fixed',
+        top: openUp ? undefined : `${rect.bottom + 4}px`,
+        bottom: openUp ? `${window.innerHeight - rect.top + 4}px` : undefined,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        zIndex: '20000'
+    }
+})
+
+// Reposition while open (modal body scroll / window resize)
+const repositionDropdown = () => {
+    if (isOpen.value) positionTick.value++
+}
+
 // Computed
 const hasValue = computed(() => {
     return internalValue.value !== undefined && 
@@ -245,6 +274,7 @@ const displayValue = computed(() => {
     }
     
     const option = allOptions.value.find(opt => getOptionValue(opt) === internalValue.value)
+        || (props.options || []).find(opt => getOptionValue(opt) === internalValue.value)
     return option ? getOptionLabel(option) : internalValue.value
 })
 
@@ -450,6 +480,8 @@ watch(isOpen, (open) => {
 // Lifecycle
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
+    window.addEventListener('scroll', repositionDropdown, true)
+    window.addEventListener('resize', repositionDropdown)
     if (triggerRef.value) {
         triggerRef.value.addEventListener('focus', handleFocus)
         triggerRef.value.addEventListener('blur', handleBlur)
@@ -458,6 +490,8 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
+    window.removeEventListener('scroll', repositionDropdown, true)
+    window.removeEventListener('resize', repositionDropdown)
     if (triggerRef.value) {
         triggerRef.value.removeEventListener('focus', handleFocus)
         triggerRef.value.removeEventListener('blur', handleBlur)
@@ -612,17 +646,12 @@ defineExpose({
     height: var(--k-icon-size, 16px);
 }
 
-/* Dropdown Menu */
+/* Dropdown Menu — position/size set inline via dropdownStyle (teleported to body) */
 .k-select-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
     background: var(--k-bg);
     border: 1px solid var(--k-border);
     border-radius: var(--k-radius-sm);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 100;
     overflow: hidden;
 }
 

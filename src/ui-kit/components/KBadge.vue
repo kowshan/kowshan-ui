@@ -15,7 +15,7 @@
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
-    text?: string
+    text?: string | number
     icon?: any
     variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
     size?: 'sm' | 'md' | 'lg'

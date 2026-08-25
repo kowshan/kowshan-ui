@@ -5,6 +5,7 @@
             <div
                 v-if="isVisible"
                 class="k-ui k-modal-overlay"
+                :class="[`k-modal-placement-${placement}`]"
                 :data-theme="theme"
                 @click.self="onOverlayClick"
             >
@@ -15,7 +16,7 @@
                         role="dialog"
                         aria-modal="true"
                         :aria-label="title || 'dialog'"
-                        :style="width ? { width } : {}"
+                        :style="modalStyle"
                     >
                         <!-- Header -->
                         <div v-if="title || $slots.header" class="k-modal-header">
@@ -66,6 +67,9 @@ const props = withDefaults(defineProps<{
     title?: string
     size?: 'sm' | 'md' | 'lg' | 'xl'
     width?: string
+    height?: string
+    /** 'center' (default) | 'left' | 'right' — for side-by-side stacks */
+    placement?: 'center' | 'left' | 'right'
     closable?: boolean
     closeOnOverlay?: boolean
     /** prevent body scroll while open */
@@ -73,6 +77,7 @@ const props = withDefaults(defineProps<{
 }>(), {
     visible: false,
     size: 'md',
+    placement: 'center',
     closable: true,
     closeOnOverlay: true,
     lockScroll: true
@@ -87,6 +92,21 @@ const emits = defineEmits<{
 const isVisible = computed(() =>
     props.id ? modal.isOpen(props.id) : props.visible
 )
+
+const modalStyle = computed(() => ({
+    // an explicit `width` overrides the size-class max-width so
+    // 650px / 48% side-by-side widths actually take effect
+    width: props.width || undefined,
+    maxWidth: props.width || undefined,
+    height: props.height || undefined
+}))
+
+/* Stacked scroll lock: only unlock when every kit modal is closed */
+let lockCount = 0
+const setBodyLock = (lock: boolean) => {
+    lockCount = Math.max(0, lockCount + (lock ? 1 : -1))
+    document.body.style.overflow = lockCount > 0 ? 'hidden' : ''
+}
 
 const close = () => {
     if (props.id) modal.closeModal(props.id)
@@ -106,7 +126,7 @@ const onKeydown = (e: KeyboardEvent) => {
 
 watch(() => isVisible.value, (v) => {
     if (props.lockScroll) {
-        document.body.style.overflow = v ? 'hidden' : ''
+        setBodyLock(v)
     }
     if (v) emits('open')
 })
@@ -114,7 +134,7 @@ watch(() => isVisible.value, (v) => {
 onMounted(() => document.addEventListener('keydown', onKeydown))
 onUnmounted(() => {
     document.removeEventListener('keydown', onKeydown)
-    document.body.style.overflow = ''
+    if (props.lockScroll) setBodyLock(false)
 })
 </script>
 
@@ -123,8 +143,7 @@ onUnmounted(() => {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,12 +153,13 @@ onUnmounted(() => {
 
 .k-modal {
     background: var(--k-bg, #ffffff);
-    border-radius: 14px;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 60px);
     width: 100%;
+    transition: width 0.3s ease;
 }
 
 .k-modal-sm { max-width: 380px; }
@@ -147,34 +167,50 @@ onUnmounted(() => {
 .k-modal-lg { max-width: 720px; }
 .k-modal-xl { max-width: 960px; }
 
+/* Side placement — slides to the left/right edge instead of centered.
+   The overlay is `direction: rtl`, so flex-start = RIGHT edge and
+   flex-end = LEFT edge; placement names stay visual (left = left side). */
+.k-modal-placement-left {
+    justify-content: flex-end;
+}
+
+.k-modal-placement-right {
+    justify-content: flex-start;
+}
+
 .k-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 12px 14px;
     border-bottom: 1px solid var(--k-border, #e2e8f0);
     flex-shrink: 0;
 }
 
 .k-modal-title {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--k-text-primary, #1e293b);
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .k-modal-close {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border: none;
-    border-radius: 8px;
-    background: var(--k-surface-hover, #f1f5f9);
+    border-radius: 50%;
+    background: transparent;
     color: var(--k-text-secondary, #64748b);
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 
 .k-modal-close:hover {
@@ -183,19 +219,20 @@ onUnmounted(() => {
 }
 
 .k-modal-close .icon {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
 }
 
 .k-modal-body {
-    padding: 20px;
+    padding: 16px;
     overflow-y: auto;
+    overflow-x: hidden;
     flex: 1;
     min-height: 0;
 }
 
 .k-modal-footer {
-    padding: 14px 20px;
+    padding: 12px 14px;
     border-top: 1px solid var(--k-border, #e2e8f0);
     display: flex;
     justify-content: flex-end;

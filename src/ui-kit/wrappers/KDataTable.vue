@@ -11,7 +11,7 @@
                 <div class="dt__title">
                     <KIconButton
                         :icon="icon"
-                        bg-color="#499DF3"
+                        bg-color="#1db954"
                         text-color="#ffffff"
                     />
 
@@ -32,7 +32,7 @@
                     <div class="dt__tool" ref="columnRef">
                         <KIconButton
                             :icon="SettingsIcon"
-                            bg-color="#499DF3"
+                            bg-color="#1db954"
                             text-color="#ffffff"
                             tooltip="ستون‌ها"
                             @click="toggleColumns"
@@ -62,7 +62,7 @@
                     <div class="dt__tool" ref="filterRef">
                         <KIconButton
                             :icon="FilterIcon"
-                            bg-color="#10b981"
+                            bg-color="#1db954"
                             text-color="#ffffff"
                             tooltip="فیلترها"
                             @click="toggleFilters"
@@ -220,7 +220,10 @@ const table = useDataTable({
 const getValue = (row: any, col: Column) => {
     if (col.slot) return null
     const raw = row[col.key]
-    return col.format ? col.format(raw, row) : raw ?? '-'
+    /* format receives the WHOLE row so nested keys (e.g. a column keyed
+       `displays` can read row.displays.type) and other columns (row.title)
+       are both reachable */
+    return col.format ? col.format(row) : raw ?? '-'
 }
 
 const rowKey = (row: any, index: number) => {
@@ -253,11 +256,13 @@ const wrapperStyle = computed(() => {
 
 const thStyle = (col: Column) => ({
     textAlign: col.align || 'right',
-    width: col.width
+    width: col.width,
+    whiteSpace: col.wrap ? 'normal' : 'nowrap'
 })
 
 const tdStyle = (col: Column) => ({
-    textAlign: col.align || 'right'
+    textAlign: col.align || 'right',
+    whiteSpace: col.wrap ? 'normal' : 'nowrap'
 })
 </script>
 
@@ -347,6 +352,8 @@ const tdStyle = (col: Column) => ({
 }
 
 .dt__table {
+    /* natural sizing: each column takes only as much space as it needs;
+       when the sum exceeds the container the wrapper scrolls horizontally */
     width: max-content;
     min-width: 100%;
     border-collapse: collapse;
@@ -355,13 +362,15 @@ const tdStyle = (col: Column) => ({
 th {
     background: var(--k-surface);
     color: var(--k-text-secondary);
-    padding: 10px 12px;
+    padding: 10px 8px;
     cursor: pointer;
     white-space: nowrap;
     font-size: 0.78rem;
     font-weight: 600;
     user-select: none;
     transition: background 0.15s ease;
+    line-height: 1.5;
+    box-sizing: border-box;
 }
 
 th:hover {
@@ -408,11 +417,14 @@ tr.is-clickable {
 }
 
 td {
-    padding: 10px 12px;
+    padding: 10px 8px;
     border-bottom: 1px solid var(--k-border);
     color: var(--k-text-primary);
     font-size: 0.82rem;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
 }
 
 /* row-number cell — a clean, centered chip instead of a bare digit */
@@ -464,7 +476,7 @@ tbody tr:last-child td {
 .loader {
     height: 4px;
     width: 100%;
-    --c: no-repeat linear-gradient(#499DF3 0 0);
+    --c: no-repeat linear-gradient(#1db954 0 0);
     background: var(--c), var(--c), transparent;
     background-size: 60% 100%;
     animation: k-dt-loading 3s infinite;

@@ -63,10 +63,10 @@ export function useFocusTrap(el: Ref<HTMLElement | null>, active: () => boolean)
         }
     })
 
-    // passive capture so it runs before the page's own handlers
-    document.addEventListener('keydown', onKeydown, true)
-
-    onScopeDispose(() => {
-        document.removeEventListener('keydown', onKeydown, true)
-    })
+    if (import.meta.client) {
+        document.addEventListener('keydown', onKeydown, true)
+        onScopeDispose(() => {
+            document.removeEventListener('keydown', onKeydown, true)
+        })
+    }
 }
