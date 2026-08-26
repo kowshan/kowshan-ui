@@ -63,7 +63,7 @@ export function useFocusTrap(el: Ref<HTMLElement | null>, active: () => boolean)
         }
     })
 
-    if (import.meta.client) {
+    if (typeof window !== 'undefined') {
         document.addEventListener('keydown', onKeydown, true)
         onScopeDispose(() => {
             document.removeEventListener('keydown', onKeydown, true)

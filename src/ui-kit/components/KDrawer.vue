@@ -137,7 +137,7 @@ onUnmounted(() => {
 .k-drawer-overlay {
     position: fixed;
     inset: 0;
-    z-index: 10001;
+    z-index: 10000;
     background: rgba(15, 23, 42, 0.45);
     backdrop-filter: blur(2px);
     direction: rtl;

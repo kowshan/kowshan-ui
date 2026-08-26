@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
 
 // ── Fonts ──────────────────────────────────────────
 import './fonts.css'
@@ -11,4 +12,4 @@ import './ui-kit/assets/calendar.css'
 // ── Showcase page styles ───────────────────────────
 import './style.css'
 
-createApp(App).mount('#app')
+createApp(App).use(router).mount('#app')

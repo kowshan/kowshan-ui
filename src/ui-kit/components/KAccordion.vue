@@ -127,8 +127,8 @@ const toggle = (index: number) => {
     background: var(--k-surface);
     border: none;
     cursor: pointer;
-    font-size: 0.88rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 800;
     color: var(--k-text-primary);
     transition: background 0.15s ease;
     text-align: start;

@@ -29,7 +29,6 @@ The app is a single scrollable page split into sections, one per kit area:
 | **Feedback** | KAlert, KToast (store-driven), KModal (store-driven), KTooltip, KStories, KSkeleton |
 | **Calendar** | KCalendar, KDatePicker, KAvailabilityGrid |
 | **CRM** | KKanban, KContactCard, KAssessment |
-| **Playground** | KLightbox, misc |
 
 ## Keeping the kit in sync
 

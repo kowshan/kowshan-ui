@@ -117,7 +117,7 @@ onUnmounted(() => {
 .k-confirm-overlay {
     position: fixed;
     inset: 0;
-    z-index: 10001;
+    z-index: 10002;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;

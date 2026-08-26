@@ -203,7 +203,7 @@ onUnmounted(() => {
 .k-sheet-overlay {
     position: fixed;
     inset: 0;
-    z-index: 10002;
+    z-index: 10003;
     background: rgba(15, 23, 42, 0.5);
     backdrop-filter: blur(2px);
     display: flex;

@@ -17,7 +17,7 @@
                 v-for="(label, i) in monthLabels"
                 :key="i"
                 class="k-heatmap-month"
-                :style="{ left: `${label.offset}%` }"
+                :style="leftStyle(label.offset)"
             >{{ label.text }}</span>
         </div>
 
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Cells -->
-            <div class="k-heatmap-grid">
+            <div class="k-heatmap-grid" ref="gridRef">
                 <div
                     v-for="(week, wi) in gridWeeks"
                     :key="wi"
@@ -50,13 +50,12 @@
             <span class="k-heatmap-legend-label">کمتر</span>
             <span v-for="l in 5" :key="l" class="k-heatmap-cell" :class="`level-${l - 1}`"></span>
             <span class="k-heatmap-legend-label">بیشتر</span>
-            <span v-if="total" class="k-heatmap-total">{{ faNum(total) }} فعالیت</span>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 import { toJalali } from '../calendar/core/calendarEngine'
 
@@ -144,8 +143,11 @@ const monthLabels = computed(() => {
     return labels
 })
 
+const leftStyle = (offset: number) => ({
+    insetInlineStart: `${offset}%`,
+})
+
 const gridWeeks = computed<{ level: number; title: string }[][]>(() => grid.value.cols.map(c => c.cells))
-const total = computed(() => grid.value.total)
 const weekdayLabels = WEEKDAY_LABELS
 </script>
 
@@ -160,6 +162,8 @@ const weekdayLabels = WEEKDAY_LABELS
     position: relative;
     height: 16px;
     margin-bottom: 4px;
+    /* extend into the grid area */
+    margin-inline-end: 0;
 }
 
 .k-heatmap-month {
@@ -191,8 +195,8 @@ const weekdayLabels = WEEKDAY_LABELS
 .k-heatmap-grid {
     display: flex;
     gap: 3px;
-    overflow-x: auto;
-    padding-bottom: 2px;
+    flex: 1;
+    min-width: 0;
 }
 
 .k-heatmap-week {
@@ -238,13 +242,6 @@ const weekdayLabels = WEEKDAY_LABELS
     font-size: 0.6rem;
     color: var(--k-text-muted);
     margin: 0 2px;
-}
-
-.k-heatmap-total {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--k-text-secondary);
-    margin-inline-start: 10px;
 }
 
 /* smaller variant */

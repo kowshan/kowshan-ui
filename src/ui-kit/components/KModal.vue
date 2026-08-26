@@ -142,7 +142,7 @@ onUnmounted(() => {
 .k-modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 10000;
+    z-index: 10001;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;

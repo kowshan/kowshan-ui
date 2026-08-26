@@ -274,7 +274,7 @@ const tdStyle = (col: Column) => ({
 }
 
 .dt__header {
-    background: var(--k-surface);
+    background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border);
     border-radius: var(--dt-radius);
     padding: 10px;
@@ -450,6 +450,7 @@ tbody tr:last-child td {
 
 .dt__footer {
     margin-top: 12px;
+    padding: 0 4px;
 }
 
 .dt__state {

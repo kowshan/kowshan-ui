@@ -240,7 +240,7 @@ const dropdownStyle = computed(() => {
     const openUp = spaceBelow < estHeight && rect.top > estHeight
 
     return {
-        position: 'fixed',
+        position: 'fixed' as const,
         top: openUp ? undefined : `${rect.bottom + 4}px`,
         bottom: openUp ? `${window.innerHeight - rect.top + 4}px` : undefined,
         left: `${rect.left}px`,

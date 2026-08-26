@@ -98,7 +98,6 @@ import KMegaMenuBar from '../ui-kit/components/KMegaMenuBar.vue'
 import type { KMegaBarItem } from '../ui-kit/components/KMegaMenuBar.vue'
 import { useToast } from '../ui-kit/composables/useToast'
 import { usePersianNumbers } from '../ui-kit/composables/usePersianNumbers'
-import { catalog } from '../docs/useComponentDocs'
 
 const { toPersianDigits } = usePersianNumbers()
 
@@ -244,7 +243,7 @@ const threeLevelMenu: (KMegaItem | 'divider')[] = [
     { label: 'خروج از سیستم', icon: Lock, danger: true },
 ]
 
-/* ── header mega menu bar — built from the kit's real docs catalog ── */
+/* ── header mega menu bar — built from an inline component catalog ── */
 const categoryIcon = (cat: string) => ({
     'فرم و ورودی': TextCursorInput,
     'نمایش داده': BarChart3,
@@ -263,16 +262,22 @@ const chunk = <T,>(arr: T[], size: number): T[][] => {
     return out
 }
 
-const headerMenus = computed<KMegaBarItem[]>(() => {
-    const byCat = new Map<string, string[]>()
-    for (const d of catalog) {
-        if (!byCat.has(d.category)) byCat.set(d.category, [])
-        byCat.get(d.category)!.push(d.name)
-    }
+const componentCatalog: Record<string, string[]> = {
+    'فرم و ورودی': ['KAutocomplete', 'KBankCardInput', 'KCaptcha', 'KCheckbox', 'KColorPicker', 'KCurrency', 'KDatePicker', 'KDatePickerModal', 'KDateRange', 'KFileInput', 'KFileUpload', 'KForm', 'KGuestPicker', 'KImageUpload', 'KInlineEdit', 'KMultiSelect', 'KNationalIdInput', 'KNumberInput', 'KOTPInput', 'KPasswordInput', 'KPhoneInput', 'KPostalCodeInput', 'KProvinceCitySelect', 'KRadioGroup', 'KRating', 'KSearchInput', 'KSelect', 'KSignaturePad', 'KSlider', 'KTextarea', 'KTextInput', 'KTimePickerModal', 'KToggle', 'KWheelPicker'],
+    'نمایش داده': ['KActivityHeatmap', 'KAvatar', 'KAvatarGroup', 'KAvailabilityGrid', 'KChart', 'KDataTable', 'KEmptyState', 'KJsonNode', 'KJsonViewer', 'KPagination', 'KSkeleton', 'KSparkline', 'KStatCard', 'KTimeline', 'KTreeNode', 'KTreeView', 'KVirtualList'],
+    'بازخورد': ['KAlert', 'KConfirmDialog', 'KCountdownTimer', 'KGauge', 'KNotificationBell', 'KProgress', 'KProgressRing', 'KResultPage', 'KSpinner', 'KToastHost', 'KTooltip'],
+    'پیمایش': ['KAccordion', 'KAppBar', 'KBreadcrumb', 'KCommandPalette', 'KDropdownMenu', 'KSidebar', 'KStepper', 'KTabs'],
+    'پوشش (Overlay)': ['KBottomSheet', 'KContextMenu', 'KDrawer', 'KLightbox', 'KModal'],
+    'CRM': ['KAssessment', 'KContactCard', 'KFilterBar', 'KKanban', 'KMagicFill', 'KStories'],
+    'رزرو': ['KAvailabilityGrid', 'KCountdownTimer', 'KDateRange', 'KGuestPicker'],
+    'کارت‌های زیبا': ['KCard', 'KFeatureCard', 'KPricingCard', 'KProfileCard', 'KSpotlightCard', 'KTestimonialCard'],
+    'دوره و تخفیف': ['KCartItem', 'KCouponInput', 'KCourseCard', 'KLessonList', 'KOrderSummary'],
+}
 
+const headerMenus = computed<KMegaBarItem[]>(() => {
     const wanted = ['فرم و ورودی', 'نمایش داده', 'بازخورد', 'پیمایش', 'پوشش (Overlay)', 'CRM', 'کارت‌های زیبا', 'دوره و تخفیف', 'رزرو']
     const items: KMegaBarItem[] = wanted.map((cat) => {
-        const names = byCat.get(cat) || []
+        const names = componentCatalog[cat] || []
         return {
             label: cat,
             icon: categoryIcon(cat),
@@ -283,20 +288,17 @@ const headerMenus = computed<KMegaBarItem[]>(() => {
             })),
         }
     })
+    const totalCount = Object.values(componentCatalog).reduce((s, a) => s + a.length, 0)
     items.push({
         label: 'همه کامپوننت‌ها',
         icon: LayoutDashboard,
-        badge: toPersianDigits(String(catalog.length)),
+        badge: toPersianDigits(String(totalCount)),
         value: 'KButton',
     })
     return items
 })
 
 const onHeaderSelect = (item: KMegaItem) => {
-    if (item.value) {
-        location.hash = `#/docs/${item.value}`
-        return
-    }
     useToast.info(`«${item.label}»`)
 }
 
