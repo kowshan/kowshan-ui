@@ -60,7 +60,7 @@
 
             <!-- Dropdown Menu (teleported so it overlays modals / scroll containers) -->
             <Transition name="dropdown-fade">
-                <Teleport to="body">
+                <Teleport to="#k-teleport-hub">
                     <div v-if="isOpen" class="k-select-dropdown" ref="dropdownRef" :style="dropdownStyle"  @mousedown.stop>
                         <!-- Search Input -->
                         <div v-if="searchable" class="k-select-search">
@@ -159,7 +159,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { ChevronDown, Search, Check, AlertCircle, Info, X, Loader2 } from 'lucide-vue-next'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 
 const { normalize } = usePersianNumbers()
@@ -213,7 +213,7 @@ const emits = defineEmits<{
 }>()
 
 // IDs
-const { id: selectId } = useId('select')
+const { id: selectId } = useKitId('select')
 
 // Refs
 const triggerRef = ref<HTMLDivElement | null>(null)
@@ -433,7 +433,9 @@ const focusTrigger = () => {
 }
 
 // Validation handler
-const runValidation = () => {
+const runValidation = (phase: 'input' | 'blur' = 'input') => {
+    const mode = props.validateOn ?? 'both'
+    if (mode !== 'both' && mode !== phase) return true
     if (!props.rules?.length) {
         error.value = null
         return true
@@ -453,12 +455,11 @@ const runValidation = () => {
 // Focus/blur handlers
 const handleFocus = () => {
     isFocused.value = true
-    runValidation()
 }
 
 const handleBlur = () => {
     isFocused.value = false
-    runValidation()
+    runValidation('blur')
     emits('blur', internalValue.value)
 }
 
@@ -535,7 +536,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Select Container */
@@ -653,6 +654,9 @@ defineExpose({
     border-radius: var(--k-radius-sm);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    font-family: var(--k-font-family, 'yekan-bakh', 'B Nazanin', Tahoma, sans-serif);
+    color: var(--k-text-primary);
+    direction: rtl;
 }
 
 /* Search Input */
@@ -683,6 +687,7 @@ defineExpose({
     background: transparent;
     font-size: 0.8rem;
     color: var(--k-text-primary);
+    font-family: inherit;
 }
 
 .k-select-search input::placeholder {
@@ -710,6 +715,7 @@ defineExpose({
 
 .k-select-option:hover {
     background: var(--k-surface-hover);
+    font-family: inherit;
 }
 
 .k-select-option.is-selected {
@@ -780,21 +786,8 @@ defineExpose({
     opacity: 0.5;
 }
 
-/* Dropdown Animation */
-.dropdown-fade-enter-active,
-.dropdown-fade-leave-active {
-    transition: all 0.15s ease;
-}
-
-.dropdown-fade-enter-from,
-.dropdown-fade-leave-to {
-    opacity: 0;
-    transform: translateY(-5px);
-}
-
 /* Message Area */
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 
@@ -840,5 +833,18 @@ defineExpose({
 .k-select-trigger:focus-visible {
     outline: 2px solid var(--k-primary);
     outline-offset: 2px;
+}
+</style>
+
+<style>
+/* Global — teleported dropdown needs unscoped transition */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+    transition: all 0.15s ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-5px);
 }
 </style>

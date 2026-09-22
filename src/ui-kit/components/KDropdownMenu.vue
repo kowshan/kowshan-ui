@@ -152,7 +152,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     font-size: 0.83rem;
     font-weight: 500;
     color: var(--k-text-primary, #1e293b);
-    text-align: right;
+    text-align: start;
     transition: background 0.1s ease;
 }
 

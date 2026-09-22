@@ -1,6 +1,6 @@
 <!-- components/KLightbox.vue -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="lightbox-fade">
             <div
                 v-if="visible"
@@ -44,7 +44,7 @@
                     @mousemove="onStageMouseMove"
                 >
                     <Transition name="lightbox-slide" mode="out-in">
-                        <div :key="currentIndex" class="k-lightbox-media" :class="{ zoomed: zoomed }">
+                        <div dir="ltr" :key="currentIndex" class="k-lightbox-media" :class="{ zoomed: zoomed }">
                             <!-- Video -->
                             <video
                                 v-if="currentItem && currentItem.type === 'video'"
@@ -70,7 +70,7 @@
 
                 <!-- Caption + counter -->
                 <div class="k-lightbox-footer">
-                    <span class="k-lightbox-counter">{{ faNum(currentIndex + 1) }} / {{ faNum(items.length) }}</span>
+                    <span class="k-lightbox-counter">{{ currentIndex + 1 }} / {{ items.length }}</span>
                     <span v-if="currentItem?.caption" class="k-lightbox-caption">{{ currentItem.caption }}</span>
                     <span v-if="zoomed" class="k-lightbox-zoom-hint">برای کوچک‌نمایی کلیک کنید</span>
                     <span v-else-if="currentItem && currentItem.type === 'image'" class="k-lightbox-zoom-hint">برای بزرگ‌نمایی دوبار کلیک کنید</span>
@@ -131,8 +131,6 @@ const zoomed = ref(false)
 
 const currentItem = computed(() => props.items[currentIndex.value] || null)
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 const close = () => {
     zoomed.value = false

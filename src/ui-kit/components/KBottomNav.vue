@@ -111,20 +111,21 @@ const select = (item: { id: string }) => {
 
 .k-bottomnav-badge {
     position: absolute;
-    top: -5px;
-    inset-inline-end: -9px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
+    top: -6px;
+    inset-inline-end: -10px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
     border-radius: 999px;
     background: var(--k-error, #ef4444);
     color: #fff;
-    font-size: 0.58rem;
+    font-size: 0.5rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    border: 1.5px solid var(--k-surface, #fff);
 }
 
 .k-bottomnav-badge.is-dot {

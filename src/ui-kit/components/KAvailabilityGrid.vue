@@ -5,16 +5,18 @@
     pages can reuse it without this component.
 -->
 <template>
-    <div class="k-avail">
+    <div dir="ltr" class="k-avail">
         <!-- Header -->
         <div class="k-avail-head">
+            <div class="k-avail-nav">
+                <button type="button" class="k-avail-nav-btn" aria-label="ماه بعد" @click="next">
+                    <ChevronLeft class="icon" />
+                </button>
+            </div>
             <div class="k-avail-title">{{ grid.monthName.value }} {{ grid.faNum(grid.year.value) }}</div>
             <div class="k-avail-nav">
                 <button type="button" class="k-avail-nav-btn" aria-label="ماه قبل" @click="prev">
                     <ChevronRight class="icon" />
-                </button>
-                <button type="button" class="k-avail-nav-btn" aria-label="ماه بعد" @click="next">
-                    <ChevronLeft class="icon" />
                 </button>
             </div>
         </div>
@@ -272,8 +274,8 @@ const pick = (day: number) => {
     border-radius: 3px;
 }
 
-.dot.is-free { background: #10b981; }
-.dot.is-booked { background: #ef4444; }
-.dot.is-partial { background: #f59e0b; }
+.dot.is-free { background: var(--k-success, #10b981); }
+.dot.is-booked { background: var(--k-error, #ef4444); }
+.dot.is-partial { background: var(--k-warning, #f59e0b); }
 .dot.is-blocked { background: var(--k-text-muted, #94a3b8); }
 </style>

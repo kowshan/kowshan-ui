@@ -37,7 +37,7 @@ export interface ApiFetchOptions {
  *   const api = useApiFetch({ baseUrl: '/api', getToken: () => auth.token })
  *   const rows = await api.get('/properties', { params: { page: 2 } })
  *   try { await api.post('/properties', { name }) } catch (e) {
- *     useToast.showErrors(e.errors, e.message)   // Laravel field summary
+ *     useKToast.showErrors(e.errors, e.message)   // Laravel field summary
  *   }
  *
  * - JSON in/out, Bearer token, query params

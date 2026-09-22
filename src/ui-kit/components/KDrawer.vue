@@ -14,7 +14,7 @@
     Also supports legacy local mode via v-model:visible when `id` is omitted.
 -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-drawer-fade">
             <div
                 v-if="isVisible"

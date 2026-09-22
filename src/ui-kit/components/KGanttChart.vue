@@ -11,7 +11,7 @@
     Priority-column grid, 2 progress pills per cell (need/you).
 -->
 <template>
-    <div class="kgantt" :class="{ 'is-inline': inline }">
+    <div dir="ltr" class="kgantt" :class="{ 'is-inline': inline }">
         <div class="kgantt-scroll">
             <div class="kgantt-grid" :style="{ '--cols': totalColumns }">
                 <!-- Column numbers -->

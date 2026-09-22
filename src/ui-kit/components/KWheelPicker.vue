@@ -22,7 +22,7 @@
                 @scroll="onScroll(ci)"
                 @scrollend="onScrollEnd(ci)"
             >
-                <div class="k-wheel-col-pad"></div>
+                <div dir="ltr" class="k-wheel-col-pad"></div>
                 <div
                     v-for="(v, vi) in col.values"
                     :key="vi"

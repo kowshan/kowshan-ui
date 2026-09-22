@@ -442,7 +442,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Main Image Area */

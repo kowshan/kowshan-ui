@@ -1,5 +1,5 @@
 <template>
-    <div class="k-pt-node" :style="{ paddingInlineStart: depth * 18 + 'px' }">
+    <div class="k-pt-node" :class="{ 'is-group': depth === 0 }" :style="{ paddingInlineStart: depth > 0 ? depth * 18 + 'px' : '0' }">
         <label
             class="k-pt-row"
             :class="{ 'is-disabled': node.disabled }"
@@ -20,7 +20,7 @@
             </span>
 
             <span v-if="node.children?.length" class="k-pt-children-count">
-                {{ faNum(checkedChildren) }}/{{ faNum(node.children.length) }}
+                {{ checkedChildren }}/{{ node.children.length }}
             </span>
         </label>
 
@@ -54,7 +54,6 @@ const emit = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 /* every id reachable from this node (self + descendants) */
 const collectIds = (n: KPermissionNode): string[] => {
@@ -101,6 +100,13 @@ const onToggle = (v: boolean | unknown) => {
 .k-pt-node {
     display: flex;
     flex-direction: column;
+}
+
+.k-pt-node.is-group {
+    background: var(--k-surface, #f8fafc);
+    border: 1px solid var(--k-border, #e2e8f0);
+    border-radius: 10px;
+    padding: 4px;
 }
 
 .k-pt-row {

@@ -30,18 +30,18 @@
         <div class="k-order-rows">
             <div class="k-order-row">
                 <span>جمع کالاها</span>
-                <span>{{ faNum(subtotal) }} <small>{{ currency }}</small></span>
+                <span>{{ subtotal }} <small>{{ currency }}</small></span>
             </div>
 
             <div v-if="discount > 0" class="k-order-row is-discount">
                 <span>تخفیف کد</span>
-                <span>-{{ faNum(discount) }} <small>{{ currency }}</small></span>
+                <span>-{{ discount }} <small>{{ currency }}</small></span>
             </div>
 
             <div class="k-order-row" :class="{ 'is-free': shipping === 0 }">
                 <span>هزینه ارسال</span>
                 <span v-if="shipping === 0" class="k-order-free-badge">رایگان</span>
-                <span v-else>{{ faNum(shipping) }} <small>{{ currency }}</small></span>
+                <span v-else>{{ shipping }} <small>{{ currency }}</small></span>
             </div>
 
             <div v-if="$slots.rows" class="k-order-extra">
@@ -52,7 +52,7 @@
         <!-- Free-shipping hint -->
         <div v-if="freeShippingThreshold && shipping > 0" class="k-order-hint">
             <Truck :size="13" />
-            با خرید {{ faNum(remainingForFreeShipping) }} {{ currency }} دیگر، ارسال رایگان می‌شود
+            با خرید {{ remainingForFreeShipping }} {{ currency }} دیگر، ارسال رایگان می‌شود
         </div>
         <div v-else-if="freeShippingThreshold && shipping === 0" class="k-order-hint is-met">
             <Truck :size="13" />
@@ -62,7 +62,7 @@
         <!-- Total -->
         <div class="k-order-total">
             <span>مبلغ قابل پرداخت</span>
-            <span class="k-order-total-num">{{ faNum(total) }} <small>{{ currency }}</small></span>
+            <span class="k-order-total-num">{{ total }} <small>{{ currency }}</small></span>
         </div>
 
         <!-- Footer slot (extra rows, terms…) -->
@@ -109,7 +109,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const remainingForFreeShipping = computed(() =>
     Math.max(0, (props.freeShippingThreshold ?? 0) - props.subtotal)

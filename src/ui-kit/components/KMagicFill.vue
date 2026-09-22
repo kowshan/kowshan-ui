@@ -10,7 +10,7 @@
     Emits `update:modelValue` with { key: value } once the user hits «افزودن».
 -->
 <template>
-    <div class="k-magicfill">
+    <div dir="ltr" class="k-magicfill">
         <!-- Paste zone -->
         <div class="k-magicfill-input" :class="{ 'has-result': hasResult }">
             <textarea
@@ -23,7 +23,7 @@
 
             <div class="k-magicfill-actions">
                 <span v-if="hasResult" class="k-magicfill-count">
-                    {{ fields.length ? faNum(fields.length) : '' }} {{ fields.length ? 'فیلد شناسایی شد' : '' }}
+                    {{ fields.length ? fields.length : '' }} {{ fields.length ? 'فیلد شناسایی شد' : '' }}
                 </span>
                 <span v-else class="k-magicfill-hint">متن خام را بچسبانید…</span>
                 <button type="button" class="k-magicfill-btn" :disabled="!draft.trim()" @click="run">
@@ -100,7 +100,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const magic = useMagicFill(props.fields)
 const draft = ref('')

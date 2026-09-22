@@ -9,26 +9,26 @@
     collapse days into hours, `label` prefix, `ended-text`.
 -->
 <template>
-    <div class="k-countdown" :class="{ 'is-ended': ended }">
+    <div dir="ltr" class="k-countdown" :class="{ 'is-ended': ended }">
         <span v-if="label" class="k-countdown-label">{{ label }}</span>
 
         <div v-if="!ended" class="k-countdown-units">
             <div v-if="showDays" class="k-countdown-unit">
-                <span class="k-countdown-num">{{ faNum(days) }}</span>
+                <span class="k-countdown-num">{{ days }}</span>
                 <span class="k-countdown-unit-label">روز</span>
             </div>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ faNum(hours) }}</span>
+                <span class="k-countdown-num">{{ hours }}</span>
                 <span class="k-countdown-unit-label">ساعت</span>
             </div>
             <span class="k-countdown-colon">:</span>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ faNum(minutes) }}</span>
+                <span class="k-countdown-num">{{ minutes }}</span>
                 <span class="k-countdown-unit-label">دقیقه</span>
             </div>
             <span class="k-countdown-colon">:</span>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ faNum(seconds) }}</span>
+                <span class="k-countdown-num">{{ seconds }}</span>
                 <span class="k-countdown-unit-label">ثانیه</span>
             </div>
         </div>
@@ -62,7 +62,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n).padStart(2, '0'))
 
 const now = ref(Date.now())
 const ended = ref(false)
@@ -113,7 +112,6 @@ onUnmounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    direction: rtl;
 }
 
 .k-countdown-label {
@@ -125,43 +123,46 @@ onUnmounted(() => {
 .k-countdown-units {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    direction: ltr;
 }
 
 .k-countdown-unit {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 0;
 }
 
 .k-countdown-num {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 40px;
-    height: 40px;
+    min-width: 32px;
+    height: 32px;
     padding: 0 6px;
-    border-radius: 10px;
+    border-radius: 8px;
     background: var(--k-surface, #f8fafc);
     border: 1px solid var(--k-border, #e2e8f0);
-    font-size: 1.05rem;
+    font-size: 0.85rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--k-text-primary, #1e293b);
 }
 
 .k-countdown-unit-label {
-    font-size: 0.58rem;
+    font-size: 0.52rem;
     font-weight: 600;
     color: var(--k-text-muted, #94a3b8);
+    line-height: 1.2;
+    margin-top: 2px;
 }
 
 .k-countdown-colon {
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--k-primary, #1db954);
-    padding-bottom: 14px;
+    margin-bottom: 14px;
 }
 
 .k-countdown-ended {

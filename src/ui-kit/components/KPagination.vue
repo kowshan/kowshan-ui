@@ -3,7 +3,7 @@
     <div class="k-pagination">
         <!-- Total info -->
         <span v-if="showTotal" class="k-pagination-total">
-            {{ faNum(total) }} مورد
+            {{ total }} مورد
         </span>
 
         <div class="k-pagination-pages">
@@ -37,7 +37,7 @@
                     :aria-current="p === page ? 'page' : undefined"
                     @click="goTo(p)"
                 >
-                    {{ faNum(p) }}
+                    {{ p }}
                 </button>
             </template>
 
@@ -99,8 +99,6 @@ const emits = defineEmits<{
     'change': [page: number]
 }>()
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 const goTo = (p: number) => {
     const target = Math.min(Math.max(1, p), props.totalPages)

@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<{
 }>(), {
     modelValue: '',
     label: '',
-    placeholder: '۴۴۴۴ ۴۴۴۴ ۴۴۴۴ ۴۴۴۴',
+    placeholder: '4444 4444 4444 4444',
     required: false,
     disabled: false,
     readonly: false
@@ -81,12 +81,14 @@ const bank = computed(() => (props.modelValue ? validateCard(props.modelValue).b
 const display = computed(() => {
     if (!props.modelValue) return ''
     const groups = props.modelValue.match(/.{1,4}/g) ?? []
-    return toPersianDigits(groups.join(' '))
+    return groups.join(' ')
 })
 
 const onInput = (e: Event) => {
     const raw = (e.target as HTMLInputElement).value
-    const digits = raw.replace(/[۰-۹٠-٩\d]/g, d => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10)).replace(/\D/g, '').slice(0, 16)
+    const fa = '۰۱۲۳۴۵۶۷۸۹'
+    const ar = '٠١٢٣٤٥٦٧٨٩'
+    const digits = raw.replace(/[۰-۹]/g, d => String(fa.indexOf(d))).replace(/[٠-٩]/g, d => String(ar.indexOf(d))).replace(/[^0-9]/g, '').slice(0, 16)
     emits('update:modelValue', digits)
     ;(e.target as HTMLInputElement).value = displayFromDigits(digits)
     check(false)
@@ -94,7 +96,7 @@ const onInput = (e: Event) => {
 
 const displayFromDigits = (d: string) => {
     const groups = d.match(/.{1,4}/g) ?? []
-    return toPersianDigits(groups.join(' '))
+    return groups.join(' ')
 }
 
 const check = (touched: boolean) => {

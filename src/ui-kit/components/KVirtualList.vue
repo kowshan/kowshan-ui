@@ -116,11 +116,12 @@ onMounted(() => {
 .k-vlist-row {
     display: flex;
     align-items: center;
-    padding-inline: 12px;
+    padding: 0 14px;
     box-sizing: border-box;
     border-bottom: 1px solid var(--k-border, #e2e8f0);
     color: var(--k-text-primary, #1e293b);
     font-size: 0.78rem;
+    font-family: 'yekan-bakh', 'B Nazanin', Tahoma, sans-serif;
 }
 
 .k-vlist-row:last-child { border-bottom: none; }

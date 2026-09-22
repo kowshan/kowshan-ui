@@ -5,7 +5,7 @@
     Model: { adults, children, rooms } — logic lives in useGuestPicker.
 -->
 <template>
-    <div class="k-guests" ref="rootRef">
+    <div dir="ltr" class="k-guests" ref="rootRef">
         <div v-if="label" class="k-guests-label">
             {{ label }}
             <span v-if="required" class="k-guests-required">*</span>
@@ -46,7 +46,7 @@
                         >
                             <Minus :size="14" />
                         </button>
-                        <span class="k-guests-count">{{ faNum(s.count) }}</span>
+                        <span class="k-guests-count">{{ s.count }}</span>
                         <button
                             type="button"
                             class="k-guests-btn is-plus"
@@ -92,7 +92,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const guest = useGuestPicker(props.config)
 
@@ -144,7 +143,7 @@ defineExpose({ reset: guest.reset })
 
 .k-guests-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-end: 2px;
 }
 
 .k-guests-trigger {
@@ -160,7 +159,7 @@ defineExpose({ reset: guest.reset })
     cursor: pointer;
     font-family: inherit;
     transition: border-color 0.15s ease, background 0.15s ease;
-    text-align: right;
+    text-align: start;
 }
 
 .k-guests-trigger:hover {

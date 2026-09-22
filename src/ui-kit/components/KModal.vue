@@ -1,6 +1,6 @@
 <!-- components/KModal.vue -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-modal-fade">
             <div
                 v-if="isVisible"

@@ -27,7 +27,7 @@
 
             <div class="k-ring-center">
                 <slot>
-                    <span class="k-ring-percent">{{ faNum(Math.round(ratio * 100)) }}٪</span>
+                    <span class="k-ring-percent">{{ Math.round(ratio * 100) }}٪</span>
                 </slot>
             </div>
         </div>
@@ -74,8 +74,6 @@ const ratio = computed(() => (maxVal.value === 0 ? 0 : clamped.value / maxVal.va
 
 const dashOffset = computed(() => circumference.value * (1 - ratio.value))
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>

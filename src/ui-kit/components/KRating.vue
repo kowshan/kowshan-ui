@@ -8,7 +8,11 @@
     >
         <span v-if="label" class="k-rating-label">{{ label }}</span>
 
-        <div class="k-rating-stars" @mouseleave="hoverValue = null">
+        <div
+            class="k-rating-stars"
+            :style="color ? { '--k-rating-color': color } : undefined"
+            @mouseleave="hoverValue = null"
+        >
             <button
                 v-for="i in max"
                 :key="i"
@@ -32,7 +36,7 @@
             </button>
         </div>
 
-        <span v-if="showValue" class="k-rating-value">{{ faNum(filled) }} / {{ faNum(max) }}</span>
+        <span v-if="showValue" class="k-rating-value">{{ filled }} / {{ max }}</span>
     </div>
 </template>
 
@@ -76,8 +80,6 @@ const select = (i: number) => {
     emits('change', clamped)
 }
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -114,7 +116,7 @@ const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 .k-rating-star.is-filled,
 .k-rating-star.is-hover {
-    color: #f59e0b;
+    color: var(--k-rating-color, #f59e0b);
 }
 
 .k-rating-star:disabled {
@@ -122,7 +124,7 @@ const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 }
 
 .k-rating-star:focus-visible {
-    outline: 2px solid #f59e0b;
+    outline: 2px solid var(--k-rating-color, #f59e0b);
     outline-offset: 2px;
     border-radius: 4px;
 }

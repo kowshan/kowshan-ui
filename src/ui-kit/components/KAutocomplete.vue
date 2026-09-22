@@ -68,7 +68,7 @@ import { ref, computed, watch } from 'vue'
 import { Loader2, Search, X } from 'lucide-vue-next'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 import { useClickOutside } from '../composables/useClickOutside'
-import { useDebounce } from '../composables/useDebounce'
+import { useKDebounce } from '../composables/useKDebounce'
 
 export interface KAutocompleteOption {
     value: string | number
@@ -129,7 +129,7 @@ const filtered = computed(() => {
     )
 })
 
-const { setDebounced, debouncedValue } = useDebounce<string>(200)
+const { setDebounced, debouncedValue } = useKDebounce<string>(200)
 watch(query, (q) => setDebounced(q))
 watch(debouncedValue, (q) => { if (q !== undefined) emit('search', q) })
 

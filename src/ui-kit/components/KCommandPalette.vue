@@ -1,6 +1,6 @@
 <!-- components/KCommandPalette.vue -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-cmd-fade">
             <div
                 v-if="visible"
@@ -210,7 +210,6 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     border-radius: 14px;
     box-shadow: 0 24px 64px rgba(2, 6, 23, 0.35);
     overflow: hidden;
-    direction: rtl;
 }
 
 .k-cmd-search {
@@ -275,7 +274,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     padding: 9px 10px;
     cursor: pointer;
     font-family: inherit;
-    text-align: right;
+    text-align: start;
     transition: background 0.1s ease;
 }
 

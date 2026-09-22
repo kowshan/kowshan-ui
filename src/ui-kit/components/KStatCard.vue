@@ -1,34 +1,35 @@
-<!-- components/KStatCard.vue -->
+<!-- components/KStatCard.vue — stat card with big cropped icon overlay -->
 <template>
     <div class="k-stat-card" :class="[`k-stat-${variant}`, { 'is-loading': loading }]">
-        <div class="k-stat-top">
-            <!-- Icon -->
-            <div v-if="icon" class="k-stat-icon">
-                <component :is="icon" class="icon" />
-            </div>
-
-            <!-- Delta badge -->
-            <span
-                v-if="delta != null"
-                class="k-stat-delta"
-                :class="[trend === 'down' ? 'is-down' : 'is-up']"
-            >
-                <TrendingUp v-if="trend !== 'down'" class="delta-icon" />
-                <TrendingDown v-else class="delta-icon" />
-                {{ faNum(Math.abs(delta)) }}٪
-            </span>
+        <!-- Big cropped icon overlay — only partial shapes visible -->
+        <div v-if="icon" class="k-stat-bg-icon">
+            <component :is="icon" />
         </div>
 
-        <!-- Value -->
-        <div class="k-stat-value" v-if="!loading">{{ displayValue }}</div>
-        <KSkeleton v-else variant="lines" :lines="1" style="width: 60%" />
+        <!-- Content -->
+        <div class="k-stat-content">
+            <!-- Title + delta -->
+            <div class="k-stat-head">
+                <span class="k-stat-title">{{ title }}</span>
+                <span
+                    v-if="delta != null"
+                    class="k-stat-delta"
+                    :class="[trend === 'down' ? 'is-down' : 'is-up']"
+                >
+                    <TrendingUp v-if="trend !== 'down'" class="delta-icon" />
+                    <TrendingDown v-else class="delta-icon" />
+                    {{ Math.abs(delta) }}٪
+                </span>
+            </div>
 
-        <!-- Title -->
-        <div class="k-stat-title">{{ title }}</div>
+            <!-- Value pushed to bottom -->
+            <div class="k-stat-value" v-if="!loading">{{ displayValue }}</div>
+            <KSkeleton v-else variant="lines" :lines="1" style="width: 60%" />
 
-        <!-- Extra slot -->
-        <div v-if="$slots.default" class="k-stat-extra">
-            <slot />
+            <!-- Extra slot -->
+            <div v-if="$slots.default" class="k-stat-extra">
+                <slot />
+            </div>
         </div>
     </div>
 </template>
@@ -43,14 +44,11 @@ const props = withDefaults(defineProps<{
     value?: string | number
     icon?: any
     variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
-    /** percentage change; use negative number for a decrease */
     delta?: number | null
     trend?: 'up' | 'down'
     prefix?: string
     suffix?: string
     loading?: boolean
-    /** format the numeric value with Persian digits */
-    persianDigits?: boolean
 }>(), {
     variant: 'primary',
     delta: null,
@@ -58,16 +56,12 @@ const props = withDefaults(defineProps<{
     prefix: '',
     suffix: '',
     loading: false,
-    persianDigits: true
 })
-
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: string | number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 const displayValue = computed(() => {
     let v = props.value ?? '-'
-    if (typeof v === 'number' && props.persianDigits) {
-        v = faNum(v.toLocaleString('en-US'))
+    if (typeof v === 'number') {
+        v = v.toLocaleString('en-US')
     }
     return `${props.prefix}${v}${props.suffix}`
 })
@@ -75,105 +69,130 @@ const displayValue = computed(() => {
 
 <style scoped>
 .k-stat-card {
+    position: relative;
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
-    border-radius: 12px;
-    padding: 18px 20px;
+    border-radius: 14px;
+    padding: 20px 22px 22px;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-width: 0;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    min-height: 120px;
 }
 
 .k-stat-card:hover {
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-    transform: translateY(-1px);
+    box-shadow:
+        0 8px 24px rgba(15, 23, 42, 0.06),
+        0 0 0 1px rgba(15, 23, 42, 0.03);
+    transform: translateY(-2px);
 }
 
-.k-stat-top {
+/* ── Big cropped icon overlay — right side, just shapes visible ── */
+.k-stat-bg-icon {
+    position: absolute;
+    bottom: -20px;
+    inset-inline-end: -16px;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+}
+.k-stat-bg-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Content ── */
+.k-stat-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: auto;
+    flex: 1;
+}
+
+.k-stat-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    margin-bottom: auto;
 }
 
-.k-stat-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.k-stat-icon .icon {
-    width: 20px;
-    height: 20px;
-    color: #ffffff;
+.k-stat-title {
+    font-size: 0.78rem;
+    color: var(--k-text-secondary, #64748b);
+    font-weight: 600;
 }
 
 .k-stat-delta {
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    padding: 3px 8px;
+    padding: 2px 8px;
     border-radius: 999px;
     direction: ltr;
+    flex-shrink: 0;
 }
-
 .k-stat-delta.is-up {
     color: #047857;
-    background: #d1fae5;
+    background: rgba(16, 185, 129, 0.1);
 }
-
 .k-stat-delta.is-down {
     color: #b91c1c;
-    background: #fee2e2;
+    background: rgba(239, 68, 68, 0.1);
 }
-
 .delta-icon {
     width: 12px;
     height: 12px;
 }
 
 .k-stat-value {
-    font-size: 1.7rem;
+    font-size: 1.85rem;
     font-weight: 800;
     color: var(--k-text-primary, #1e293b);
     letter-spacing: -0.02em;
     line-height: 1.1;
     direction: ltr;
-    text-align: right;
-}
-
-.k-stat-title {
-    font-size: 0.8rem;
-    color: var(--k-text-secondary, #64748b);
-    font-weight: 500;
+    text-align: start;
+    margin-top: auto;
 }
 
 .k-stat-extra {
-    margin-top: 4px;
+    margin-top: 6px;
     padding-top: 10px;
     border-top: 1px dashed var(--k-border, #e2e8f0);
     font-size: 0.75rem;
     color: var(--k-text-secondary, #64748b);
 }
 
-/* Variant icon colors */
-.k-stat-primary .k-stat-icon { background: #1db954; }
-.k-stat-success .k-stat-icon { background: #10b981; }
-.k-stat-warning .k-stat-icon { background: #f59e0b; }
-.k-stat-danger .k-stat-icon { background: #ef4444; }
-.k-stat-info .k-stat-icon { background: #8b5cf6; }
-.k-stat-neutral .k-stat-icon { background: #64748b; }
+/* ── Variant tint on bg icon color ── */
+.k-stat-primary .k-stat-bg-icon { color: #1db954; }
+.k-stat-success .k-stat-bg-icon { color: #10b981; }
+.k-stat-warning .k-stat-bg-icon { color: #f59e0b; }
+.k-stat-danger .k-stat-bg-icon { color: #ef4444; }
+.k-stat-info .k-stat-bg-icon { color: #8b5cf6; }
+.k-stat-neutral .k-stat-bg-icon { color: #64748b; }
+
+/* ── Subtle variant glow on hover ── */
+.k-stat-primary:hover { box-shadow: 0 8px 24px rgba(29, 185, 84, 0.1), 0 0 0 1px rgba(29, 185, 84, 0.06); }
+.k-stat-success:hover { box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.06); }
+.k-stat-warning:hover { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.06); }
+.k-stat-danger:hover { box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1), 0 0 0 1px rgba(239, 68, 68, 0.06); }
+.k-stat-info:hover { box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1), 0 0 0 1px rgba(139, 92, 246, 0.06); }
+.k-stat-neutral:hover { box-shadow: 0 8px 24px rgba(100, 116, 139, 0.1), 0 0 0 1px rgba(100, 116, 139, 0.06); }
 
 @media (max-width: 640px) {
-    .k-stat-value {
-        font-size: 1.4rem;
-    }
+    .k-stat-value { font-size: 1.4rem; }
+    .k-stat-card { padding: 16px 18px; min-height: 100px; }
 }
 </style>

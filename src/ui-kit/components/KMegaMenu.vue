@@ -4,11 +4,14 @@
        • 2-depth                 (items with children → flyout)
        • 3-depth                 (nested children → nested flyouts)
        • categorized mega panel  (groups → column layout)
+
+     The panel is TELEPORTED to #k-teleport-hub and positioned `fixed`, so it
+     escapes any `overflow: hidden` ancestor and is clamped to the viewport.
 -->
 <template>
     <div ref="rootRef" class="k-mega">
         <!-- Trigger -->
-        <div class="k-mega-trigger">
+        <div ref="triggerEl" class="k-mega-trigger">
             <slot name="trigger" :open="open" :toggle="toggle">
                 <button
                     type="button"
@@ -23,47 +26,47 @@
             </slot>
         </div>
 
-        <!-- Panel -->
-        <Transition name="k-mega">
-            <div
-                v-if="open"
-                class="k-mega-panel"
-                :class="[`align-${align}`, `dir-${dir}`]"
-                :style="panelStyle"
-                role="menu"
-            >
-                <!-- Categorized mode — column grid -->
-                <div v-if="groups.length" class="k-mega-groups">
-                    <div
-                        v-for="(g, gi) in groups"
-                        :key="gi"
-                        class="k-mega-group"
-                    >
-                        <div v-if="g.title" class="k-mega-group-title">{{ g.title }}</div>
-                        <template v-for="(item, ii) in g.items" :key="ii">
+        <!-- Panel (teleported so no ancestor can clip it) -->
+        <Teleport to="#k-teleport-hub">
+            <Transition name="k-mega">
+                <div
+                    v-if="open"
+                    ref="panelEl"
+                    class="k-ui k-mega-panel"
+                    :data-theme="theme"
+                    :style="panelStyle"
+                    role="menu"
+                >
+                    <!-- Categorized mode — column grid -->
+                    <div v-if="groups.length" class="k-mega-groups">
+                        <div v-for="(g, gi) in groups" :key="gi" class="k-mega-group">
+                            <div v-if="g.title" class="k-mega-group-title">{{ g.title }}</div>
+                            <template v-for="(item, ii) in g.items" :key="ii">
+                                <div v-if="item === 'divider'" class="k-mega-separator" />
+                                <KMegaMenuItem v-else :item="item" @select="onSelect" />
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- List mode — flat or nested flyouts -->
+                    <template v-else>
+                        <template v-for="(item, i) in items" :key="i">
                             <div v-if="item === 'divider'" class="k-mega-separator" />
                             <KMegaMenuItem v-else :item="item" @select="onSelect" />
                         </template>
-                    </div>
-                </div>
-
-                <!-- List mode — flat or nested flyouts -->
-                <template v-else>
-                    <template v-for="(item, i) in items" :key="i">
-                        <div v-if="item === 'divider'" class="k-mega-separator" />
-                        <KMegaMenuItem v-else :item="item" @select="onSelect" />
+                        <slot />
                     </template>
-                    <slot />
-                </template>
-            </div>
-        </Transition>
+                </div>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import { useClickOutside } from '../composables/useClickOutside'
+import { useKitTheme } from '../composables/useKitTheme'
 import KMegaMenuItem from './KMegaMenuItem.vue'
 import type { KMegaItem, KMegaGroup } from './KMegaMenuItem.vue'
 
@@ -76,7 +79,7 @@ const props = withDefaults(defineProps<{
     items?: (KMegaItem | 'divider')[]
     /** categorized mode — renders a wide column-grid panel */
     groups?: KMegaGroup[]
-    /** horizontal anchor of the panel relative to the trigger */
+    /** which trigger edge the panel is anchored to; 'start' = inline-start (right in RTL) */
     align?: 'start' | 'end'
     /** 'down' (below trigger) | 'up' (above) */
     dir?: 'down' | 'up'
@@ -87,7 +90,7 @@ const props = withDefaults(defineProps<{
     label: '',
     items: () => [],
     groups: () => [],
-    align: 'end',
+    align: 'start',
     dir: 'down',
     closeOnSelect: true
 })
@@ -97,8 +100,18 @@ const emits = defineEmits<{
     'toggle': [open: boolean]
 }>()
 
+const theme = useKitTheme()
 const rootRef = ref<HTMLElement | null>(null)
+const triggerEl = ref<HTMLElement | null>(null)
+const panelEl = ref<HTMLElement | null>(null)
 const open = ref(false)
+
+/** viewport-fixed position of the teleported panel */
+const pos = ref({ top: 0, left: 0 })
+const ready = ref(false)
+
+const GAP = 6
+const MARGIN = 12
 
 const toggle = () => {
     open.value = !open.value
@@ -111,19 +124,69 @@ const onSelect = (item: KMegaItem) => {
 }
 
 const panelStyle = computed(() => {
-    if (props.width) return { width: props.width }
-    if (props.groups.length) return { width: 'min(660px, calc(100vw - 24px))' }
-    return { width: 'min(300px, calc(100vw - 24px))' }
+    const size = props.width
+        ? { width: props.width }
+        : props.groups.length
+            ? { width: 'min(660px, calc(100vw - 24px))' }
+            : { width: 'min(300px, calc(100vw - 24px))' }
+    return {
+        ...size,
+        top: pos.value.top + 'px',
+        left: pos.value.left + 'px',
+        visibility: (ready.value ? 'visible' : 'hidden') as 'visible' | 'hidden',
+    }
 })
 
-useClickOutside([rootRef], () => { open.value = false })
+/** measure the panel and place it, clamped inside the viewport */
+const place = () => {
+    const t = triggerEl.value
+    if (!t) return
+    const r = t.getBoundingClientRect()
+    const rtl = getComputedStyle(t).direction === 'rtl'
+
+    nextTick(() => {
+        const pw = panelEl.value?.offsetWidth || 300
+        const ph = panelEl.value?.offsetHeight || 240
+
+        // 'start' anchors to the inline-start edge (right in RTL)
+        const anchorRight = rtl ? props.align === 'start' : props.align === 'end'
+        let left = anchorRight ? r.right - pw : r.left
+        left = Math.min(Math.max(MARGIN, left), Math.max(MARGIN, window.innerWidth - pw - MARGIN))
+
+        let top = props.dir === 'up' ? r.top - ph - GAP : r.bottom + GAP
+        top = Math.min(Math.max(MARGIN, top), Math.max(MARGIN, window.innerHeight - ph - MARGIN))
+
+        pos.value = { top, left }
+        ready.value = true
+    })
+}
+
+watch(open, v => {
+    if (!v) return
+    ready.value = false
+    place()
+})
+
+const onReposition = () => { if (open.value) place() }
+
+onMounted(() => {
+    window.addEventListener('resize', onReposition)
+    window.addEventListener('scroll', onReposition, true)
+})
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', onReposition)
+    window.removeEventListener('scroll', onReposition, true)
+    document.removeEventListener('keydown', onKey)
+})
+
+// the panel is teleported outside rootRef — include it or every click inside closes the menu
+useClickOutside([rootRef, panelEl], () => { open.value = false })
 
 const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') open.value = false
 }
 
 document.addEventListener('keydown', onKey)
-onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
@@ -169,11 +232,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     transform: rotate(180deg);
 }
 
-/* Panel */
+/* Panel — fixed (teleported to the hub) */
 .k-mega-panel {
-    position: absolute;
-    top: calc(100% + 6px);
-    z-index: 300;
+    position: fixed;
+    z-index: 21000;
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: var(--k-radius-md, 14px);
@@ -181,14 +243,9 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     padding: 8px;
     display: flex;
     flex-direction: column;
-}
-
-.k-mega-panel.align-end { right: 0; }
-.k-mega-panel.align-start { left: 0; }
-
-.k-mega-panel.dir-up {
-    top: auto;
-    bottom: calc(100% + 6px);
+    font-family: inherit;
+    /* NOTE: no max-height/overflow here — nested flyouts extend past the panel
+       and any non-visible overflow on this box would clip them */
 }
 
 /* Categorized grid */
@@ -210,6 +267,12 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
     font-weight: 800;
     color: var(--k-text-muted, #94a3b8);
     padding: 6px 10px 4px;
+}
+
+.k-mega-separator {
+    height: 1px;
+    background: var(--k-border, #e2e8f0);
+    margin: 5px 8px;
 }
 
 /* Transition */

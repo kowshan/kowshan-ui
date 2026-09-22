@@ -5,7 +5,7 @@
       <KJsonViewer :data="payload" />
 -->
 <template>
-    <div class="k-json">
+    <div dir="ltr" class="k-json">
         <KJsonNode
             :node="data"
             :label="rootLabel"

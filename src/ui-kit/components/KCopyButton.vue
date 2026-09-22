@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Check, Copy } from 'lucide-vue-next'
-import { useClipboard } from '../composables/useClipboard'
+import { useKClipboard } from '../composables/useKClipboard'
 
 const props = withDefaults(defineProps<{
     text?: string
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
     label: ''
 })
 
-const { copy, copied } = useClipboard({ resetAfter: 1600 })
+const { copy, copied } = useKClipboard({ resetAfter: 1600 })
 </script>
 
 <style scoped>

@@ -39,6 +39,9 @@
                 @keydown="handleKeydown"
             />
 
+            <!-- Currency symbol -->
+            <span v-if="showSymbol" class="k-currency-unit">{{ currencyUnit }}</span>
+
             <!-- Right Icons -->
             <div class="k-right-icons">
                 <button
@@ -85,7 +88,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { X, Loader2, AlertCircle, Info } from 'lucide-vue-next'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 import { useValidation } from '../composables/useValidation'
 import type { ValidationRules } from '../types'
@@ -127,7 +130,7 @@ const emits = defineEmits<{
 }>()
 
 // Composables
-const { id: inputId } = useId('currency')
+const { id: inputId } = useKitId('currency')
 const { toEnglishDigits, numberToPersianText } = usePersianNumbers()
 const { validate, clearError, error: validationError, isValid } = useValidation()
 
@@ -157,6 +160,16 @@ const removeCommas = (value: string): string => value.replace(/,/g, '')
 // Get display value
 const getDisplayValue = (): string => {
     if (!rawDigits.value) return ''
+    // locale is opt-in: format through Intl so the field matches the requested
+    // numeral system/grouping (e.g. fa-IR → ۱۲۳٬۴۵۶). Unset keeps Latin + commas.
+    if (props.locale) {
+        const num = parseToNumber(rawDigits.value)
+        if (num === null) return rawDigits.value
+        return new Intl.NumberFormat(props.locale, {
+            minimumFractionDigits: decimals.value,
+            maximumFractionDigits: decimals.value,
+        }).format(num)
+    }
     return formatWithCommas(rawDigits.value)
 }
 
@@ -391,7 +404,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 .k-input-container {
@@ -476,6 +489,13 @@ defineExpose({
     height: 16px;
 }
 
+.k-currency-unit {
+    font-size: 0.78rem;
+    color: var(--k-text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .k-right-icons {
     display: flex;
     align-items: center;
@@ -501,7 +521,6 @@ defineExpose({
 }
 
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

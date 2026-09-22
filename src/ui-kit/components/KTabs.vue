@@ -16,7 +16,7 @@
             >
                 <component :is="tab.icon" v-if="tab.icon" class="k-tab-icon" />
                 <span>{{ tab.label }}</span>
-                <span v-if="tab.count != null" class="k-tab-count">{{ faNum(tab.count) }}</span>
+                <span v-if="tab.count != null" class="k-tab-count">{{ tab.count }}</span>
             </button>
         </div>
 
@@ -61,8 +61,6 @@ const select = (tab: KTabItem) => {
     emits('change', tab.id)
 }
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>

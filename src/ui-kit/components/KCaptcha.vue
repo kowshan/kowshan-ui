@@ -52,7 +52,7 @@
                 :title="'انقضای کد'"
             >
                 <Clock class="icon" />
-                {{ faNum(remaining) }} ثانیه
+                {{ remaining }} ثانیه
             </span>
         </div>
 
@@ -188,8 +188,6 @@ const onImgClick = () => {
     emits('imgClick')
 }
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -198,7 +196,6 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
     flex-direction: column;
     gap: 8px;
     width: 100%;
-    direction: rtl;
 }
 
 .k-captcha-box {
@@ -273,7 +270,7 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
 }
 
 .k-captcha-timer {
-    margin-right: auto;
+    margin-inline-end: auto;
     display: inline-flex;
     align-items: center;
     gap: 5px;

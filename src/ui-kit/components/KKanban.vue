@@ -14,7 +14,7 @@
             <div class="k-kanban-head">
                 <span class="k-kanban-dot" :style="{ background: col.color || 'var(--k-primary)' }" />
                 <span class="k-kanban-title">{{ col.title }}</span>
-                <span class="k-kanban-count">{{ faNum(col.items.length) }}</span>
+                <span class="k-kanban-count">{{ col.items.length }}</span>
                 <button
                     v-if="addable"
                     type="button"
@@ -170,8 +170,6 @@ const onDrop = (target: KKanbanColumn) => {
     emits('move', { item, from: fromId, to: target.id, index: toCol.items.length - 1 })
 }
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -182,7 +180,6 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
     gap: 12px;
     overflow-x: auto;
     padding-bottom: 8px;
-    direction: rtl;
 }
 
 .k-kanban-col {
@@ -261,6 +258,9 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
     gap: 8px;
     overflow-y: auto;
     flex: 1;
+    /* the leaving card is position:absolute during the TransitionGroup animation —
+       without this it has no positioned ancestor and escapes to page level */
+    position: relative;
 }
 
 .k-kanban-card {
@@ -353,7 +353,7 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
 }
 
 .k-kanban-card-due {
-    margin-right: auto;
+    margin-inline-end: auto;
     display: inline-flex;
     align-items: center;
     gap: 4px;

@@ -64,6 +64,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { Pencil, Check, X } from 'lucide-vue-next'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
+import { toAsciiDigits } from '../utils/digits'
 
 const props = withDefaults(defineProps<{
     modelValue?: string | number
@@ -108,7 +109,7 @@ const save = () => {
     // numbers: keep numeric, normalize Persian digits for text
     let value: string | number = draft.value
     if (props.type === 'number') {
-        const n = Number(String(draft.value).replace(/[۰-۹٠-٩]/g, d => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10)))
+        const n = Number(toAsciiDigits(String(draft.value)))
         value = Number.isNaN(n) ? props.modelValue ?? '' : n
     } else {
         value = normalize(String(draft.value))

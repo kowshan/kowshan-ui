@@ -170,6 +170,14 @@
     box-sizing: border-box;
 }
 
+/* ========== TELEPORTED CONTENT ========== */
+/* Teleported elements escape the component tree but stay inside .k-ui,
+   so they inherit --k-* vars. Force font-family for safety. */
+.k-teleport-hub,
+.k-teleport-hub * {
+    font-family: var(--k-font-family, 'yekan-bakh', Tahoma, sans-serif);
+}
+
 /* ========== SCROLLBAR STYLING ========== */
 .k-ui ::-webkit-scrollbar {
     width: 6px;

@@ -25,7 +25,7 @@
             ref="trackRef"
             class="k-slider-track"
             @mousedown.prevent="onTrackMouseDown"
-            @touchstart.passive.prevent="onTrackTouchStart"
+            @touchstart="onTrackTouchStart"
         >
             <!-- Filled portion (single) -->
             <div
@@ -39,7 +39,7 @@
                 v-else
                 class="k-slider-fill"
                 :style="{
-                    left: `${rangePercent[0]}%`,
+                    insetInlineStart: `${rangePercent[0]}%`,
                     width: `${rangePercent[1] - rangePercent[0]}%`
                 }"
             ></div>
@@ -58,7 +58,7 @@
                 :aria-valuemax="max"
                 :aria-valuenow="singleValue"
                 :aria-label="label || 'مقدار'"
-                :style="{ left: `${fillPercent}%` }"
+                :style="{ insetInlineStart: `${fillPercent}%` }"
                 @keydown="onThumbKeydown($event, 'single')"
             >
                 <span class="k-slider-tooltip">{{ displayValue }}<template v-if="suffix">{{ ' ' + suffix }}</template></span>
@@ -74,7 +74,7 @@
                     :aria-valuemax="max"
                     :aria-valuenow="rangeValue[0]"
                     :aria-label="`${label || 'مقدار'} - حداقل`"
-                    :style="{ left: `${rangePercent[0]}%` }"
+                    :style="{ insetInlineStart: `${rangePercent[0]}%` }"
                     @keydown="onThumbKeydown($event, 'min')"
                 >
                     <span class="k-slider-tooltip">{{ formatNum(rangeValue[0]) }}<template v-if="suffix">{{ ' ' + suffix }}</template></span>
@@ -87,7 +87,7 @@
                     :aria-valuemax="max"
                     :aria-valuenow="rangeValue[1]"
                     :aria-label="`${label || 'مقدار'} - حداکثر`"
-                    :style="{ left: `${rangePercent[1]}%` }"
+                    :style="{ insetInlineStart: `${rangePercent[1]}%` }"
                     @keydown="onThumbKeydown($event, 'max')"
                 >
                     <span class="k-slider-tooltip">{{ formatNum(rangeValue[1]) }}<template v-if="suffix">{{ ' ' + suffix }}</template></span>
@@ -181,13 +181,22 @@ const emitRange = (a: number, b: number) => {
 // Pointer interaction
 let dragging: 'single' | 'min' | 'max' | null = null
 
+/* the track positions everything with logical properties, so in RTL the min sits
+   at the right edge and the pointer fraction has to be mirrored to match.
+   Read the direction once per gesture instead of on every move. */
+let rtl = false
+
+const readDirection = () => {
+    const track = trackRef.value
+    rtl = !!track && getComputedStyle(track).direction === 'rtl'
+}
+
 const valueFromClientX = (clientX: number) => {
     const track = trackRef.value
     if (!track) return props.min
     const rect = track.getBoundingClientRect()
-    // RTL: track runs right->left, but we keep geometry LTR and flip via CSS scale? Simpler:
-    // compute fraction from the track's left edge (LTR), the thumb positioning uses `left` %
-    const fraction = (clientX - rect.left) / rect.width
+    const ltrFraction = (clientX - rect.left) / rect.width
+    const fraction = rtl ? 1 - ltrFraction : ltrFraction
     const raw = props.min + fraction * (props.max - props.min)
     const stepped = Math.round(raw / props.step) * props.step
     return clamp(stepped)
@@ -195,6 +204,7 @@ const valueFromClientX = (clientX: number) => {
 
 const onTrackMouseDown = (e: MouseEvent) => {
     if (props.disabled) return
+    readDirection()
     const val = valueFromClientX(e.clientX)
     if (props.range) {
         const [lo, hi] = rangeValue.value
@@ -209,6 +219,7 @@ const onTrackMouseDown = (e: MouseEvent) => {
 
 const onTrackTouchStart = (e: TouchEvent) => {
     if (props.disabled) return
+    readDirection()
     const touch = e.touches[0]
     const val = valueFromClientX(touch.clientX)
     if (props.range) {
@@ -316,7 +327,7 @@ onUnmounted(finishDrag)
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Value */
@@ -324,8 +335,7 @@ onUnmounted(finishDrag)
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--k-text-primary);
-    direction: ltr;
-    text-align: left;
+    text-align: start;
 }
 
 .k-slider-suffix {
@@ -338,6 +348,8 @@ onUnmounted(finishDrag)
 /* Track */
 .k-slider-track {
     position: relative;
+    /* dragging must not scroll the page on touch */
+    touch-action: none;
     height: 6px;
     border-radius: 999px;
     background: var(--k-surface-hover, #f1f5f9);
@@ -355,7 +367,7 @@ onUnmounted(finishDrag)
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     background: var(--k-slider-color);
     border-radius: 999px;
     pointer-events: none;
@@ -372,24 +384,27 @@ onUnmounted(finishDrag)
 }
 
 .k-slider-bound:first-of-type {
-    left: 0;
+    inset-inline-start: 0;
 }
 
 .k-slider-bound:last-of-type {
-    right: 0;
+    inset-inline-end: 0;
 }
 
 /* Thumb */
 .k-slider-thumb {
     position: absolute;
     top: 50%;
+    box-sizing: border-box;
     width: 18px;
     height: 18px;
     border-radius: 50%;
     background: var(--k-slider-color);
     border: 2.5px solid #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-    transform: translate(-50%, -50%);
+    /* logical: centres the thumb on its inset-inline-start in both directions */
+    transform: translateY(-50%);
+    margin-inline-start: -9px;
     cursor: grab;
     transition: box-shadow 0.15s ease;
     outline: none;

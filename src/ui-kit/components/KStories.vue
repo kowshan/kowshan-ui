@@ -25,7 +25,7 @@
         </div>
 
         <!-- Fullscreen viewer -->
-        <Teleport to="body">
+        <Teleport to="#k-teleport-hub">
             <Transition name="k-stories-fade">
                 <div v-if="fullscreen" class="k-ui k-stories-viewer" :data-theme="theme" role="dialog" aria-modal="true">
                     <!-- Progress bars -->

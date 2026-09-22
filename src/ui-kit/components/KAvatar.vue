@@ -20,7 +20,7 @@
         />
 
         <!-- Initials / icon fallback -->
-        <div v-else class="k-avatar-fallback" :style="fallbackStyle">
+        <div dir="ltr" v-else class="k-avatar-fallback" :style="fallbackStyle">
             <component :is="icon" v-if="icon" class="k-avatar-icon" />
             <span v-else class="k-avatar-initials">{{ initials }}</span>
         </div>
@@ -164,10 +164,10 @@ const onImgError = () => { imgFailed.value = true }
     background: #94a3b8;
 }
 
-.k-avatar-status.is-online { background: #22c55e; }
-.k-avatar-status.is-offline { background: #94a3b8; }
-.k-avatar-status.is-away { background: #f59e0b; }
-.k-avatar-status.is-busy { background: #ef4444; }
+.k-avatar-status.is-online { background: var(--k-success, #22c55e); }
+.k-avatar-status.is-offline { background: var(--k-text-muted, #94a3b8); }
+.k-avatar-status.is-away { background: var(--k-warning, #f59e0b); }
+.k-avatar-status.is-busy { background: var(--k-error, #ef4444); }
 
 .pos-bottom-right { bottom: 0; right: 0; }
 .pos-bottom-left { bottom: 0; left: 0; }

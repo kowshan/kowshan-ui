@@ -80,7 +80,7 @@ ui-kit/
 ├── wrappers/             # input-style wrappers built on a shared core (K*)
 ├── core/                 # internal primitive inputs (CoreInput, CoreSelect, …)
 ├── calendar/             # the Jalali calendar module (KCalendar + views + engine)
-├── composables/          # framework-agnostic logic (useToast, useDataTable, …)
+├── composables/          # framework-agnostic logic (useKToast, useDataTable, …)
 ├── stores/               # reactive singletons (toast, modal)
 ├── data/                 # validation rule sets (regex + function validators)
 └── types/                # shared types + shims
@@ -179,7 +179,7 @@ The optional **yekan-bakh** font can be bundled from the Nuxt app's
 ### Feedback & overlays
 | Component | Notes |
 |---|---|
-| `KToast` (via `KToastHost` + `useToast`) | see [Stores & global state](#stores--global-state) |
+| `KToast` (via `KToastHost` + `useKToast`) | see [Stores & global state](#stores--global-state) |
 | `KModal` | store-driven by `id` (recommended) **or** legacy `v-model:visible`; 4 sizes, ESC closes only the top modal |
 | `KAlert` | info/success/warning/danger, closable, actions slot, theme-adaptive text |
 | `KTooltip` | 4 positions, hover/click triggers |
@@ -268,7 +268,7 @@ The optional **yekan-bakh** font can be bundled from the Nuxt app's
 | `KImportWizard` | CSV import wizard — paste/upload → preview → **column mapping** → result with imported/skipped counts, quoted-cell parser, `initial-text` prop |
 | `KSplitPane` | resizable two-pane split — horizontal/vertical, `v-model:size`, drag gutter |
 | `KJsonViewer` | collapsible JSON tree — types colored, expand-depth control |
-| `KCopyButton` | copy-to-clipboard with check feedback (uses `useClipboard`) |
+| `KCopyButton` | copy-to-clipboard with check feedback (uses `useKClipboard`) |
 
 ### Permissions & helpers
 | Component | Notes |
@@ -329,15 +329,15 @@ Two reactive singletons (no Pinia required — plain Vue reactivity, works in an
 ### `useToastStore` — toasts
 
 ```ts
-import { useToast } from '…/ui-kit/composables/useToast'
+import { useKToast } from '…/ui-kit/composables/useKToast'
 // or the store directly: useToastStore from '…/ui-kit/stores/toastStore'
 
-useToast.success('Saved')
-useToast.error({ title: 'Invalid form', message: ['Phone is invalid', 'Postal code is required'] })
-useToast.warning({ message: 'Document expiring', timeout: 0, buttons: [{ label: 'Renew', onClick: renew }] })
+useKToast.success('Saved')
+useKToast.error({ title: 'Invalid form', message: ['Phone is invalid', 'Postal code is required'] })
+useKToast.warning({ message: 'Document expiring', timeout: 0, buttons: [{ label: 'Renew', onClick: renew }] })
 
 // Laravel validation summary:
-useToast.showErrors({ phone: ['invalid'], postal: ['required'] }, 'Form is invalid')
+useKToast.showErrors({ phone: ['invalid'], postal: ['required'] }, 'Form is invalid')
 ```
 
 Toast options: `type`, `message` (string **or array** → multi-message list), `title`,
@@ -405,9 +405,19 @@ stack by position. Toasts placed at `top`/`bottom` resolve to top-right/bottom-l
 
 ## Composables
 
+> **Naming rule:** a kit composable must never shadow a Nuxt/Vue/VueUse
+> auto-import — Nuxt logs "Duplicated imports" and can silently resolve the
+> wrong symbol. Names that would collide carry a `K` infix (`useKitId`,
+> `useKToast`, `useKDebounce`, `useKClipboard`, `useKLocalStorage`,
+> `useKFocusTrap`, `useKInfiniteScroll`, `useKContextMenu`).
+>
+> All composables are SSR-safe: no module/setup-scope `window`/`document`.
+> Theme persistence is intentionally *not* included — the host app owns it
+> (guard `localStorage`, or use `useCookie`/`useState` in Nuxt).
+
 | Composables | Purpose |
 |---|---|
-| `useToast` | toast helpers (see above) |
+| `useKToast` | toast helpers (see above) |
 | `useToastStore`, `useModalStore` | global stores (see above) |
 | `useKitTheme` | tracks the active theme for teleported components |
 | `useDataTable` | table logic — sorting (numeric + Persian collation), column visibility, pagination |
@@ -421,13 +431,13 @@ stack by position. Toasts placed at `top`/`bottom` resolve to top-right/bottom-l
 | `usePwaInstall` | `beforeinstallprompt` capture — `canInstall`, `install()` |
 | `usePwaUpdate` | service-worker update watch — `updateAvailable`, `applyUpdate()` (SKIP_WAITING + reload) |
 | `useClickOutside` | outside-click detection for dropdowns/popovers |
-| `useFocusTrap` | keep Tab focus inside a modal — used by `KConfirmDialog` |
-| `useClipboard` | copy text + 2s `copied` state, legacy fallback — powers `KCopyButton` |
+| `useKFocusTrap` | keep Tab focus inside a modal — used by `KConfirmDialog` |
+| `useKClipboard` | copy text + 2s `copied` state, legacy fallback — powers `KCopyButton` |
 | `useCountUp` | animate a number (`start(target)`, easings) |
-| `useInfiniteScroll` | load-more when a sentinel enters the viewport (IntersectionObserver) |
+| `useKInfiniteScroll` | load-more when a sentinel enters the viewport (IntersectionObserver) |
 | `useBreakpoint` | reactive `isMobile` / `isDesktop` / `is('md')` via matchMedia |
-| `useLocalStorage` | reactive state persisted to localStorage + cross-tab sync |
-| `useDebounce`, `useId` | small utilities |
+| `useKLocalStorage` | reactive state persisted to localStorage + cross-tab sync |
+| `useKDebounce`, `useId` | small utilities |
 | `useValidation`, `useAsyncValidation`, `useInputLogic` | input validation + wiring for the core inputs |
 | `useFormatting`, `usePersianNumbers`, `useFileHelper`, `useFileValidation` | formatting / file helpers |
 | `useAnimation` | optional gsap-driven animations (falls back to CSS) |

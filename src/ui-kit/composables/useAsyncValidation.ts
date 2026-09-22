@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { useDebounce } from './useDebounce'
+import { useKDebounce } from './useKDebounce'
 
 export interface AsyncValidationResult {
     isValid: boolean
@@ -16,7 +16,7 @@ export function useAsyncValidation<T = any>(
     const loading = ref(false)
     const lastValidatedValue = ref<T | null>(null)
     
-    const { setDebounced, debouncedValue } = useDebounce<T>(debounceMs)
+    const { setDebounced, debouncedValue } = useKDebounce<T>(debounceMs)
     
     const validate = async (value: T): Promise<AsyncValidationResult> => {
         // Skip if same as last validated

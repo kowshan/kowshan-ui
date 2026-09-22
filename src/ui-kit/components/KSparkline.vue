@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 
 const props = withDefaults(defineProps<{
     data?: number[]
@@ -66,7 +66,7 @@ const props = withDefaults(defineProps<{
     showDot: true
 })
 
-const { id } = useId('spark')
+const { id } = useKitId('spark')
 const gradId = computed(() => `spark-${id}`)
 
 const points = computed(() => {

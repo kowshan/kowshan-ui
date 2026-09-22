@@ -6,7 +6,7 @@
     the emitted value follows `outputFormat` (default gregorian → DB-friendly).
 -->
 <template>
-    <div class="k-range" :class="{ 'has-error': !!range.error.value, 'is-disabled': disabled }">
+    <div dir="ltr" class="k-range" :class="{ 'has-error': !!range.error.value, 'is-disabled': disabled }">
         <div v-if="label" class="k-range-label">
             {{ label }}
             <span v-if="required" class="k-range-required">*</span>
@@ -157,7 +157,7 @@ defineExpose({ clear: range.clear, validate: () => range.error.value })
 
 .k-range-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-end: 2px;
 }
 
 .k-range-body {
@@ -216,7 +216,6 @@ defineExpose({ clear: range.clear, validate: () => range.error.value })
     font-size: 0.82rem;
     font-weight: 700;
     color: var(--k-text-primary);
-    direction: rtl;
     white-space: nowrap;
 }
 

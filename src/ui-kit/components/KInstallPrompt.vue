@@ -8,7 +8,7 @@
       <KInstallPrompt :show="true" />     <!-- forced (demo/testing) -->
 -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-install-up">
             <div
                 v-if="visible"

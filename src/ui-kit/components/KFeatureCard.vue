@@ -73,10 +73,10 @@ defineEmits<{
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: var(--k-radius-lg, 12px);
-    padding: 20px;
+    padding: 22px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     outline: none;
 }
@@ -95,7 +95,7 @@ defineEmits<{
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 2px;
+    margin-bottom: 10px;
 }
 
 .k-feature__title {
@@ -107,13 +107,15 @@ defineEmits<{
 .k-feature__desc {
     color: var(--k-text-secondary, #64748b);
     font-size: 13px;
-    line-height: 1.8;
+    line-height: 1.9;
     margin: 0;
     flex: 1;
 }
 
 .k-feature__footer {
-    margin-top: 4px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--k-border, #e2e8f0);
 }
 
 .k-feature__link {

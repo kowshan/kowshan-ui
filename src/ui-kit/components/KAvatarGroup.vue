@@ -17,7 +17,7 @@
         </div>
 
         <div v-if="overflow > 0" class="k-avatar-group-more" :style="{ width: pixelSize + 'px', height: pixelSize + 'px' }">
-            <span>+{{ faNum(overflow) }}</span>
+            <span>+{{ overflow }}</span>
         </div>
     </div>
 </template>
@@ -48,8 +48,6 @@ const pixelSize = computed(() => ({ sm: 28, md: 36, lg: 48 })[props.size])
 const shown = computed(() => props.items.slice(0, props.max))
 const overflow = computed(() => Math.max(0, props.items.length - props.max))
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -66,7 +64,7 @@ const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 .k-avatar-group-item + .k-avatar-group-item,
 .k-avatar-group-more {
-    margin-right: -8px;
+    margin-inline-end: -8px;
 }
 
 .k-avatar-group-item.is-hoverable:hover {
@@ -77,7 +75,7 @@ const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 .k-avatar-group-more {
     border: 2px solid var(--k-bg, #ffffff);
     border-radius: 50%;
-    margin-right: -8px;
+    margin-inline-end: -8px;
     background: var(--k-surface, #f1f5f9);
     color: var(--k-text-secondary, #64748b);
     display: flex;

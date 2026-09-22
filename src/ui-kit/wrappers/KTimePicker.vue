@@ -77,7 +77,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { X, AlertCircle, Clock } from 'lucide-vue-next'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 import KTimePickerModal from '../components/KTimePickerModal.vue'
 
@@ -111,7 +111,7 @@ const emits = defineEmits<{
     'clear': []
 }>()
 
-const { id: inputId } = useId('timepicker')
+const { id: inputId } = useKitId('timepicker')
 const { toPersianDigits } = usePersianNumbers()
 
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -208,7 +208,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 .k-input-container {
@@ -298,7 +298,6 @@ defineExpose({
 }
 
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

@@ -8,8 +8,8 @@
     >
         <!-- Live preview + today -->
         <div class="k-dpm-preview">
-            <span class="k-dpm-day">{{ faNum(day) }}</span>
-            <span class="k-dpm-meta">{{ monthName }} {{ faNum(year) }}</span>
+            <span class="k-dpm-day">{{ day }}</span>
+            <span class="k-dpm-meta">{{ monthName }} {{ year }}</span>
             <button type="button" class="k-dpm-today" @click="goToday">
                 امروز
             </button>
@@ -108,15 +108,13 @@ const days = computed(() => {
 const dayIdx = computed(() => Math.min(days.value.length - 1, day.value - 1))
 
 const columns = computed<KWheelColumn[]>(() => [
-    { key: 'year', values: years.value.map(y => faNum(y)) },
+    { key: 'year', values: years.value.map(y => String(y)) },
     { key: 'month', values: MONTHS },
-    { key: 'day', values: days.value.map(d => faNum(d)) },
+    { key: 'day', values: days.value.map(d => String(d)) },
 ])
 
 const monthName = computed(() => MONTHS[month.value - 1])
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 /* Wheel change */
 const onWheelChange = (indices: number[]) => {
@@ -228,7 +226,7 @@ const cancel = () => {
 }
 
 .k-dpm-today {
-    margin-right: auto;
+    margin-inline-end: auto;
     font-family: inherit;
     font-size: 0.72rem;
     font-weight: 700;

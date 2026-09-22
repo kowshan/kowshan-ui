@@ -93,7 +93,7 @@
 import { ref, computed, watch } from 'vue'
 import { X, Loader2, AlertCircle, Info } from 'lucide-vue-next'
 import CoreInput from '../core/CoreInput.vue'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import type { ValidationRules } from '../types'
 
 // Props
@@ -130,7 +130,7 @@ const emits = defineEmits<{
 }>()
 
 // IDs
-const { id: inputId } = useId('input')
+const { id: inputId } = useKitId('input')
 
 // Refs
 const coreInput = ref<InstanceType<typeof CoreInput> | null>(null)
@@ -232,7 +232,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Input Container - minimal border, no glow */
@@ -352,9 +352,8 @@ defineExpose({
     to { transform: rotate(360deg); }
 }
 
-/* Message Area - clean, compact */
+/* Message Area */
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

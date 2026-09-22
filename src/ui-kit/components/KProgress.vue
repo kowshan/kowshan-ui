@@ -4,7 +4,7 @@
         <!-- Label row -->
         <div v-if="label || showPercent" class="k-progress-header">
             <span v-if="label" class="k-progress-label">{{ label }}</span>
-            <span v-if="showPercent && !indeterminate" class="k-progress-percent">{{ faNum(Math.round(percent)) }}٪</span>
+            <span v-if="showPercent && !indeterminate" class="k-progress-percent">{{ Math.round(percent) }}٪</span>
         </div>
 
         <!-- Track -->
@@ -44,8 +44,6 @@ const props = withDefaults(defineProps<{
 
 const percent = computed(() => props.modelValue ?? props.percent ?? 0)
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>

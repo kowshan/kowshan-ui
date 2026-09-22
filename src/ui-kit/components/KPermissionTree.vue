@@ -10,7 +10,7 @@
     - `hint` renders as a small muted note under the label
 -->
 <template>
-    <div class="k-ptree">
+    <div dir="ltr" class="k-ptree">
         <!-- Select-all row -->
         <label v-if="selectAll" class="k-ptree-row is-select-all">
             <KCheckbox
@@ -19,7 +19,7 @@
                 @update:model-value="toggleAll"
             />
             <span class="k-ptree-label">{{ selectAllLabel }}</span>
-            <span class="k-ptree-count">{{ faNum(modelValue.length) }} انتخاب شده</span>
+            <span class="k-ptree-count">{{ modelValue.length }} انتخاب شده</span>
         </label>
 
         <KPermissionTreeNode
@@ -64,7 +64,6 @@ const emit = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 /* collect every id (and its descendants) reachable from a node */
 const collectIds = (node: KPermissionNode): string[] => {
@@ -103,10 +102,15 @@ const onToggle = (payload: { id: string; checked: boolean; affect: string[] }) =
 
 <style scoped>
 .k-ptree {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
     width: 100%;
+}
+
+/* Select-all spans full width */
+.k-ptree-row.is-select-all {
+    grid-column: 1 / -1;
 }
 
 .k-ptree-row.is-select-all {
@@ -114,7 +118,6 @@ const onToggle = (payload: { id: string; checked: boolean; affect: string[] }) =
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    margin-bottom: 6px;
     background: var(--k-surface, #f8fafc);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: 10px;

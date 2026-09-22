@@ -15,11 +15,11 @@
 <template>
     <aside class="k-sidebar" :class="{ 'is-collapsed': collapsed }">
         <!-- Brand / collapse toggle -->
-        <div class="k-sidebar-top">
-            <slot name="brand">
-                <div class="k-sidebar-brand">
+        <div class="k-sidebar-top" :class="{ 'is-collapsed': collapsed }">
+            <slot v-if="!collapsed" name="brand">
+                <div v-if="brand || $slots.logo" class="k-sidebar-brand">
                     <span class="k-sidebar-logo"><slot name="logo">{{ logoText }}</slot></span>
-                    <span v-if="!collapsed" class="k-sidebar-brand-text">{{ brand }}</span>
+                    <span class="k-sidebar-brand-text">{{ brand }}</span>
                 </div>
             </slot>
             <button
@@ -27,7 +27,8 @@
                 type="button"
                 class="k-sidebar-toggle"
                 :aria-label="collapsed ? 'باز کردن منو' : 'بستن منو'"
-                @click="collapsed = !collapsed"
+                :aria-expanded="!collapsed"
+                @click="toggleCollapsed"
             >
                 <PanelLeftClose v-if="!collapsed" :size="16" />
                 <PanelLeftOpen v-else :size="16" />
@@ -38,22 +39,67 @@
         <nav class="k-sidebar-nav">
             <div v-for="group in groups" :key="group.title" class="k-sidebar-group">
                 <div v-if="group.title && !collapsed" class="k-sidebar-group-title">{{ group.title }}</div>
-                <button
-                    v-for="item in group.items"
-                    :key="item.id"
-                    type="button"
-                    class="k-sidebar-item"
-                    :class="{ 'is-active': modelValue === item.id }"
-                    :title="collapsed ? item.label : undefined"
-                    @click="select(item)"
-                >
-                    <span class="k-sidebar-item-icon">
-                        <component :is="item.icon" :size="18" />
-                    </span>
-                    <span v-if="!collapsed" class="k-sidebar-item-label">{{ item.label }}</span>
-                    <span v-if="item.badge && !collapsed" class="k-sidebar-item-badge">{{ item.badge }}</span>
-                    <span v-if="item.badge && collapsed" class="k-sidebar-item-dot"></span>
-                </button>
+
+                <!-- Collapsed rail: parents and their children as one flat, symmetric column -->
+                <template v-if="collapsed">
+                    <button
+                        v-for="item in flatten(group.items)"
+                        :key="item.id"
+                        type="button"
+                        class="k-sidebar-item"
+                        :class="{ 'is-active': modelValue === item.id, 'is-child': item.depth > 0 }"
+                        :title="item.label"
+                        @click="select(item)"
+                    >
+                        <span class="k-sidebar-item-icon">
+                            <component :is="item.icon" :size="18" />
+                        </span>
+                        <span v-if="item.badge" class="k-sidebar-item-dot"></span>
+                    </button>
+                </template>
+
+                <!-- Expanded: parents with one level of nested children -->
+                <template v-else>
+                    <template v-for="item in group.items" :key="item.id">
+                        <button
+                            type="button"
+                            class="k-sidebar-item"
+                            :class="{ 'is-active': modelValue === item.id, 'is-parent': hasChildren(item) }"
+                            :aria-expanded="hasChildren(item) ? isOpenItem(item.id) : undefined"
+                            @click="onItemClick(item)"
+                        >
+                            <span class="k-sidebar-item-icon">
+                                <component :is="item.icon" :size="18" />
+                            </span>
+                            <span class="k-sidebar-item-label">{{ item.label }}</span>
+                            <span v-if="item.badge" class="k-sidebar-item-badge">{{ item.badge }}</span>
+                            <ChevronDown
+                                v-if="hasChildren(item)"
+                                :size="14"
+                                class="k-sidebar-item-chevron"
+                                :class="{ 'is-open': isOpenItem(item.id) }"
+                            />
+                        </button>
+
+                        <div v-if="hasChildren(item) && isOpenItem(item.id)" class="k-sidebar-children">
+                            <button
+                                v-for="child in item.children"
+                                :key="child.id"
+                                type="button"
+                                class="k-sidebar-item is-child"
+                                :class="{ 'is-active': modelValue === child.id }"
+                                @click="select(child)"
+                            >
+                                <span class="k-sidebar-item-icon">
+                                    <component v-if="child.icon" :is="child.icon" :size="16" />
+                                    <span v-else class="k-sidebar-child-dot" />
+                                </span>
+                                <span class="k-sidebar-item-label">{{ child.label }}</span>
+                                <span v-if="child.badge" class="k-sidebar-item-badge">{{ child.badge }}</span>
+                            </button>
+                        </div>
+                    </template>
+                </template>
             </div>
         </nav>
 
@@ -65,14 +111,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
+import { ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+
+export interface KSidebarItem {
+    id: string
+    label: string
+    icon?: any
+    badge?: string | number
+    children?: KSidebarItem[]
+}
 
 const props = withDefaults(defineProps<{
     modelValue?: string
     brand?: string
     logoText?: string
-    groups?: { title?: string; items: { id: string; label: string; icon: any; badge?: string | number }[] }[]
+    groups?: { title?: string; items: KSidebarItem[] }[]
     collapsible?: boolean
 }>(), {
     modelValue: '',
@@ -90,11 +144,51 @@ const emits = defineEmits<{
 // internal collapse state
 const collapsed = ref(false)
 
+/* which parents have their submenu open */
+const openIds = ref<string[]>([])
+
+const hasChildren = (item: KSidebarItem) => !!item.children?.length
+
+const isOpenItem = (id: string) => openIds.value.includes(id)
+
+const toggleOpen = (id: string) => {
+    openIds.value = isOpenItem(id) ? openIds.value.filter(i => i !== id) : [...openIds.value, id]
+}
+
 const select = (item: { id: string }) => {
     if (item.id !== props.modelValue) {
         emits('update:modelValue', item.id)
         emits('change', item.id)
     }
+}
+
+const onItemClick = (item: KSidebarItem) => {
+    if (hasChildren(item)) toggleOpen(item.id)
+    else select(item)
+}
+
+/* collapse a parent with children to a flat icon rail */
+const flatten = (items: KSidebarItem[]) => {
+    const out: (KSidebarItem & { depth: number })[] = []
+    for (const item of items) {
+        out.push({ ...item, depth: 0 })
+        item.children?.forEach(c => out.push({ ...c, depth: 1 }))
+    }
+    return out
+}
+
+/* opening the group that holds the active child, wherever selection comes from */
+watch(() => props.modelValue, (id) => {
+    if (!id || collapsed.value) return
+    for (const group of props.groups) {
+        for (const item of group.items) {
+            if (item.children?.some(c => c.id === id) && !isOpenItem(item.id)) toggleOpen(item.id)
+        }
+    }
+}, { immediate: true })
+
+const toggleCollapsed = () => {
+    collapsed.value = !collapsed.value
 }
 </script>
 
@@ -123,6 +217,16 @@ const select = (item: { id: string }) => {
     gap: 6px;
     padding: 4px 2px 10px;
     border-bottom: 1px dashed var(--k-border, #e2e8f0);
+}
+
+/* collapsed: the brand is gone, so the toggle becomes a normal rail icon —
+   no brand and toggle fighting for the same 60px */
+.k-sidebar-top.is-collapsed {
+    justify-content: center;
+}
+.k-sidebar-top.is-collapsed .k-sidebar-toggle {
+    width: 100%;
+    height: 34px;
 }
 
 .k-sidebar-brand {
@@ -198,6 +302,7 @@ const select = (item: { id: string }) => {
 }
 
 .k-sidebar-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 9px;
@@ -211,6 +316,43 @@ const select = (item: { id: string }) => {
     color: var(--k-text-secondary, #64748b);
     transition: all 0.15s ease;
     white-space: nowrap;
+}
+
+/* nested level */
+.k-sidebar-children {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 2px 0 4px;
+    padding-inline-start: 14px;
+    border-inline-start: 1px dashed var(--k-border, #e2e8f0);
+}
+
+.k-sidebar-item.is-child {
+    padding: 7px 10px;
+    font-size: 0.76rem;
+}
+
+.k-sidebar-item.is-parent.is-active {
+    font-weight: 600;
+}
+
+.k-sidebar-child-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.45;
+}
+
+.k-sidebar-item-chevron {
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: transform 0.18s ease;
+}
+
+.k-sidebar-item-chevron.is-open {
+    transform: rotate(180deg);
 }
 
 .k-sidebar-item:hover {
@@ -233,7 +375,7 @@ const select = (item: { id: string }) => {
 
 .k-sidebar-item-label {
     flex: 1;
-    text-align: right;
+    text-align: start;
     font-size: 0.8rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -251,17 +393,27 @@ const select = (item: { id: string }) => {
 }
 
 .k-sidebar-item-dot {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 6px;
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: var(--k-primary, #1db954);
-    margin-inline-start: auto;
     flex-shrink: 0;
 }
 
-.k-sidebar.is-collapsed .k-sidebar-item {
+/* collapsed rail: every item is the same square, icon dead-centre, and the
+   badge dot is parked on the corner so it can't push the icon off-centre */
+.k-sidebar.is-collapsed .k-sidebar-item,
+.k-sidebar.is-collapsed .k-sidebar-item.is-child {
     justify-content: center;
     padding: 9px;
+}
+
+.k-sidebar.is-collapsed .k-sidebar-item-dot {
+    top: 5px;
+    inset-inline-end: 9px;
 }
 
 .k-sidebar-footer {

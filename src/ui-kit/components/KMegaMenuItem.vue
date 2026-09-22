@@ -220,8 +220,8 @@ onBeforeUnmount(() => { if (timer) clearTimeout(timer) })
     top: 0;
     z-index: 350;
     min-width: 220px;
-    max-height: min(420px, 70vh);
-    overflow-y: auto;
+    /* NOTE: no max-height/overflow — a depth-3 flyout opens past this box and
+       any non-visible overflow would clip it instead of letting it escape */
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: var(--k-radius-md, 12px);

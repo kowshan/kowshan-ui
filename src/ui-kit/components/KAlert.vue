@@ -6,7 +6,7 @@
         role="alert"
     >
         <!-- Icon -->
-        <div v-if="showIcon" class="k-alert-icon">
+        <div dir="ltr" v-if="showIcon" class="k-alert-icon">
             <component :is="iconComponent" class="icon" />
         </div>
 
@@ -190,4 +190,36 @@ const dismiss = () => {
 .k-alert.is-borderless {
     border-color: transparent;
 }
+
+/* Dark mode */</style>
+
+<!-- Non-scoped: dark mode needs to reach parent [data-theme] -->
+<style>
+.k-ui[data-theme='dark'] .k-alert-info,
+.k-ui[data-theme='oled'] .k-alert-info {
+    background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.25); color: #c4b5fd;
+}
+.k-ui[data-theme='dark'] .k-alert-info .k-alert-icon,
+.k-ui[data-theme='oled'] .k-alert-info .k-alert-icon { color: #a78bfa; }
+
+.k-ui[data-theme='dark'] .k-alert-success,
+.k-ui[data-theme='oled'] .k-alert-success {
+    background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.25); color: #6ee7b7;
+}
+.k-ui[data-theme='dark'] .k-alert-success .k-alert-icon,
+.k-ui[data-theme='oled'] .k-alert-success .k-alert-icon { color: #34d399; }
+
+.k-ui[data-theme='dark'] .k-alert-warning,
+.k-ui[data-theme='oled'] .k-alert-warning {
+    background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25); color: #fcd34d;
+}
+.k-ui[data-theme='dark'] .k-alert-warning .k-alert-icon,
+.k-ui[data-theme='oled'] .k-alert-warning .k-alert-icon { color: #fbbf24; }
+
+.k-ui[data-theme='dark'] .k-alert-danger,
+.k-ui[data-theme='oled'] .k-alert-danger {
+    background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25); color: #fca5a5;
+}
+.k-ui[data-theme='dark'] .k-alert-danger .k-alert-icon,
+.k-ui[data-theme='oled'] .k-alert-danger .k-alert-icon { color: #f87171; }
 </style>

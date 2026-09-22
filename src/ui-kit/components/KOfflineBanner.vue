@@ -7,7 +7,7 @@
       <KOfflineBanner :show="true" />       <!-- forced (demo/testing) -->
 -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-offline-drop">
             <div
                 v-if="isOffline"

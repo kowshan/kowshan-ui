@@ -1,6 +1,6 @@
 
 import { computed } from 'vue'
-import { useId } from './useId'
+import { useKitId } from './useKitId'
 
 export interface AccessibilityOptions {
     label?: string
@@ -13,9 +13,9 @@ export interface AccessibilityOptions {
 }
 
 export function useAccessibility(options: AccessibilityOptions = {}) {
-    const { id: inputId } = useId('input')
-    const { id: describedById } = useId('described')
-    const { id: errorId } = useId('error')
+    const { id: inputId } = useKitId('input')
+    const { id: describedById } = useKitId('described')
+    const { id: errorId } = useKitId('error')
     
     const ariaLabel = computed(() => options.label || undefined)
     const ariaRequired = computed(() => options.required || undefined)

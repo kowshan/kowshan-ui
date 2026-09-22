@@ -6,7 +6,7 @@
       <KGauge :value="45" color="#10b981" :size="140" />
 -->
 <template>
-    <div class="k-gauge" :style="{ width: size + 'px' }">
+    <div dir="ltr" class="k-gauge" :style="{ width: size + 'px' }">
         <svg :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
             <!-- background arc -->
             <path
@@ -30,7 +30,7 @@
         </svg>
 
         <div class="k-gauge-center" :style="{ width: size * 0.62 + 'px' }">
-            <span class="k-gauge-value">{{ faNum(value) }}<small>٪</small></span>
+            <span class="k-gauge-value">{{ value }}<small>٪</small></span>
             <span v-if="label" class="k-gauge-label">{{ label }}</span>
         </div>
     </div>
@@ -58,7 +58,6 @@ const props = withDefaults(defineProps<{
 })
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(Math.round(n)))
 
 const START = 135 // degrees (135..405 = 270° sweep, starting bottom-left)
 const SWEEP = 270

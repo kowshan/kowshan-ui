@@ -1,5 +1,6 @@
 <template>
     <div class="k-ui app-root" :data-theme="theme">
+        <KTeleportHub />
         <KGlobalLayer />
         <router-view />
     </div>
@@ -8,6 +9,7 @@
 <script setup lang="ts">
 import { provide, ref, watchEffect } from 'vue'
 import KGlobalLayer from './ui-kit/components/KGlobalLayer.vue'
+import KTeleportHub from './ui-kit/components/KTeleportHub.vue'
 
 const theme = ref(localStorage.getItem('k-theme') || 'light')
 const setTheme = (t: string) => { theme.value = t }

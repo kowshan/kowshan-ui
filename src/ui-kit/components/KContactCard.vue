@@ -12,7 +12,7 @@
             <div class="k-contact-id">
                 <div class="k-contact-name">
                     {{ contact.name }}
-                    <span v-if="contact.code" class="k-contact-code">{{ faNum(contact.code) }}</span>
+                    <span v-if="contact.code" class="k-contact-code">{{ contact.code }}</span>
                 </div>
                 <div v-if="contact.role" class="k-contact-role">{{ contact.role }}</div>
                 <div v-if="contact.company" class="k-contact-company">{{ contact.company }}</div>
@@ -29,7 +29,7 @@
         <!-- Contact info -->
         <div v-if="contact.phone || contact.email || contact.address" class="k-contact-info">
             <span v-if="contact.phone" class="k-contact-line" :dir="'ltr'">
-                <Phone class="icon" /> {{ faNum(contact.phone) }}
+                <Phone class="icon" /> {{ contact.phone }}
             </span>
             <span v-if="contact.email" class="k-contact-line" :dir="'ltr'">
                 <Mail class="icon" /> {{ contact.email }}
@@ -107,8 +107,6 @@ const emits = defineEmits<{
 
 const tags = computed(() => props.contact.tags ?? [])
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 const emitSelect = (v: boolean) => {
     emits('update:selected', v)
@@ -126,7 +124,6 @@ const emitSelect = (v: boolean) => {
     border-radius: var(--k-radius-md, 12px);
     padding: 14px;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    direction: rtl;
 }
 
 .k-contact:hover {
@@ -271,7 +268,7 @@ const emitSelect = (v: boolean) => {
 }
 
 .k-contact-action.is-more {
-    margin-right: auto;
+    margin-inline-end: auto;
     padding: 6px 8px;
 }
 </style>

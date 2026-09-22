@@ -7,7 +7,7 @@
         @update:visible="onOverlay"
     >
         <!-- Live preview + now -->
-        <div class="k-tpm-preview">
+        <div dir="ltr" class="k-tpm-preview">
             <span class="k-tpm-time">{{ displayPreview }}</span>
             <button type="button" class="k-tpm-now" @click="goNow">
                 اکنون
@@ -91,9 +91,7 @@ const columns = computed<KWheelColumn[]>(() => {
 })
 
 const pad = (n: number) => String(n).padStart(2, '0')
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
-const faPad = (n: number) => faNum(pad(n))
+const faPad = (n: number) => pad(n)
 
 const displayPreview = computed(() => {
     const h = faPad(hour.value)

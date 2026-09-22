@@ -7,7 +7,7 @@
       <KShibaInput v-model="sheba" label="شماره شبا" />
 -->
 <template>
-    <div class="k-iran-input" :class="[`is-${state}`, { 'is-disabled': disabled }]">
+    <div dir="ltr" class="k-iran-input" :class="[`is-${state}`, { 'is-disabled': disabled }]">
         <label v-if="label" class="k-iran-label">
             {{ label }}
             <span v-if="required" class="k-iran-required">*</span>

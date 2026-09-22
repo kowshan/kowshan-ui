@@ -13,7 +13,7 @@
     over `coupons`. Shows applied state with the computed saving.
 -->
 <template>
-    <div class="k-coupon" :class="`is-${status}`">
+    <div dir="ltr" class="k-coupon" :class="`is-${status}`">
         <!-- Input row -->
         <div class="k-coupon-row">
             <div class="k-coupon-field">
@@ -47,7 +47,7 @@
             <div v-if="status === 'applied'" class="k-coupon-applied">
                 <span class="k-coupon-applied-code">{{ applied?.code }}</span>
                 <span class="k-coupon-applied-saving">
-                    {{ faNum(applied?.saving ?? 0) }} تومان تخفیف
+                    {{ applied?.saving ?? 0 }} تومان تخفیف
                 </span>
             </div>
             <div v-else-if="status === 'error'" class="k-coupon-error">
@@ -90,7 +90,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const draft = ref('')
 const status = ref<'idle' | 'applied' | 'error'>('idle')

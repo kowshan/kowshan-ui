@@ -11,40 +11,41 @@
 -->
 <template>
     <div class="k-cart-item">
-        <!-- Thumb -->
-        <div class="k-cart-thumb">
-            <img v-if="item.image" :src="item.image" :alt="item.title" loading="lazy" />
-            <BookOpen v-else :size="18" />
-        </div>
+        <!-- Top: thumb + title / description / unit price -->
+        <div class="k-cart-top">
+            <div class="k-cart-thumb">
+                <img v-if="item.image" :src="item.image" :alt="item.title" loading="lazy" />
+                <BookOpen v-else :size="18" />
+            </div>
 
-        <!-- Info -->
-        <div class="k-cart-info">
-            <div class="k-cart-title">{{ item.title }}</div>
-            <div v-if="item.meta" class="k-cart-meta">{{ item.meta }}</div>
-            <div class="k-cart-unit">
-                <span class="k-cart-price-now">{{ faNum(item.price) }}</span>
-                <span v-if="item.oldPrice" class="k-cart-price-old">{{ faNum(item.oldPrice) }}</span>
-                <span class="k-cart-currency">{{ currency }}</span>
+            <div class="k-cart-info">
+                <div class="k-cart-title">{{ item.title }}</div>
+                <div v-if="item.meta" class="k-cart-meta">{{ item.meta }}</div>
+                <div class="k-cart-unit">
+                    <span class="k-cart-price-now">{{ item.price }}</span>
+                    <span v-if="item.oldPrice" class="k-cart-price-old">{{ item.oldPrice }}</span>
+                    <span class="k-cart-currency">{{ currency }}</span>
+                </div>
             </div>
         </div>
 
-        <!-- Qty stepper -->
-        <div class="k-cart-qty">
-            <button type="button" class="k-cart-qty-btn" aria-label="کم کردن" :disabled="(item.qty ?? 1) <= 1" @click="emits('update:qty', item.id, (item.qty ?? 1) - 1)">
-                <Minus :size="12" />
-            </button>
-            <span class="k-cart-qty-num">{{ faNum(item.qty ?? 1) }}</span>
-            <button type="button" class="k-cart-qty-btn is-plus" aria-label="زیاد کردن" @click="emits('update:qty', item.id, (item.qty ?? 1) + 1)">
-                <Plus :size="12" />
-            </button>
-        </div>
+        <!-- Bottom: qty stepper + total + remove -->
+        <div class="k-cart-bottom">
+            <div class="k-cart-qty">
+                <button type="button" class="k-cart-qty-btn" aria-label="کم کردن" :disabled="(item.qty ?? 1) <= 1" @click="emits('update:qty', item.id, (item.qty ?? 1) - 1)">
+                    <Minus :size="12" />
+                </button>
+                <span class="k-cart-qty-num">{{ item.qty ?? 1 }}</span>
+                <button type="button" class="k-cart-qty-btn is-plus" aria-label="زیاد کردن" @click="emits('update:qty', item.id, (item.qty ?? 1) + 1)">
+                    <Plus :size="12" />
+                </button>
+            </div>
 
-        <!-- Line total + remove -->
-        <div class="k-cart-side">
+            <span class="k-cart-total">{{ lineTotal }} <small>{{ currency }}</small></span>
+
             <button type="button" class="k-cart-remove" aria-label="حذف" @click="emits('remove', item.id)">
                 <Trash2 :size="14" />
             </button>
-            <span class="k-cart-total">{{ faNum(lineTotal) }} <small>{{ currency }}</small></span>
         </div>
     </div>
 </template>
@@ -68,7 +69,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const lineTotal = computed(() => props.item.price * (props.item.qty ?? 1))
 </script>
@@ -76,21 +76,35 @@ const lineTotal = computed(() => props.item.price * (props.item.qty ?? 1))
 <style scoped>
 .k-cart-item {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px;
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: 12px;
+}
+
+.k-cart-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.k-cart-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--k-border, #e2e8f0);
 }
 
 .k-cart-thumb {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
+    width: 46px;
+    height: 46px;
     border-radius: 9px;
     overflow: hidden;
     background: var(--k-surface-hover, #f1f5f9);
@@ -160,8 +174,8 @@ const lineTotal = computed(() => props.item.price * (props.item.qty ?? 1))
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 7px;
     border: 1px solid var(--k-border, #e2e8f0);
     background: var(--k-surface, #f8fafc);
@@ -193,21 +207,18 @@ const lineTotal = computed(() => props.item.price * (props.item.qty ?? 1))
     color: var(--k-text-primary, #1e293b);
 }
 
-.k-cart-side {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
+.k-cart-total {
+    margin-inline-start: auto;
 }
 
 .k-cart-remove {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
     background: transparent;
     color: var(--k-text-muted, #94a3b8);
     cursor: pointer;
@@ -220,7 +231,7 @@ const lineTotal = computed(() => props.item.price * (props.item.qty ?? 1))
 }
 
 .k-cart-total {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--k-text-primary, #1e293b);
     white-space: nowrap;

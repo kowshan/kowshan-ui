@@ -6,7 +6,7 @@
       <KAudioPlayer src="…" title="…" />           <!-- single track -->
 -->
 <template>
-    <div class="k-ap">
+    <div dir="ltr" class="k-ap">
         <div class="k-ap-main">
             <button type="button" class="k-ap-play" :aria-label="playing ? 'توقف' : 'پخش'" @click="toggle">
                 <Pause v-if="playing" :size="18" fill="currentColor" />
@@ -43,7 +43,7 @@
                 @click="select(i)"
             >
                 <Music2 :size="13" />
-                <span class="k-ap-track-title">{{ t.title || 'قطعه ' + faNum(i + 1) }}</span>
+                <span class="k-ap-track-title">{{ t.title || 'قطعه ' + i + 1 }}</span>
                 <span v-if="t.artist" class="k-ap-track-artist">{{ t.artist }}</span>
             </li>
         </ul>
@@ -85,7 +85,6 @@ const emit = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const audioEl = ref<HTMLAudioElement | null>(null)
 const playing = ref(false)
@@ -107,7 +106,7 @@ const fmt = (s: number) => {
     if (!isFinite(s)) return '۰:۰۰'
     const m = Math.floor(s / 60)
     const sec = Math.floor(s % 60)
-    return `${toPersianDigits(String(m))}:${toPersianDigits(String(sec).padStart(2, '0'))}`
+    return `${String(m)}:${String(sec).padStart(2, '0')}`
 }
 
 const load = () => {

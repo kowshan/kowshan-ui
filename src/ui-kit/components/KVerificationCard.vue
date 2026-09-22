@@ -23,7 +23,7 @@
         <div class="k-kvc-header">
             <div class="k-kvc-head">
                 <span class="k-kvc-icon">
-                    <slot name="icon"><ShieldCheck :size="20" /></slot>
+                    <slot name="icon"><component :is="icon || ShieldCheck" :size="20" /></slot>
                 </span>
                 <div class="k-kvc-heading">
                     <span class="k-kvc-title">{{ title }}</span>
@@ -59,7 +59,7 @@
             >
                 <span class="k-kvc-step-dot">
                     <Check v-if="s.done" :size="12" />
-                    <span v-else>{{ faNum(i + 1) }}</span>
+                    <span v-else>{{ i + 1 }}</span>
                 </span>
                 <span class="k-kvc-step-label">{{ s.label }}</span>
                 <span v-if="s.current && status !== 'approved'" class="k-kvc-step-now">در حال انجام</span>
@@ -96,17 +96,22 @@ const props = withDefaults(defineProps<{
     /** override the auto-computed progress (0-100) */
     progress?: number
     note?: string
+    /** Custom icon component for the header */
+    icon?: any
+    /** Custom banner texts per status — overrides defaults */
+    banners?: Partial<Record<string, { icon: any; text: string }>>
 }>(), {
     title: 'احراز هویت',
     subtitle: 'وضعیت تأیید هویت حساب شما',
     status: 'idle',
     steps: () => [],
     progress: -1,
-    note: ''
+    note: '',
+    icon: undefined,
+    banners: undefined
 })
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const badgeStatus = computed(() => {
     if (props.status === 'approved') return 'verified'
@@ -128,14 +133,17 @@ const progressVariant = computed(() => {
     return 'primary'
 })
 
-const BANNERS: Record<string, { icon: any; text: string }> = {
-    idle: { icon: ShieldAlert, text: 'برای تکمیل احراز هویت، مراحل زیر را به ترتیب انجام دهید.' },
-    pending: { icon: Clock3, text: 'مدارک شما در حال بررسی است — معمولاً کمتر از ۲۴ ساعت طول می‌کشد.' },
-    approved: { icon: ShieldCheck, text: 'احراز هویت شما با موفقیت کامل شد. تمام امکانات فعال است.' },
-    rejected: { icon: ShieldX, text: 'مدارک ارسالی رد شد. لطفاً مدارک معتبر را دوباره بارگذاری کنید.' }
+const DEFAULT_BANNERS: Record<string, { icon: any; text: string }> = {
+    idle: { icon: ShieldAlert, text: 'برای تکمیل مراحل، موارد زیر را به ترتیب انجام دهید.' },
+    pending: { icon: Clock3, text: 'در حال بررسی — معمولاً کمتر از ۲۴ ساعت طول می‌کشد.' },
+    approved: { icon: ShieldCheck, text: 'مراحل با موفقیت تکمیل شد. تمام امکانات فعال است.' },
+    rejected: { icon: ShieldX, text: 'برخی مراحل رد شد. لطفاً مجدداً بررسی کنید.' }
 }
 
-const banner = computed(() => BANNERS[props.status])
+const banner = computed(() => {
+    const defaults = DEFAULT_BANNERS[props.status]
+    return props.banners?.[props.status] || defaults
+})
 const bannerIcon = computed(() => banner.value.icon)
 const bannerText = computed(() => banner.value.text)
 </script>

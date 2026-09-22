@@ -9,7 +9,7 @@
     stays pixel-crisp at any scale. Fires `error` when the value is too long.
 -->
 <template>
-    <div class="k-qr" :title="title">
+    <div dir="ltr" class="k-qr" :title="title">
         <svg
             v-if="viewSize"
             :width="size"

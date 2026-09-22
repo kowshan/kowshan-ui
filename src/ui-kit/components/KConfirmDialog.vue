@@ -11,7 +11,6 @@
     <KConfirmDialog />
 -->
 <template>
-    <Teleport to="body">
         <Transition name="k-modal-fade">
             <div
                 v-if="visible"
@@ -68,7 +67,6 @@
                 </Transition>
             </div>
         </Transition>
-    </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -76,7 +74,7 @@ import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { AlertTriangle, HelpCircle, X } from 'lucide-vue-next'
 import { useKitTheme } from '../composables/useKitTheme'
 import { useModalStore } from '../stores/modalStore'
-import { useFocusTrap } from '../composables/useFocusTrap'
+import { useKFocusTrap } from '../composables/useKFocusTrap'
 
 const theme = useKitTheme()
 const modal = useModalStore()
@@ -87,7 +85,7 @@ const confirmBtn = ref<HTMLButtonElement | null>(null)
 const visible = computed(() => modal.confirmState.visible)
 const config = computed(() => modal.confirmState.config)
 
-useFocusTrap(dialogEl, () => visible.value)
+useKFocusTrap(dialogEl, () => visible.value)
 
 watch(visible, (v) => {
     if (v) {

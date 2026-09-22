@@ -33,7 +33,7 @@
             >
                 <component :is="chip.icon" v-if="chip.icon" class="chip-icon" />
                 {{ chip.label }}
-                <span v-if="chip.count != null" class="chip-count">{{ faNum(chip.count) }}</span>
+                <span v-if="chip.count != null" class="chip-count">{{ chip.count }}</span>
             </button>
         </div>
 
@@ -98,8 +98,6 @@ const reset = () => {
     emits('reset')
 }
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -108,7 +106,6 @@ const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Num
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    direction: rtl;
 }
 
 .k-filterbar-search {

@@ -195,7 +195,6 @@ onMounted(() => {
 <style scoped>
 .k-signature {
     width: 100%;
-    direction: rtl;
 }
 
 .k-signature-canvas {

@@ -5,16 +5,20 @@
      • inner layers supported: column items with `children` render flyouts
      • `featured: true` renders the #featured slot beside the content
      • hover opens / switches panels; leaving the container closes; click toggles
+
+     The panel is TELEPORTED to #k-teleport-hub and positioned `fixed` to match the
+     bar's rect, so an `overflow: hidden` ancestor can never clip it.
 -->
 <template>
     <nav
         ref="rootRef"
         class="k-mega-bar"
         :class="{ 'is-open': open }"
-        @mouseleave="close"
+        @mouseenter="cancelClose"
+        @mouseleave="scheduleClose"
     >
         <!-- bar row -->
-        <div class="k-mega-bar-bar">
+        <div ref="barEl" class="k-mega-bar-bar">
             <button
                 v-for="(item, i) in items"
                 :key="i"
@@ -38,54 +42,58 @@
             </button>
         </div>
 
-        <!-- connected panel (absolute, no gap — part of the same box) -->
-        <Transition name="k-mega-bar">
-            <div
-                v-if="open && activeItem"
-                class="k-mega-bar-panel"
-                role="menu"
-            >
+        <!-- connected panel (teleported, fixed under the bar) -->
+        <Teleport to="#k-teleport-hub">
+            <Transition name="k-mega-bar">
                 <div
-                    class="k-mega-bar-content"
-                    :class="{ 'has-featured': activeItem.featured }"
+                    v-if="open && activeItem"
+                    ref="panelEl"
+                    class="k-ui k-mega-bar-panel"
+                    :data-theme="theme"
+                    :style="panelStyle"
+                    role="menu"
+                    @mouseenter="cancelClose"
+                    @mouseleave="scheduleClose"
                 >
-                    <!-- categorized columns -->
-                    <div v-if="activeItem.groups?.length" class="k-mega-bar-groups">
-                        <div
-                            v-for="(g, gi) in activeItem.groups"
-                            :key="gi"
-                            class="k-mega-bar-group"
-                        >
-                            <div v-if="g.title" class="k-mega-bar-group-title">{{ g.title }}</div>
-                            <template v-for="(item, ii) in g.items" :key="ii">
+                    <div
+                        class="k-mega-bar-content"
+                        :class="{ 'has-featured': activeItem.featured }"
+                    >
+                        <!-- categorized columns -->
+                        <div v-if="activeItem.groups?.length" class="k-mega-bar-groups">
+                            <div v-for="(g, gi) in activeItem.groups" :key="gi" class="k-mega-bar-group">
+                                <div v-if="g.title" class="k-mega-bar-group-title">{{ g.title }}</div>
+                                <template v-for="(item, ii) in g.items" :key="ii">
+                                    <div v-if="item === 'divider'" class="k-mega-separator" />
+                                    <KMegaMenuItem v-else :item="item" @select="select" />
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- flat / nested list -->
+                        <div v-else-if="activeItem.items?.length" class="k-mega-bar-list">
+                            <template v-for="(item, i) in activeItem.items" :key="i">
                                 <div v-if="item === 'divider'" class="k-mega-separator" />
                                 <KMegaMenuItem v-else :item="item" @select="select" />
                             </template>
                         </div>
+
+                        <!-- featured promo card -->
+                        <slot v-if="activeItem.featured" name="featured" :item="activeItem" />
                     </div>
 
-                    <!-- flat / nested list -->
-                    <div v-else-if="activeItem.items?.length" class="k-mega-bar-list">
-                        <template v-for="(item, i) in activeItem.items" :key="i">
-                            <div v-if="item === 'divider'" class="k-mega-separator" />
-                            <KMegaMenuItem v-else :item="item" @select="select" />
-                        </template>
-                    </div>
-
-                    <!-- featured promo card -->
-                    <slot v-if="activeItem.featured" name="featured" :item="activeItem" />
+                    <slot name="footer" :item="activeItem" />
                 </div>
-
-                <slot name="footer" :item="activeItem" />
-            </div>
-        </Transition>
+            </Transition>
+        </Teleport>
     </nav>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import { useClickOutside } from '../composables/useClickOutside'
+import { useKitTheme } from '../composables/useKitTheme'
 import KMegaMenuItem from './KMegaMenuItem.vue'
 import type { KMegaItem, KMegaGroup } from './KMegaMenuItem.vue'
 
@@ -117,10 +125,20 @@ const emits = defineEmits<{
     'close': []
 }>()
 
+const theme = useKitTheme()
 const rootRef = ref<HTMLElement | null>(null)
+const barEl = ref<HTMLElement | null>(null)
+const panelEl = ref<HTMLElement | null>(null)
 const active = ref<number | null>(null)
 const open = ref(false)
-let timer: ReturnType<typeof setTimeout> | null = null
+
+const pos = ref({ top: 0, left: 0, width: 0 })
+const ready = ref(false)
+
+let hoverTimer: ReturnType<typeof setTimeout> | null = null
+let closeTimer: ReturnType<typeof setTimeout> | null = null
+
+const MARGIN = 12
 
 const hasPanel = (item: KMegaBarItem) =>
     !!item.groups?.length || !!item.items?.length || !!item.featured
@@ -129,22 +147,53 @@ const activeItem = computed<KMegaBarItem | null>(() =>
     active.value == null ? null : props.items[active.value] ?? null
 )
 
+const panelStyle = computed(() => ({
+    top: pos.value.top + 'px',
+    left: pos.value.left + 'px',
+    width: pos.value.width + 'px',
+    visibility: (ready.value ? 'visible' : 'hidden') as 'visible' | 'hidden',
+}))
+
+/** match the panel to the bar's rect, clamped to the viewport */
+const place = () => {
+    const el = barEl.value
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    nextTick(() => {
+        const width = Math.max(200, Math.min(r.width, window.innerWidth - MARGIN * 2))
+        const left = Math.min(Math.max(MARGIN, r.left), Math.max(MARGIN, window.innerWidth - width - MARGIN))
+        pos.value = { top: r.bottom - 1, left, width }
+        ready.value = true
+    })
+}
+
+const cancelClose = () => {
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null }
+}
+/** delay the close so the pointer can travel from the bar into the teleported panel */
+const scheduleClose = () => {
+    cancelClose()
+    closeTimer = setTimeout(close, 140)
+}
+
 const openAt = (i: number) => {
     if (!hasPanel(props.items[i])) return false
+    if (active.value !== i) ready.value = false
     active.value = i
     open.value = true
     emits('open', i)
+    place()
     return true
 }
 
 const hover = (i: number) => {
-    if (timer) { clearTimeout(timer); timer = null }
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null }
     if (active.value === i && open.value) return
-    timer = setTimeout(() => { openAt(i) }, 60)
+    hoverTimer = setTimeout(() => { openAt(i) }, 60)
 }
 
 const clickItem = (i: number) => {
-    if (timer) { clearTimeout(timer); timer = null }
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null }
     const item = props.items[i]
     if (!hasPanel(item)) {
         // plain link — behave like a top-level action
@@ -159,6 +208,7 @@ const clickItem = (i: number) => {
 }
 
 const close = () => {
+    cancelClose()
     open.value = false
     active.value = null
     emits('close')
@@ -169,16 +219,31 @@ const select = (item: KMegaItem) => {
     if (props.closeOnSelect) close()
 }
 
-useClickOutside([rootRef], close)
+const onReposition = () => { if (open.value) place() }
+
+watch(open, v => {
+    if (!v) return
+    ready.value = false
+    place()
+})
+
+useClickOutside([rootRef, panelEl], close)
 
 const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') close()
 }
 
-document.addEventListener('keydown', onKey)
+onMounted(() => {
+    document.addEventListener('keydown', onKey)
+    window.addEventListener('resize', onReposition)
+    window.addEventListener('scroll', onReposition, true)
+})
 onBeforeUnmount(() => {
     document.removeEventListener('keydown', onKey)
-    if (timer) clearTimeout(timer)
+    window.removeEventListener('resize', onReposition)
+    window.removeEventListener('scroll', onReposition, true)
+    if (hoverTimer) clearTimeout(hoverTimer)
+    if (closeTimer) clearTimeout(closeTimer)
 })
 </script>
 
@@ -263,20 +328,19 @@ onBeforeUnmount(() => {
     color: var(--k-primary, #1db954);
 }
 
-/* panel — connected, full-width, no gap */
+/* panel — teleported, fixed, matched to the bar rect */
 .k-mega-bar-panel {
-    position: absolute;
-    top: 100%;
-    left: -1px;
-    right: -1px;
-    margin-top: -1px;
-    z-index: 60;
+    position: fixed;
+    z-index: 21000;
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-top: none;
     border-radius: 0 0 14px 14px;
     box-shadow: 0 18px 40px rgba(2, 6, 23, 0.16);
     padding: 10px 14px 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+    /* NOTE: no max-height/overflow — flyouts extend past the panel and would be clipped */
 }
 
 .k-mega-bar-content {

@@ -3,7 +3,7 @@
     <div class="k-assessment">
         <!-- Question -->
         <div class="k-assessment-question">
-            <span v-if="number != null" class="k-assessment-number">{{ faNum(number) }}</span>
+            <span v-if="number != null" class="k-assessment-number">{{ number }}</span>
             <span class="k-assessment-text">{{ question }}</span>
         </div>
 
@@ -115,8 +115,6 @@ const toggle = (opt: KAssessmentOption) => {
 const choiceLetter = (i: number) =>
     ['الف', 'ب', 'ج', 'د', 'هـ'][i] ?? String(i + 1)
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -182,7 +180,7 @@ const faNum = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
     border-radius: 10px;
     background: var(--k-bg, #ffffff);
     font-family: inherit;
-    text-align: right;
+    text-align: start;
     cursor: pointer;
     transition: all 0.15s ease;
 }

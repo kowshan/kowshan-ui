@@ -20,7 +20,7 @@
         <div v-if="headerText || showProgress" class="k-lessons-head">
             <span class="k-lessons-head-text">{{ headerText }}</span>
             <span v-if="showProgress" class="k-lessons-head-progress">
-                {{ faNum(doneCount) }} از {{ faNum(totalCount) }} درس
+                {{ doneCount }} از {{ totalCount }} درس
                 <span class="k-lessons-head-bar">
                     <span class="k-lessons-head-bar-fill" :style="{ width: percent + '%' }"></span>
                 </span>
@@ -97,7 +97,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const allLessons = computed(() => props.sections.flatMap(s => s.lessons))
 const totalCount = computed(() => allLessons.value.length)
@@ -190,7 +189,7 @@ const select = (lesson: LessonItem) => {
     background: transparent;
     cursor: pointer;
     font-family: inherit;
-    text-align: right;
+    text-align: start;
     transition: all 0.15s ease;
 }
 

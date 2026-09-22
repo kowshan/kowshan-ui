@@ -9,12 +9,10 @@
     Emits `validate` with { valid, error } on change/blur.
 -->
 <template>
-    <div class="k-phone">
+    <div dir="ltr" class="k-phone">
         <label v-if="label" class="k-phone-label">{{ label }}</label>
         <div class="k-phone-field" :class="fieldClass">
-            <span class="k-phone-prefix">
-                +98
-            </span>
+            <span v-if="prefix" class="k-phone-prefix">{{ prefix }}</span>
             <input
                 :value="display"
                 type="tel"
@@ -56,13 +54,17 @@ const props = withDefaults(defineProps<{
     placeholder?: string
     disabled?: boolean
     errorText?: string
+    prefix?: string
+    includePrefix?: boolean
 }>(), {
     modelValue: '',
     label: '',
     hint: '',
     placeholder: '۰۹۱۲ ۳۴۵ ۶۷۸۹',
     disabled: false,
-    errorText: 'شماره موبایل معتبر نیست'
+    errorText: 'شماره موبایل معتبر نیست',
+    prefix: '+98',
+    includePrefix: true,
 })
 
 const emit = defineEmits<{
@@ -100,7 +102,7 @@ const fieldClass = computed(() => ({
 
 const onInput = (e: Event) => {
     raw.value = normalize((e.target as HTMLInputElement).value)
-    emit('update:modelValue', clean.value)
+    emit('update:modelValue', props.includePrefix && clean.value ? `+98${clean.value}` : clean.value)
     if (clean.value.length === 11) emitValidate()
     else valid.value = clean.value ? false : null
 }
@@ -157,6 +159,7 @@ const emitValidate = () => {
     font-size: 0.76rem;
     font-weight: 700;
     direction: ltr;
+    order: -1;
 }
 
 .k-phone-input {
@@ -180,12 +183,14 @@ const emitValidate = () => {
     color: var(--k-success, #10b981);
     margin-inline-end: 12px;
     flex-shrink: 0;
+    order: 2;
 }
 
 .k-phone-bad {
     color: var(--k-error, #ef4444);
     margin-inline-end: 12px;
     flex-shrink: 0;
+    order: 2;
 }
 
 .k-phone-hint {

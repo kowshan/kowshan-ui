@@ -14,7 +14,7 @@
     (40% / 70% / 92%), backdrop click, ESC, teleported + theme-aware.
 -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-sheet-fade">
             <div
                 v-if="isVisible"
@@ -209,10 +209,10 @@ onUnmounted(() => {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    direction: rtl;
 }
 
 .k-sheet {
+    font-family: inherit;
     display: flex;
     flex-direction: column;
     width: 100%;

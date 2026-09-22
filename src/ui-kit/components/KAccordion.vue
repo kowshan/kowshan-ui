@@ -129,6 +129,7 @@ const toggle = (index: number) => {
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 800;
+    font-family: inherit;
     color: var(--k-text-primary);
     transition: background 0.15s ease;
     text-align: start;
@@ -144,7 +145,7 @@ const toggle = (index: number) => {
 }
 
 .k-accordion-header:focus-visible {
-    outline: 2px solid #1db954;
+    outline: 2px solid var(--k-primary);
     outline-offset: -2px;
 }
 
@@ -157,7 +158,7 @@ const toggle = (index: number) => {
 .k-accordion-icon {
     width: 16px;
     height: 16px;
-    color: #1db954;
+    color: var(--k-primary);
 }
 
 .k-accordion-chevron {

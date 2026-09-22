@@ -10,25 +10,24 @@
     labels and Persian digits. Colors follow the kit's theme tokens.
 -->
 <template>
-    <div class="k-heatmap" :class="`k-heatmap-${size}`">
-        <!-- Month labels row -->
-        <div class="k-heatmap-months" :style="{ marginInlineStart: `${weekdayW}px` }">
-            <span
-                v-for="(label, i) in monthLabels"
-                :key="i"
-                class="k-heatmap-month"
-                :style="leftStyle(label.offset)"
-            >{{ label.text }}</span>
-        </div>
-
+    <div dir="ltr" class="k-heatmap" :class="`k-heatmap-${size}`">
         <div class="k-heatmap-body">
             <!-- Weekday labels -->
             <div class="k-heatmap-weekdays">
                 <span v-for="d in weekdayLabels" :key="d">{{ d }}</span>
             </div>
 
-            <!-- Cells -->
-            <div class="k-heatmap-grid" ref="gridRef">
+            <!-- Grid + month labels -->
+            <div class="k-heatmap-right">
+                <div class="k-heatmap-months">
+                    <span
+                        v-for="(label, i) in monthLabels"
+                        :key="i"
+                        class="k-heatmap-month"
+                    >{{ label.text }}</span>
+                </div>
+
+                <div class="k-heatmap-grid" ref="gridRef">
                 <div
                     v-for="(week, wi) in gridWeeks"
                     :key="wi"
@@ -42,6 +41,7 @@
                         :title="cell.title"
                     ></div>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -72,7 +72,6 @@ const props = withDefaults(defineProps<{
 })
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
 const WEEKDAY_LABELS = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
@@ -114,7 +113,7 @@ const grid = computed(() => {
                 prevMonth = j.month
                 monthStart = d
             }
-            const title = `${j.year}/${String(j.month).padStart(2, '0')}/${String(j.day).padStart(2, '0')} — ${faNum(count)} فعالیت`
+            const title = `${j.year}/${String(j.month).padStart(2, '0')}/${String(j.day).padStart(2, '0')} — ${count} فعالیت`
             cells.push({ level: levelOf(count), title })
         }
         cols.push({ cells, monthStart })
@@ -123,21 +122,29 @@ const grid = computed(() => {
     return { cols, total }
 })
 
-/* Jalali month labels positioned over the columns where a month starts */
+/* Jalali month labels — show at ~every 4 weeks to avoid overlap */
 const monthLabels = computed(() => {
     const labels: { text: string; offset: number }[] = []
-    let prevJ: { month: number } | null = null
     const start = new Date()
     start.setHours(0, 0, 0, 0)
     start.setDate(start.getDate() - (props.weeks * 7 - 1))
+
+    // Show label every ~4 weeks (every month boundary)
+    let lastMonth = -1
+    let minGap = Math.max(4, Math.floor(props.weeks / 12)) // ensure spacing
+    let lastLabelWeek = -minGap
 
     for (let w = 0; w < props.weeks; w++) {
         const day = new Date(start)
         day.setDate(start.getDate() + w * 7)
         const j = toJalali(day)
-        if (!prevJ || j.month !== prevJ.month) {
-            labels.push({ text: MONTHS[j.month - 1], offset: (w / props.weeks) * 100 })
-            prevJ = j
+        if (j.month !== lastMonth && (w - lastLabelWeek) >= minGap) {
+            labels.push({
+                text: toPersianDigits(String(j.month).padStart(2, '0')),
+                offset: (w / props.weeks) * 100
+            })
+            lastMonth = j.month
+            lastLabelWeek = w
         }
     }
     return labels
@@ -159,25 +166,28 @@ const weekdayLabels = WEEKDAY_LABELS
 }
 
 .k-heatmap-months {
-    position: relative;
+    display: flex;
+    justify-content: space-between;
     height: 16px;
     margin-bottom: 4px;
-    /* extend into the grid area */
-    margin-inline-end: 0;
-}
-
-.k-heatmap-month {
-    position: absolute;
-    transform: translateX(-50%);
     font-size: 0.62rem;
     font-weight: 600;
     color: var(--k-text-muted);
+}
+
+.k-heatmap-month {
     white-space: nowrap;
 }
 
 .k-heatmap-body {
     display: flex;
     gap: 6px;
+}
+
+.k-heatmap-right {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
 }
 
 .k-heatmap-weekdays {
@@ -195,8 +205,7 @@ const weekdayLabels = WEEKDAY_LABELS
 .k-heatmap-grid {
     display: flex;
     gap: 3px;
-    flex: 1;
-    min-width: 0;
+    width: fit-content;
 }
 
 .k-heatmap-week {
@@ -235,7 +244,7 @@ const weekdayLabels = WEEKDAY_LABELS
     align-items: center;
     gap: 4px;
     margin-top: 10px;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
 .k-heatmap-legend-label {

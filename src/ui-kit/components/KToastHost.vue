@@ -1,73 +1,71 @@
 <!-- components/KToastHost.vue -->
 <template>
-    <Teleport to="body">
-        <div v-for="pos in stackPositions" :key="pos" class="k-ui k-toast-host" :data-theme="theme" :class="`pos-${pos}`">
-            <TransitionGroup name="k-toast">
-                <div
-                    v-for="t in toastsFor(pos)"
-                    :key="t.id"
-                    class="k-toast"
-                    :class="[`is-${t.type}`, { 'is-paused': pausedIds.has(t.id) }]"
-                    role="status"
-                    @mouseenter="pauseClose(t.id)"
-                    @mouseleave="resumeClose(t.id)"
-                >
-                    <span class="k-toast-icon">
-                        <component :is="t.icon || variantIcon(t.type)" class="icon" />
-                    </span>
+    <div v-for="pos in stackPositions" :key="pos" class="k-ui k-toast-host" :data-theme="theme" :class="`pos-${pos}`">
+        <TransitionGroup name="k-toast">
+            <div
+                v-for="t in toastsFor(pos)"
+                :key="t.id"
+                class="k-toast"
+                :class="[`is-${t.type}`, { 'is-paused': pausedIds.has(t.id) }]"
+                role="status"
+                @mouseenter="pauseClose(t.id)"
+                @mouseleave="resumeClose(t.id)"
+            >
+                <span class="k-toast-icon">
+                    <component :is="t.icon || variantIcon(t.type)" class="icon" />
+                </span>
 
-                    <div class="k-toast-body">
-                        <!-- Multi-message: title + list -->
-                        <template v-if="t.message.length > 1">
-                            <div class="k-toast-title">{{ t.title || 'اطلاعات را بررسی کنید' }}</div>
-                            <ul class="k-toast-list">
-                                <li v-for="(m, mi) in t.message" :key="mi">{{ m }}</li>
-                            </ul>
-                        </template>
+                <div class="k-toast-body">
+                    <!-- Multi-message: title + list -->
+                    <template v-if="t.message.length > 1">
+                        <div class="k-toast-title">{{ t.title || 'اطلاعات را بررسی کنید' }}</div>
+                        <ul class="k-toast-list">
+                            <li v-for="(m, mi) in t.message" :key="mi">{{ m }}</li>
+                        </ul>
+                    </template>
 
-                        <!-- Single message -->
-                        <template v-else>
-                            <div v-if="t.title" class="k-toast-title">{{ t.title }}</div>
-                            <div v-if="t.message[0]" class="k-toast-message">{{ t.message[0] }}</div>
-                            <div v-if="t.description" class="k-toast-desc">{{ t.description }}</div>
-                        </template>
+                    <!-- Single message -->
+                    <template v-else>
+                        <div v-if="t.title" class="k-toast-title">{{ t.title }}</div>
+                        <div v-if="t.message[0]" class="k-toast-message">{{ t.message[0] }}</div>
+                        <div v-if="t.description" class="k-toast-desc">{{ t.description }}</div>
+                    </template>
 
-                        <!-- Action buttons -->
-                        <div v-if="t.buttons.length" class="k-toast-actions">
-                            <button
-                                v-for="(b, bi) in t.buttons"
-                                :key="bi"
-                                type="button"
-                                class="k-toast-action"
-                                :class="`variant-${b.variant || 'primary'}`"
-                                @click="runButton(t, b)"
-                            >
-                                {{ b.label }}
-                            </button>
-                        </div>
+                    <!-- Action buttons -->
+                    <div v-if="t.buttons.length" class="k-toast-actions">
+                        <button
+                            v-for="(b, bi) in t.buttons"
+                            :key="bi"
+                            type="button"
+                            class="k-toast-action"
+                            :class="`variant-${b.variant || 'primary'}`"
+                            @click="runButton(t, b)"
+                        >
+                            {{ b.label }}
+                        </button>
                     </div>
-
-                    <button
-                        v-if="t.closable"
-                        type="button"
-                        class="k-toast-close"
-                        aria-label="بستن"
-                        @click="removeToast(t.id)"
-                    >
-                        <X class="icon" />
-                    </button>
-
-                    <span
-                        v-if="t.duration > 0"
-                        class="k-toast-timer"
-                        :class="{ 'is-paused': pausedIds.has(t.id) }"
-                        :style="{ animationDuration: (t.duration / 1000) + 's' }"
-                        @animationend="removeToast(t.id)"
-                    />
                 </div>
-            </TransitionGroup>
-        </div>
-    </Teleport>
+
+                <button
+                    v-if="t.closable"
+                    type="button"
+                    class="k-toast-close"
+                    aria-label="بستن"
+                    @click="removeToast(t.id)"
+                >
+                    <X class="icon" />
+                </button>
+
+                <span
+                    v-if="t.duration > 0"
+                    class="k-toast-timer"
+                    :class="{ 'is-paused': pausedIds.has(t.id) }"
+                    :style="{ animationDuration: (t.duration / 1000) + 's' }"
+                    @animationend="removeToast(t.id)"
+                />
+            </div>
+        </TransitionGroup>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -86,7 +84,9 @@ const props = withDefaults(defineProps<{
 
 const theme = useKitTheme()
 const { state, removeToast } = useToastStore()
-const toasts = state.toasts
+/* computed, not `state.toasts` — a captured array reference goes stale the moment
+   the store swaps the list (clearToasts), which froze toasts on screen */
+const toasts = computed(() => state.toasts)
 
 const icons: Record<ToastType, any> = {
     info: Info,
@@ -108,11 +108,11 @@ const normalizePos = (p?: string) => {
 
 const stackPositions = computed(() => {
     const set = new Set<string>([normalizePos(props.position)])
-    toasts.forEach(t => set.add(normalizePos(t.position)))
+    toasts.value.forEach(t => set.add(normalizePos(t.position)))
     return [...set]
 })
 
-const toastsFor = (pos: string) => toasts.filter(t => normalizePos(t.position) === pos)
+const toastsFor = (pos: string) => toasts.value.filter(t => normalizePos(t.position) === pos)
 
 /* Autoclose: real timeout per toast (the timer bar is the visual cue) */
 const timers = new Map<number, ReturnType<typeof setTimeout>>()
@@ -125,7 +125,11 @@ const scheduleClose = (id: number, delay: number) => {
     timers.set(id, setTimeout(() => removeToast(id), delay))
 }
 
-watch(toasts, (list) => {
+/* Watch the length, not the computed itself: the list is replaced/spliced in
+   place, so watching a computed that returns the same array never fires. */
+watch(() => state.toasts.length, () => {
+    const list = state.toasts
+    pausedIds.value = new Set([...pausedIds.value].filter(id => list.some(t => t.id === id)))
     // schedule close for new sticky-less toasts
     list.forEach(t => {
         if (t.duration > 0 && !timers.has(t.id)) {
@@ -141,7 +145,7 @@ watch(toasts, (list) => {
             pausedIds.value.delete(id)
         }
     })
-}, { deep: true })
+})
 
 /* Pause-on-hover: hold the auto-dismiss (JS timer + CSS bar) while the mouse is over the toast */
 const pauseClose = (id: number) => {
@@ -184,6 +188,7 @@ const runButton = (t: any, b: ToastButton) => {
     z-index: 10001;
     width: min(380px, calc(100vw - 32px));
     pointer-events: none;
+    font-family: var(--k-font-family, 'yekan-bakh', Tahoma, sans-serif);
 }
 
 .k-toast-host > * {

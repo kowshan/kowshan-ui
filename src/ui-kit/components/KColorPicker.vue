@@ -6,7 +6,7 @@
       <KColorPicker v-model="color" :presets="['#10b981','#3b82f6','#ef4444']" />
 -->
 <template>
-    <div ref="rootRef" class="k-cp">
+    <div dir="ltr" ref="rootRef" class="k-cp">
         <!-- Trigger -->
         <button
             type="button"
@@ -21,7 +21,7 @@
 
         <!-- Panel -->
         <Transition name="k-slide-down">
-            <div v-if="open" class="k-cp-panel">
+            <div v-if="open" ref="panelEl" class="k-cp-panel" :style="panelStyle">
                 <!-- Presets -->
                 <div class="k-cp-presets">
                     <button
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ChevronDown, Palette } from 'lucide-vue-next'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 import { useClickOutside } from '../composables/useClickOutside'
@@ -107,6 +107,28 @@ const commitHex = () => {
 }
 
 useClickOutside([rootRef], () => { open.value = false })
+
+/* Keep the panel inside the viewport when the trigger sits near an edge */
+const panelEl = ref<HTMLElement | null>(null)
+const panelOffset = ref(0)
+const panelStyle = computed(() => panelOffset.value ? { transform: `translateX(${panelOffset.value}px)` } : {})
+
+const clampPanel = () => {
+    nextTick(() => {
+        if (!panelEl.value) return
+        const margin = 12
+        const rect = panelEl.value.getBoundingClientRect()
+        let offset = 0
+        if (rect.right > window.innerWidth - margin) offset = (window.innerWidth - margin) - rect.right
+        if (rect.left + offset < margin) offset = margin - rect.left
+        panelOffset.value = offset
+    })
+}
+
+watch(open, (v) => {
+    if (!v) { panelOffset.value = 0; return }
+    clampPanel()
+})
 </script>
 
 <style scoped>
@@ -119,14 +141,16 @@ useClickOutside([rootRef], () => { open.value = false })
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    height: 38px;
+    height: 36px;
     padding: 0 10px;
     background: var(--k-bg, #fff);
-    border: 1.5px solid var(--k-border, #e2e8f0);
-    border-radius: 10px;
+    border: 1px solid var(--k-border, #e2e8f0);
+    border-radius: var(--k-radius-sm, 8px);
     cursor: pointer;
     font-family: inherit;
     transition: border-color 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .k-cp-trigger.is-open,
@@ -158,15 +182,17 @@ useClickOutside([rootRef], () => { open.value = false })
     top: calc(100% + 6px);
     inset-inline-start: 0;
     z-index: 100;
-    width: 190px;
+    width: 100%;
+    min-width: 190px;
     background: var(--k-bg, #fff);
     border: 1px solid var(--k-border, #e2e8f0);
-    border-radius: 12px;
+    border-radius: var(--k-radius-sm, 8px);
     box-shadow: var(--k-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
     padding: 12px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    font-family: var(--k-font-family, 'yekan-bakh', Tahoma, sans-serif);
 }
 
 .k-cp-presets {

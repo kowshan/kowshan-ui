@@ -102,7 +102,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { X, AlertCircle, CalendarDays } from 'lucide-vue-next'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import { useJalaliDate } from '../composables/useJalaliDate'
 import CoreDatePicker from '../core/CoreDatePicker.vue'
 import KDatePickerModal from '../components/KDatePickerModal.vue'
@@ -137,7 +137,7 @@ const emits = defineEmits<{
     'clear': []
 }>()
 
-const { id: inputId } = useId('datepicker')
+const { id: inputId } = useKitId('datepicker')
 
 const datePickerRef = ref<InstanceType<typeof CoreDatePicker> | null>(null)
 const modalInput = ref<HTMLInputElement | null>(null)
@@ -251,7 +251,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 .k-input-container {
@@ -391,7 +391,6 @@ defineExpose({
 }
 
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

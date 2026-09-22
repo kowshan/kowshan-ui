@@ -63,7 +63,6 @@ const navigate = (item: KBreadcrumbItem) => emits('select', item)
 
 <style scoped>
 .k-breadcrumb {
-    direction: rtl;
 }
 
 .k-breadcrumb-list {

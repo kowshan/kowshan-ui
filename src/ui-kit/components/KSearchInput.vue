@@ -32,7 +32,7 @@
 import { watch } from 'vue'
 import { Loader2, Search, X } from 'lucide-vue-next'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
-import { useDebounce } from '../composables/useDebounce'
+import { useKDebounce } from '../composables/useKDebounce'
 
 const props = withDefaults(defineProps<{
     modelValue?: string
@@ -60,7 +60,7 @@ const onInput = (e: Event) => {
     emit('update:modelValue', normalize((e.target as HTMLInputElement).value))
 }
 
-const { setDebounced, debouncedValue } = useDebounce<string>(props.debounce)
+const { setDebounced, debouncedValue } = useKDebounce<string>(props.debounce)
 watch(() => props.modelValue, (v) => setDebounced(v ?? ''))
 watch(debouncedValue, (v) => { if (v !== undefined) emit('search', v) })
 

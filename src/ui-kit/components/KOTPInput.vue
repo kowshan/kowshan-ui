@@ -14,7 +14,7 @@
     - Emits `complete` once all boxes are filled (only in 'idle' state)
 -->
 <template>
-    <div class="k-otp" :class="[`k-otp--${state}`, { 'is-disabled': disabled }]">
+    <div dir="ltr" class="k-otp" :class="[`k-otp--${state}`, { 'is-disabled': disabled }]">
         <div class="k-otp-boxes">
             <input
                 v-for="(_, i) in length"
@@ -27,7 +27,7 @@
                 :class="{ 'is-filled': !!boxes[i], 'is-active': activeIndex === i }"
                 :value="boxes[i]"
                 :disabled="disabled || state === 'loading'"
-                :aria-label="`رقم ${faNum(i + 1)}`"
+                :aria-label="`رقم ${i + 1}`"
                 @input="onInput(i, $event)"
                 @keydown="onKeydown(i, $event)"
                 @paste="onPaste(i, $event)"
@@ -92,7 +92,6 @@ const emit = defineEmits<{
 }>()
 
 const { toEnglishDigits, toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const boxEls = ref<HTMLInputElement[]>([])
 const boxes = ref<string[]>(Array(props.length).fill(''))

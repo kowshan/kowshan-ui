@@ -15,7 +15,7 @@
         :aria-label="title || undefined"
     >
         <!-- Cover image -->
-        <div v-if="cover || $slots.cover" class="k-card-cover">
+        <div dir="ltr" v-if="cover || $slots.cover" class="k-card-cover">
             <slot name="cover"><img :src="cover" alt="" loading="lazy" /></slot>
         </div>
 

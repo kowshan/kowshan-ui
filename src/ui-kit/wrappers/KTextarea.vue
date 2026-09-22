@@ -99,7 +99,7 @@
 import { ref, computed, watch } from 'vue'
 import { X, Loader2, AlertCircle, Info } from 'lucide-vue-next'
 import CoreTextarea from '../core/CoreTextarea.vue'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import type { ValidationRules } from '../types'
 
 // Props
@@ -137,7 +137,7 @@ const emits = defineEmits<{
 }>()
 
 // IDs
-const { id: inputId } = useId('textarea')
+const { id: inputId } = useKitId('textarea')
 
 // Refs
 const coreTextarea = ref<InstanceType<typeof CoreTextarea> | null>(null)
@@ -238,7 +238,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Textarea Container */
@@ -250,7 +250,7 @@ defineExpose({
     border: 1px solid var(--k-border);
     border-radius: var(--k-radius-sm);
     transition: border-color 0.15s ease;
-    min-height: 70px
+    min-height: 70px;
 }
 
 /* Hover */
@@ -378,7 +378,6 @@ defineExpose({
 
 /* Message Area */
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

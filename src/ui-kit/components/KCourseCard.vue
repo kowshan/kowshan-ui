@@ -23,16 +23,18 @@
 <template>
     <article class="k-course" :class="{ 'is-in-progress': hasProgress }" @click="emits('click', $event)">
         <!-- Thumbnail -->
-        <div class="k-course-media">
+        <div dir="ltr" class="k-course-media">
             <img :src="image" :alt="title" loading="lazy" />
             <span v-if="category" class="k-course-category">{{ category }}</span>
             <span v-if="discount" class="k-course-discount">{{ discount }}</span>
-            <span v-if="durationBadge" class="k-course-duration">
-                <Clock :size="11" /> {{ durationBadge }}
-            </span>
-            <div v-if="hasProgress" class="k-course-progress">
-                <div class="k-course-progress-bar" :style="{ width: progress + '%' }"></div>
-                <span class="k-course-progress-label">{{ faNum(progress) }}٪ تکمیل</span>
+            <div v-if="durationBadge || hasProgress" class="k-course-meta-bar">
+                <span v-if="durationBadge" class="k-course-duration">
+                    <Clock :size="11" /> {{ durationBadge }}
+                </span>
+                <div v-if="hasProgress" class="k-course-progress">
+                    <div class="k-course-progress-bar" :style="{ width: progress + '%' }"></div>
+                    <span class="k-course-progress-label">{{ progress }}٪ تکمیل</span>
+                </div>
             </div>
         </div>
 
@@ -47,12 +49,12 @@
 
             <div class="k-course-meta">
                 <span class="k-course-rating">
-                    <Star :size="13" fill="currentColor" /> {{ faNum(rating) }}
-                    <span class="k-course-reviews">({{ faNum(reviews) }} نظر)</span>
+                    <Star :size="13" fill="currentColor" /> {{ rating }}
+                    <span class="k-course-reviews">({{ reviews }} نظر)</span>
                 </span>
                 <span v-if="lessons || hours" class="k-course-stats">
-                    <span v-if="lessons"><PlayCircle :size="12" /> {{ faNum(lessons) }} درس</span>
-                    <span v-if="hours"><Hourglass :size="12" /> {{ faNum(hours) }} ساعت</span>
+                    <span v-if="lessons"><PlayCircle :size="12" /> {{ lessons }} درس</span>
+                    <span v-if="hours"><Hourglass :size="12" /> {{ hours }} ساعت</span>
                 </span>
             </div>
         </div>
@@ -60,8 +62,8 @@
         <!-- Footer -->
         <div class="k-course-footer">
             <div class="k-course-price">
-                <span class="k-course-price-now">{{ faNum(price) }} <small>تومان</small></span>
-                <span v-if="oldPrice" class="k-course-price-old">{{ faNum(oldPrice) }}</span>
+                <span class="k-course-price-now">{{ price }} <small>تومان</small></span>
+                <span v-if="oldPrice" class="k-course-price-old">{{ oldPrice }}</span>
             </div>
             <button
                 type="button"
@@ -124,7 +126,6 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number | string) => toPersianDigits(String(n))
 
 const hasProgress = computed(() => props.progress && props.progress > 0)
 const enrolled = ref(props.enrolled)
@@ -190,17 +191,26 @@ const onEnroll = () => {
     font-weight: 800;
     padding: 3px 8px;
     border-radius: 8px;
-    background: var(--k-error, #ef4444);
+    background: #ef4444;
     color: #fff;
 }
 
-.k-course-duration {
+.k-course-meta-bar {
     position: absolute;
-    bottom: 10px;
-    inset-inline-end: 10px;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 10px 8px;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.78) 0%, transparent 100%);
+}
+
+.k-course-duration {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
     font-size: 0.62rem;
     font-weight: 700;
     padding: 3px 8px;
@@ -211,14 +221,11 @@ const onEnroll = () => {
 }
 
 .k-course-progress {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    padding: 8px 10px 6px;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.78), transparent);
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
+    min-width: 0;
 }
 
 .k-course-progress-bar {

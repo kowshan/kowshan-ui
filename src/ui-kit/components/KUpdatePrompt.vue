@@ -8,7 +8,7 @@
       <KUpdatePrompt :show="true" />      <!-- forced (demo/testing) -->
 -->
 <template>
-    <Teleport to="body">
+    <Teleport to="#k-teleport-hub">
         <Transition name="k-update-pop">
             <div
                 v-if="visible"
@@ -17,7 +17,7 @@
                 role="status"
             >
                 <RefreshCw :size="16" class="k-update-icon" />
-                <div class="k-update-copy">
+                <div dir="ltr" class="k-update-copy">
                     <div class="k-update-title">نسخه جدید در دسترس است</div>
                     <div class="k-update-desc">برای اعمال تغییرات، برنامه را به‌روزرسانی کنید.</div>
                 </div>

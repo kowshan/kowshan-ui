@@ -21,7 +21,7 @@
                 class="k-iw-step"
                 :class="{ 'is-active': step === i, 'is-done': step > i }"
             >
-                <span class="k-iw-step-dot">{{ step > i ? '✓' : faNum(i + 1) }}</span>
+                <span class="k-iw-step-dot">{{ step > i ? '✓' : i + 1 }}</span>
                 {{ s }}
             </span>
         </div>
@@ -46,7 +46,7 @@
                     </button>
                 </div>
                 <p v-if="parsed.length" class="k-iw-hint">
-                    {{ faNum(parsed.length) }} ردیف شناسایی شد
+                    {{ parsed.length }} ردیف شناسایی شد
                 </p>
             </div>
         </template>
@@ -61,12 +61,12 @@
                     <span class="k-iw-map-col">ستون فایل</span>
                 </div>
                 <div v-for="field in fields" :key="field.key" class="k-iw-map-row">
-                    <span class="k-iw-map-field">{{ field.label }}</span>
                     <KSelect
                         class="k-iw-select"
+                        :label="field.label"
                         :model-value="mapping[field.key] ?? null"
                         :options="columnOptions"
-                        placeholder="— انتخاب نشده —"
+                        placeholder="ستون فایل را انتخاب کنید…"
                         clearable
                         @update:model-value="(v: any) => (mapping[field.key] = v)"
                     />
@@ -109,10 +109,10 @@
                     <AlertTriangle v-else :size="26" />
                 </span>
                 <div class="k-iw-result-title">
-                    {{ faNum(importedCount) }} ردیف با موفقیت وارد شد
+                    {{ importedCount }} ردیف با موفقیت وارد شد
                 </div>
                 <div v-if="skipped > 0" class="k-iw-result-note">
-                    {{ faNum(skipped) }} ردیف خالی یا ناقص نادیده گرفته شد
+                    {{ skipped }} ردیف خالی یا ناقص نادیده گرفته شد
                 </div>
                 <button type="button" class="k-iw-btn is-primary" @click="reset">
                     <RotateCcw :size="14" /> ورود فایل جدید
@@ -150,7 +150,6 @@ const emit = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const stepLabels = ['منبع داده', 'نگاشت ستون‌ها', 'نتیجه']
 
@@ -199,7 +198,7 @@ const previewRows = computed(() => parsed.value.slice(1, 6))
 
 /* KSelect options for the column mapping (CSV column index → label) */
 const columnOptions = computed(() =>
-    headers.value.map((h, ci) => ({ value: ci, label: h || `ستون ${faNum(ci + 1)}` }))
+    headers.value.map((h, ci) => ({ value: ci, label: h || `ستون ${ci + 1}` }))
 )
 
 /* ---- mapping helpers ---- */

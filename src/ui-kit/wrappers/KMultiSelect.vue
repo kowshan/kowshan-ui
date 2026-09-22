@@ -70,7 +70,8 @@
 
             <!-- Dropdown Menu -->
             <Transition name="dropdown-fade">
-                <div v-if="isOpen" class="k-multiselect-dropdown" ref="dropdownRef">
+                <Teleport to="#k-teleport-hub">
+                <div v-if="isOpen" class="k-multiselect-dropdown" ref="dropdownRef" :style="dropdownStyle" @mousedown.stop>
                     <!-- Search Input -->
                     <div v-if="searchable" class="k-multiselect-search">
                         <Search class="search-icon" />
@@ -148,6 +149,7 @@
                         </div>
                     </div>
                 </div>
+                </Teleport>
             </Transition>
         </div>
 
@@ -168,7 +170,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { ChevronDown, Search, Check, AlertCircle, Info, X, Loader2, Plus } from 'lucide-vue-next'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 import KCheckbox from './KCheckbox.vue';
 
 // Props
@@ -219,7 +221,7 @@ const emits = defineEmits<{
 }>()
 
 // IDs
-const { id: selectId } = useId('multiselect')
+const { id: selectId } = useKitId('multiselect')
 
 // Refs
 const triggerRef = ref<HTMLDivElement | null>(null)
@@ -232,6 +234,28 @@ const searchQuery = ref('')
 const searchLoading = ref(false)
 const internalValue = ref<any[]>(props.modelValue || [])
 const asyncOptions = ref<any[]>([])
+
+// Dropdown position — fixed to the trigger rect
+const positionTick = ref(0)
+const dropdownStyle = computed(() => {
+    void positionTick.value
+    if (!isOpen.value || !triggerRef.value) return {}
+    const rect = triggerRef.value.getBoundingClientRect()
+    const estHeight = 264
+    const spaceBelow = window.innerHeight - rect.bottom - 8
+    const openUp = spaceBelow < estHeight && rect.top > estHeight
+    return {
+        position: 'fixed' as const,
+        top: openUp ? undefined : `${rect.bottom + 4}px`,
+        bottom: openUp ? `${window.innerHeight - rect.top + 4}px` : undefined,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        zIndex: '20000'
+    }
+})
+const repositionDropdown = () => {
+    if (isOpen.value) positionTick.value++
+}
 
 // Computed
 const hasValue = computed(() => internalValue.value.length > 0)
@@ -529,6 +553,8 @@ watch(isOpen, (open) => {
 // Lifecycle
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
+    window.addEventListener('scroll', repositionDropdown, true)
+    window.addEventListener('resize', repositionDropdown)
     if (triggerRef.value) {
         triggerRef.value.addEventListener('focus', handleFocus)
         triggerRef.value.addEventListener('blur', handleBlur)
@@ -537,6 +563,8 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
+    window.removeEventListener('scroll', repositionDropdown, true)
+    window.removeEventListener('resize', repositionDropdown)
     if (triggerRef.value) {
         triggerRef.value.removeEventListener('focus', handleFocus)
         triggerRef.value.removeEventListener('blur', handleBlur)
@@ -579,7 +607,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 /* Container */
@@ -709,16 +737,14 @@ defineExpose({
 
 /* Dropdown */
 .k-multiselect-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
     background: var(--k-bg);
     border: 1px solid var(--k-border);
     border-radius: var(--k-radius-sm);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 100;
     overflow: hidden;
+    font-family: var(--k-font-family, 'yekan-bakh', 'B Nazanin', Tahoma, sans-serif);
+    color: var(--k-text-primary);
+    direction: rtl;
 }
 
 /* Search */
@@ -912,7 +938,6 @@ defineExpose({
 
 /* Message Area */
 .k-message-area {
-    min-height: 20px;
     font-size: 0.7rem;
 }
 

@@ -3,7 +3,7 @@
     KContextMenu — right-click menu around any trigger:
 
       <KContextMenu :items="items" @select="onSelect">
-        <div class="k-target">کلیک راست کنید</div>
+        <div dir="ltr" class="k-target">کلیک راست کنید</div>
       </KContextMenu>
 
     item: { id, label, icon?, danger?, disabled?, divider? }
@@ -14,7 +14,7 @@
             <slot />
         </div>
 
-        <Teleport to="body">
+        <Teleport to="#k-teleport-hub">
             <Transition name="k-pop">
                 <div
                     v-if="open"
@@ -132,7 +132,6 @@ onUnmounted(() => {
     border-radius: 10px;
     box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
     padding: 4px;
-    direction: rtl;
 }
 
 .k-cm-item {

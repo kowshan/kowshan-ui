@@ -18,7 +18,7 @@
             :style="borderStyle"
         />
 
-        <div class="k-spotlight__content">
+        <div dir="ltr" class="k-spotlight__content">
             <slot />
         </div>
     </div>

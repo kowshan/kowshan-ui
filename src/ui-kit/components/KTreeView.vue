@@ -68,7 +68,6 @@ watch(() => props.modelValue, (v) => { selectedKey.value = v })
 <style scoped>
 .k-tree {
     width: 100%;
-    direction: rtl;
     user-select: none;
 }
 </style>

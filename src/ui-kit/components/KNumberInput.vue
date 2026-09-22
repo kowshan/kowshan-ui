@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Minus, Plus } from 'lucide-vue-next'
+import { toAsciiDigits } from '../utils/digits'
 
 const props = withDefaults(defineProps<{
     modelValue: number
@@ -74,13 +75,11 @@ const draft = ref('')
 
 const clamp = (n: number) => Math.min(props.max, Math.max(props.min, n))
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: number | string) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 // Persian kit — always show Persian digits
 const display = computed(() => {
     if (editing.value) return draft.value
-    return faNum(props.modelValue)
+    return props.modelValue
 })
 
 const atMin = computed(() => props.modelValue <= props.min)
@@ -97,14 +96,14 @@ const step = (dir: number) => {
 const onInput = (e: Event) => {
     const el = e.target as HTMLInputElement
     // Persian/Arabic digits → Latin so the model always holds clean numbers
-    const v = el.value.replace(/[۰-۹٠-٩]/g, d => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10))
+    const v = toAsciiDigits(el.value)
     if (v !== el.value) el.value = v
     draft.value = v
 }
 
 const commit = () => {
     editing.value = false
-    const parsed = parseInt(draft.value.replace(/[۰-۹٠-٩]/g, d => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10)), 10)
+    const parsed = parseInt(toAsciiDigits(draft.value), 10)
     if (isNaN(parsed)) {
         draft.value = ''
         return
@@ -131,8 +130,11 @@ watch(() => props.modelValue, () => { if (!editing.value) draft.value = '' })
     border-radius: var(--k-radius-sm, 10px);
     padding: 2px;
     transition: border-color 0.15s ease;
-    direction: rtl;
     position: relative;
+    /* adapt to the container instead of overflowing narrow cells (tables, grids) */
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .k-number-label {
@@ -192,6 +194,8 @@ watch(() => props.modelValue, () => { if (!editing.value) draft.value = '' })
 
 .k-number-field {
     width: 64px;
+    min-width: 32px;
+    flex: 1 1 auto;
     border: none;
     outline: none;
     background: transparent;

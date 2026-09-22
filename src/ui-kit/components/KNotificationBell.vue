@@ -16,11 +16,19 @@
             @click="open = !open"
         >
             <Bell :size="18" />
-            <span v-if="unread > 0" class="k-nb-badge">{{ faNum(Math.min(unread, 99)) }}</span>
+            <span v-if="unread > 0" class="k-nb-badge">{{ Math.min(unread, 99) }}</span>
         </button>
 
-        <Transition name="k-slide-down">
-            <div v-if="open" class="k-nb-panel">
+        <!-- teleported so an `overflow: hidden` ancestor can't clip it, and clamped to the viewport -->
+        <Teleport to="#k-teleport-hub">
+            <Transition name="k-slide-down">
+            <div
+                v-if="open"
+                ref="panelEl"
+                class="k-ui k-nb-panel"
+                :data-theme="theme"
+                :style="panelStyle"
+            >
                 <div class="k-nb-header">
                     <span class="k-nb-title">اعلان‌ها</span>
                     <button
@@ -55,14 +63,16 @@
                     </li>
                 </ul>
             </div>
-        </Transition>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Bell, BellOff } from 'lucide-vue-next'
 import { useClickOutside } from '../composables/useClickOutside'
+import { useKitTheme } from '../composables/useKitTheme'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 
 export interface KNotification {
@@ -86,10 +96,57 @@ const emit = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const rootRef = ref<HTMLElement | null>(null)
+const panelEl = ref<HTMLElement | null>(null)
 const open = ref(false)
+
+const theme = useKitTheme()
+const pos = ref({ top: 0, left: 0 })
+const ready = ref(false)
+
+const MARGIN = 12
+
+/** place the teleported panel under the bell, clamped inside the viewport */
+const place = () => {
+    const t = rootRef.value
+    if (!t) return
+    const r = t.getBoundingClientRect()
+    const rtl = getComputedStyle(t).direction === 'rtl'
+    nextTick(() => {
+        const pw = panelEl.value?.offsetWidth || 300
+        const ph = panelEl.value?.offsetHeight || 320
+        // panel is anchored to the bell's inline-end edge (left in RTL)
+        let left = rtl ? r.left : r.right - pw
+        left = Math.min(Math.max(MARGIN, left), Math.max(MARGIN, window.innerWidth - pw - MARGIN))
+        const top = Math.min(r.bottom + 8, Math.max(MARGIN, window.innerHeight - ph - MARGIN))
+        pos.value = { top, left }
+        ready.value = true
+    })
+}
+
+const panelStyle = computed(() => ({
+    top: pos.value.top + 'px',
+    left: pos.value.left + 'px',
+    visibility: (ready.value ? 'visible' : 'hidden') as 'visible' | 'hidden',
+}))
+
+const onReposition = () => { if (open.value) place() }
+
+watch(open, v => {
+    if (!v) return
+    ready.value = false
+    place()
+})
+
+onMounted(() => {
+    window.addEventListener('resize', onReposition)
+    window.addEventListener('scroll', onReposition, true)
+})
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', onReposition)
+    window.removeEventListener('scroll', onReposition, true)
+})
 
 const unread = computed(() => props.items.filter(n => !n.read).length)
 
@@ -98,7 +155,8 @@ const onClick = (n: KNotification) => {
     if (n.read === false) n.read = true // let parent re-bind; optimistic visual
 }
 
-useClickOutside([rootRef], () => { open.value = false })
+// the panel is teleported outside rootRef — without it, every click inside closes the panel
+useClickOutside([rootRef, panelEl], () => { open.value = false })
 </script>
 
 <style scoped>
@@ -147,10 +205,8 @@ useClickOutside([rootRef], () => { open.value = false })
 }
 
 .k-nb-panel {
-    position: absolute;
-    top: calc(100% + 8px);
-    inset-inline-end: 0;
-    z-index: 200;
+    position: fixed;
+    z-index: 21000;
     width: 300px;
     max-height: 380px;
     background: var(--k-bg, #fff);
@@ -160,6 +216,7 @@ useClickOutside([rootRef], () => { open.value = false })
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    font-family: inherit;
 }
 
 .k-nb-header {

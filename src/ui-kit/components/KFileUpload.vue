@@ -203,7 +203,6 @@ const removeFile = (id: number) => {
 <style scoped>
 .k-upload {
     width: 100%;
-    direction: rtl;
 }
 
 .k-upload-zone {

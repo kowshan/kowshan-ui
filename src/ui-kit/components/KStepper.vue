@@ -26,7 +26,7 @@
                         v-if="isDone(index)"
                         class="k-step-check"
                     />
-                    <span v-else class="k-step-number">{{ toFa(index + 1) }}</span>
+                    <span v-else class="k-step-number">{{ index + 1 }}</span>
                 </span>
                 <span class="k-step-label">{{ step.label }}</span>
             </div>
@@ -92,8 +92,6 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 // Persian digits for the step numbers
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const toFa = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 </script>
 
 <style scoped>
@@ -143,7 +141,7 @@ const toFa = (n: number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 .k-step.is-active .k-step-circle {
     border-color: #1db954;
-    background: #1db954;
+    background: var(--k-primary, #1db954);
     color: #fff;
     box-shadow: 0 0 0 3px rgba(202, 114, 38, 0.15);
 }

@@ -31,6 +31,9 @@
                 />
             </label>
 
+            <!-- Placeholder (empty state) -->
+            <span v-if="!files.length && placeholder" class="k-placeholder">{{ placeholder }}</span>
+
             <!-- File Cards -->
             <div
                 v-for="(file, index) in files"
@@ -151,6 +154,21 @@ const addFiles = (newFiles: File[]) => {
     // Don't add if disabled or max reached
     if (props.disabled) return
     if (props.maxCount && files.value.length >= props.maxCount) return
+
+    // Size guard (maxSize is in bytes, matches KImageUpload)
+    if (props.maxSize) {
+        const oversized = newFiles.filter(f => f.size > props.maxSize!)
+        if (oversized.length) {
+            const limit = props.maxSize >= 1024 * 1024
+                ? `${(props.maxSize / 1024 / 1024).toFixed(1)} مگابایت`
+                : `${Math.round(props.maxSize / 1024)} کیلوبایت`
+            const msg = `حجم فایل باید کمتر از ${limit} باشد`
+            error.value = msg
+            emits('error', msg)
+        }
+        newFiles = newFiles.filter(f => f.size <= props.maxSize!)
+        if (!newFiles.length) return
+    }
     
     // For single mode, replace existing files
     if (!props.multiple) {
@@ -172,6 +190,7 @@ const addFiles = (newFiles: File[]) => {
         }))
         
         files.value = newItems
+        error.value = null
         emitValue()
         return
     }
@@ -203,6 +222,7 @@ const addFiles = (newFiles: File[]) => {
     }
     
     files.value = [...files.value, ...uniqueNewItems]
+    error.value = null
     emitValue()
 }
 
@@ -302,7 +322,7 @@ defineExpose({
 
 .k-required {
     color: var(--k-error);
-    margin-right: 2px;
+    margin-inline-start: 4px;
 }
 
 .k-attachments {
@@ -310,6 +330,10 @@ defineExpose({
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+}
+.k-placeholder {
+    font-size: 0.78rem;
+    color: var(--k-text-muted);
 }
 
 .k-attach {

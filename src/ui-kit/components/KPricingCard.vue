@@ -15,9 +15,6 @@
 -->
 <template>
     <article class="k-pricing" :class="{ 'is-popular': popular }">
-        <!-- Popular ribbon -->
-        <span v-if="popular" class="k-pricing-ribbon">پیشنهاد ویژه</span>
-
         <!-- Head -->
         <div class="k-pricing-head">
             <span class="k-pricing-icon"><slot name="icon"><Sparkles :size="18" /></slot></span>
@@ -27,11 +24,11 @@
 
         <!-- Price -->
         <div class="k-pricing-price">
-            <span class="k-pricing-amount">{{ faNum(price) }}</span>
-            <span class="k-pricing-currency">{{ currency }}</span>
+            <span class="k-pricing-amount">{{ priceText }}</span>
+            <span class="k-pricing-currency">{{ currencyOf }}</span>
             <span v-if="period" class="k-pricing-period">{{ period }}</span>
         </div>
-        <div v-if="oldPrice" class="k-pricing-old">{{ faNum(oldPrice) }} {{ currency }}</div>
+        <div v-if="oldPrice" class="k-pricing-old">{{ oldPriceText }} {{ currencyOf }}</div>
 
         <!-- Features -->
         <ul class="k-pricing-features">
@@ -55,10 +52,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Check, Sparkle, Sparkles } from 'lucide-vue-next'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
     name: string
     description?: string
     price: number
@@ -87,7 +85,11 @@ const emits = defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
+
+/* grouped thousands + Persian digits — a raw 1250000 is unreadable on a price tag */
+const priceText = computed(() => toPersianDigits(props.price.toLocaleString('fa-IR')))
+const oldPriceText = computed(() => toPersianDigits(props.oldPrice.toLocaleString('fa-IR')))
+const currencyOf = computed(() => props.currency)
 </script>
 
 <style scoped>
@@ -123,19 +125,6 @@ const faNum = (n: number) => toPersianDigits(String(n))
     inset-inline: 0;
     height: 4px;
     background: linear-gradient(90deg, var(--k-primary, #1db954), color-mix(in srgb, var(--k-primary, #1db954) 40%, #fff));
-}
-
-.k-pricing-ribbon {
-    position: absolute;
-    top: 14px;
-    inset-inline-end: -34px;
-    transform: rotate(45deg);
-    background: var(--k-primary, #1db954);
-    color: #fff;
-    font-size: 0.58rem;
-    font-weight: 800;
-    padding: 4px 38px;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--k-primary, #1db954) 40%, transparent);
 }
 
 .k-pricing-head {
@@ -246,6 +235,7 @@ const faNum = (n: number) => toPersianDigits(String(n))
 }
 
 .k-pricing-cta {
+    margin-top: auto;
     width: 100%;
     padding: 11px 16px;
     border: 1px solid var(--k-border, #e2e8f0);

@@ -1,42 +1,39 @@
 <template>
-    <div class="k-org-node" :style="{ marginInlineStart: depth ? '22px' : '0' }">
-        <div class="k-org-row">
-            <span v-if="depth" class="k-org-connector" />
+    <div class="k-org-node">
+        <button
+            type="button"
+            class="k-org-card"
+            :class="{ 'has-children': hasChildren, 'is-open': open }"
+            @click="onClick"
+        >
+            <KAvatar
+                v-if="node.avatar"
+                :src="node.avatar"
+                :name="node.name"
+                size="sm"
+            />
+            <span v-else class="k-org-avatar-fallback">{{ initials }}</span>
 
-            <button
-                type="button"
-                class="k-org-card"
-                :class="{ 'has-children': hasChildren, 'is-open': open }"
-                @click="onClick"
-            >
-                <KAvatar
-                    v-if="node.avatar"
-                    :src="node.avatar"
-                    :name="node.name"
-                    size="sm"
-                />
-                <span v-else class="k-org-avatar-fallback">{{ initials }}</span>
+            <span class="k-org-meta">
+                <span class="k-org-name">{{ node.name }}</span>
+                <span v-if="node.role" class="k-org-role">{{ node.role }}</span>
+            </span>
 
-                <span class="k-org-meta">
-                    <span class="k-org-name">{{ node.name }}</span>
-                    <span v-if="node.role" class="k-org-role">{{ node.role }}</span>
-                </span>
+            <span
+                v-if="node.badge"
+                class="k-org-badge"
+                :style="node.badgeColor ? { background: node.badgeColor } : {}"
+            >{{ node.badge }}</span>
 
-                <span
-                    v-if="node.badge"
-                    class="k-org-badge"
-                    :style="node.badgeColor ? { background: node.badgeColor } : {}"
-                >{{ node.badge }}</span>
+            <ChevronDown
+                v-if="hasChildren"
+                :size="14"
+                class="k-org-chevron"
+                :class="{ 'is-open': open }"
+            />
+        </button>
 
-                <ChevronDown
-                    v-if="hasChildren"
-                    :size="14"
-                    class="k-org-chevron"
-                    :class="{ 'is-open': open }"
-                />
-            </button>
-        </div>
-
+        <!-- Children with subtle bracket -->
         <div v-if="hasChildren && open" class="k-org-children">
             <KOrgNode
                 v-for="child in node.children"
@@ -85,32 +82,6 @@ const onSelect = (node: KOrgNodeData) => emit('select', node)
 .k-org-node {
     display: flex;
     flex-direction: column;
-    position: relative;
-}
-
-.k-org-row {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.k-org-connector {
-    position: absolute;
-    inset-inline-end: 100%;
-    top: 50%;
-    width: 22px;
-    height: 1px;
-    background: var(--k-border, #e2e8f0);
-}
-
-.k-org-connector::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    top: -14px;
-    width: 1px;
-    height: 28px;
-    background: var(--k-border, #e2e8f0);
 }
 
 .k-org-card {
@@ -194,10 +165,40 @@ const onSelect = (node: KOrgNodeData) => emit('select', node)
     transform: rotate(180deg);
 }
 
+/* ── Minimal bracket children ── */
 .k-org-children {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    padding-inline-start: 28px;
     margin-top: 8px;
+    position: relative;
+}
+
+/* Single vertical spine */
+.k-org-children::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 12px;
+    top: 0;
+    bottom: 12px;
+    width: 1px;
+    background: var(--k-border, #e2e8f0);
+    border-radius: 1px;
+}
+
+/* Each child gets a horizontal tick from the spine */
+.k-org-children > :deep(.k-org-node) {
+    position: relative;
+}
+
+.k-org-children > :deep(.k-org-node)::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -16px;
+    top: 16px;
+    width: 16px;
+    height: 1px;
+    background: var(--k-border, #e2e8f0);
 }
 </style>

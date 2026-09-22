@@ -42,6 +42,7 @@ import { computed, ref, watch } from 'vue'
 import { AlertCircle, CheckCircle2 } from 'lucide-vue-next'
 import { useIranianValidators } from '../composables/useIranianValidators'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
+import { toAsciiDigits } from '../utils/digits'
 
 const props = withDefaults(defineProps<{
     modelValue?: string
@@ -69,13 +70,13 @@ const { toPersianDigits } = usePersianNumbers()
 
 const state = ref<'idle' | 'valid' | 'invalid'>('idle')
 
-const display = computed(() => (props.modelValue ? toPersianDigits(props.modelValue) : ''))
+const display = computed(() => (props.modelValue ? props.modelValue : ''))
 
 const onInput = (e: Event) => {
     const raw = (e.target as HTMLInputElement).value
-    const digits = raw.replace(/[۰-۹٠-٩\d]/g, d => String('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(d) % 10)).replace(/\D/g, '').slice(0, 10)
+    const digits = toAsciiDigits(raw).replace(/\D/g, '').slice(0, 10)
     emits('update:modelValue', digits)
-    ;(e.target as HTMLInputElement).value = toPersianDigits(digits)
+    ;(e.target as HTMLInputElement).value = digits
     check(false)
 }
 

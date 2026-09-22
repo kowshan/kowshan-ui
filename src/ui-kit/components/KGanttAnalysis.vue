@@ -14,7 +14,7 @@
     Clicking a cell emits `cell-click` with the item details.
 -->
 <template>
-    <div class="k-gantt" :style="{ '--gantt-cols': totalColumns }">
+    <div dir="ltr" class="k-gantt" :style="{ '--gantt-cols': totalColumns }">
         <!-- Header -->
         <div class="k-gantt-header">
             <div class="k-gantt-title">
@@ -37,7 +37,7 @@
                     :key="col"
                     class="k-gantt-col-num"
                 >
-                    {{ faNum(col) }}
+                    {{ col }}
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
                                             :style="{ width: cell.required + '%' }"
                                         ></div>
                                     </div>
-                                    <span class="k-gantt-bar-value">{{ faNum(cell.required) }}٪</span>
+                                    <span class="k-gantt-bar-value">{{ cell.required }}٪</span>
                                 </div>
                                 <!-- Customer bar -->
                                 <div class="k-gantt-bar-row">
@@ -100,7 +100,7 @@
                                             }"
                                         ></div>
                                     </div>
-                                    <span class="k-gantt-bar-value">{{ faNum(cell.customer) }}٪</span>
+                                    <span class="k-gantt-bar-value">{{ cell.customer }}٪</span>
                                 </div>
                             </div>
                             <!-- Gap indicator -->
@@ -111,7 +111,7 @@
                             >
                                 <template v-if="cellGap(cell) > 0">
                                     <TrendingUp :size="10" />
-                                    <span>{{ faNum(cellGap(cell)) }}٪ نیاز</span>
+                                    <span>{{ cellGap(cell) }}٪ نیاز</span>
                                 </template>
                                 <template v-else>
                                     <CheckCircle2 :size="10" />
@@ -124,7 +124,7 @@
                                 class="k-gantt-dep-badge"
                             >
                                 <Link :size="10" />
-                                <span>{{ faNum(cell.dependencies.length) }}</span>
+                                <span>{{ cell.dependencies.length }}</span>
                             </div>
                         </template>
                         <template v-else>
@@ -220,7 +220,6 @@ defineEmits<{
 }>()
 
 const { toPersianDigits } = usePersianNumbers()
-const faNum = (n: number) => toPersianDigits(String(n))
 
 const TYPE_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
     skills: { label: 'مهارت‌ها', icon: Brain, color: '#1db954' },
@@ -481,7 +480,7 @@ const getCustomerColor = (cell: GanttItem) => {
     color: var(--k-text-muted, #94a3b8);
     width: 24px;
     flex-shrink: 0;
-    text-align: right;
+    text-align: start;
 }
 
 .k-gantt-bar-track {

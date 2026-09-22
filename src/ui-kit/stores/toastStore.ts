@@ -62,6 +62,10 @@ const state = reactive<{ toasts: ToastItem[] }>({ toasts: [] })
 export function useToastStore() {
     const hasToasts = computed(() => state.toasts.length > 0)
 
+    /* the live reactive array — mutated in place, never replaced, so consumers
+       that capture it once (KToastHost) keep working */
+    const toasts = state.toasts
+
     const addToast = (toastData: ToastOptions): number => {
         const id = nextId++
         const messages = Array.isArray(toastData.message)
@@ -92,11 +96,14 @@ export function useToastStore() {
         if (i >= 0) state.toasts.splice(i, 1)
     }
 
-    const clearToasts = () => { state.toasts = [] }
+    /* splice in place — replacing the array breaks every consumer that captured
+       `state.toasts` once (KToastHost does), leaving stale toasts on screen that
+       can no longer be dismissed because removal targets the new array */
+    const clearToasts = () => { state.toasts.splice(0) }
 
     return {
         state,
-        toasts: state.toasts,
+        toasts,
         hasToasts,
         addToast,
         showToast,

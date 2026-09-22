@@ -159,14 +159,12 @@ const props = withDefaults(defineProps<{
 const uid = computed(() => Math.random().toString(36).slice(2, 8))
 const mainColor = computed(() => props.colors[0])
 
-const faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-const faNum = (n: string | number) => String(n).replace(/\d/g, d => faDigits[Number(d)])
 
 const colorFor = (i: number) => props.data[i]?.color || props.colors[i % props.colors.length]
 
 const formatTick = (v: number) => {
     const s = v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}k` : String(Math.round(v))
-    return faNum(s)
+    return s
 }
 
 /* ── Cartesians ── */
@@ -247,7 +245,7 @@ const donutSegments = computed(() => {
 
 const centerValue = computed(() => {
     const fmt = props.valueFormatter
-    return fmt ? fmt(total.value) : faNum(total.value.toLocaleString('en-US'))
+    return fmt ? fmt(total.value) : total.value.toLocaleString('en-US')
 })
 </script>
 

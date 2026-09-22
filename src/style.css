@@ -126,6 +126,30 @@ code {
     margin: 0 0 10px 0;
 }
 
+.demo-caption-note {
+    font-size: 0.7rem;
+    color: var(--k-text-muted, #94a3b8);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.demo-center {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.demo-center:last-child {
+    margin-bottom: 0;
+}
+
+.demo-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .demo-divider {
     border: none;
     border-top: 1px dashed var(--k-border, #e2e8f0);

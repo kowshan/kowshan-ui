@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import CoreCheckbox from '../core/CoreCheckbox.vue'
-import { useId } from '../composables/useId'
+import { useKitId } from '../composables/useKitId'
 
 // Props
 const props = defineProps<{
@@ -66,7 +66,7 @@ const emits = defineEmits<{
 }>()
 
 // IDs
-const { id: checkboxId } = useId('checkbox')
+const { id: checkboxId } = useKitId('checkbox')
 
 // Refs
 const coreCheckboxRef = ref<InstanceType<typeof CoreCheckbox> | null>(null)
