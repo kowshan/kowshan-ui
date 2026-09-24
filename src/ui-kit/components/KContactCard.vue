@@ -219,13 +219,13 @@ const emitSelect = (v: boolean) => {
 }
 
 .k-contact-tag.is-primary { background: var(--k-primary-light, #e3f8ec); color: var(--k-primary, #1db954); }
-.k-contact-tag.is-success { background: #dcfce7; color: #16a34a; }
+.k-contact-tag.is-success { background: var(--k-success-light); color: var(--k-success-text); }
 .k-contact-tag.is-warning { background: #fef3c7; color: #d97706; }
 .k-contact-tag.is-danger { background: #fee2e2; color: #dc2626; }
 .k-contact-tag.is-info { background: #e0f2fe; color: #0284c7; }
 
 .k-ui[data-theme="dark"] .k-contact-tag.is-success,
-.k-ui[data-theme="oled"] .k-contact-tag.is-success { background: rgba(22, 163, 74, 0.18); color: #4ade80; }
+.k-ui[data-theme="oled"] .k-contact-tag.is-success { background: color-mix(in srgb, var(--k-success-text) 18%, transparent); color: var(--k-success-text); }
 .k-ui[data-theme="dark"] .k-contact-tag.is-warning,
 .k-ui[data-theme="oled"] .k-contact-tag.is-warning { background: rgba(217, 119, 6, 0.18); color: #fbbf24; }
 .k-ui[data-theme="dark"] .k-contact-tag.is-danger,

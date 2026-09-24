@@ -41,21 +41,28 @@ export function useKFocusTrap(el: Ref<HTMLElement | null>, active: () => boolean
         }
     }
 
+    // Focus the first focusable child, or the container itself when the dialog
+    // has nothing focusable inside it. Without that fallback the focused element
+    // stays outside the dialog while it is open (and a dialog that closes with
+    // focus still "inside" it is exactly what makes Chrome log "Blocked
+    // aria-hidden … descendant retained focus").
+    const focusFirstInside = (node: HTMLElement) => {
+        const first = node.querySelector<HTMLElement>(FOCUSABLE)
+        lastFocused = first ?? node
+        ;(first ?? node).focus()
+    }
+
     watch(el, (node) => {
         if (node && active()) {
             previous = document.activeElement as HTMLElement | null
-            const first = node.querySelector<HTMLElement>(FOCUSABLE)
-            lastFocused = first
-            first?.focus()
+            focusFirstInside(node)
         }
     })
 
     watch(active, (on) => {
         if (on && el.value) {
             previous = document.activeElement as HTMLElement | null
-            const first = el.value.querySelector<HTMLElement>(FOCUSABLE)
-            lastFocused = first
-            first?.focus()
+            focusFirstInside(el.value)
         } else {
             lastFocused?.focus()
             previous?.focus?.()

@@ -3,7 +3,7 @@
     KQrCode — dependency-free QR code (own encoder, byte mode, EC level L, v1-6):
 
       <KQrCode value="https://example.com/pay/123456" :size="160" />
-      <KQrCode value="..." fg="#1db954" bg="#ffffff" :quiet-zone="2" />
+      <KQrCode value="..." fg="var(--k-primary)" bg="#ffffff" :quiet-zone="2" />
 
     Modules are placed at integer coordinates in a `size` viewBox so the SVG
     stays pixel-crisp at any scale. Fires `error` when the value is too long.

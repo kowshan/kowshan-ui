@@ -316,7 +316,7 @@ onUnmounted(finishDrag)
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    --k-slider-color: #1db954;
+    --k-slider-color: var(--k-primary);
 }
 
 .k-label {

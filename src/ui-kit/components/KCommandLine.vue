@@ -27,7 +27,10 @@
                     <span class="k-cli-user">{{ promptUser }}</span>@<span class="k-cli-host">{{ promptHost }}</span>:<span class="k-cli-path">{{ promptPath }}</span>$
                 </span>
                 <span v-if="line.type === 'input'" class="k-cli-text">{{ line.text }}</span>
-                <span v-else class="k-cli-text" v-html="line.html || line.text" />
+                <!-- `line.html` comes from the command that produced it, so it is
+                     sanitized; plain text is interpolated, never parsed -->
+                <span v-else-if="line.html" class="k-cli-text" v-html="sanitizeHtml(line.html)" />
+                <span v-else class="k-cli-text">{{ line.text }}</span>
             </div>
 
             <!-- Current Input -->
@@ -53,6 +56,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
+import { sanitizeHtml } from '../utils/html'
 
 export interface CLILine {
     text: string
@@ -116,13 +120,13 @@ const builtInCommands: Record<string, (args: string) => CLILine[]> = {
         { text: 'node_modules/  src/  dist/  package.json  tsconfig.json  vite.config.ts', type: 'output' }
     ],
     neofetch: () => [
-        { text: '        .--.        ', html: '<span style="color:#1db954">        .--.        </span>', type: 'output' },
-        { text: '       |o_o |       ', html: '<span style="color:#1db954">       |o_o |       </span>', type: 'output' },
-        { text: '       |:_/ |       ', html: '<span style="color:#1db954">       |:_/ |       </span>', type: 'output' },
-        { text: '      //   \\ \\      ', html: '<span style="color:#1db954">      //   \\ \\      </span>', type: 'output' },
-        { text: '     (|     | )     ', html: '<span style="color:#1db954">     (|     | )     </span>', type: 'output' },
-        { text: "    /'\\_   _/`\\     ", html: "<span style=\"color:#1db954\">    /'\\_   _/`\\     </span>", type: 'output' },
-        { text: "    \\___)=(___/     ", html: "<span style=\"color:#1db954\">    \\___)=(___/     </span>", type: 'output' },
+        { text: '        .--.        ', html: '<span style="color:var(--k-primary)">        .--.        </span>', type: 'output' },
+        { text: '       |o_o |       ', html: '<span style="color:var(--k-primary)">       |o_o |       </span>', type: 'output' },
+        { text: '       |:_/ |       ', html: '<span style="color:var(--k-primary)">       |:_/ |       </span>', type: 'output' },
+        { text: '      //   \\ \\      ', html: '<span style="color:var(--k-primary)">      //   \\ \\      </span>', type: 'output' },
+        { text: '     (|     | )     ', html: '<span style="color:var(--k-primary)">     (|     | )     </span>', type: 'output' },
+        { text: "    /'\\_   _/`\\     ", html: "<span style=\"color:var(--k-primary)\">    /'\\_   _/`\\     </span>", type: 'output' },
+        { text: "    \\___)=(___/     ", html: "<span style=\"color:var(--k-primary)\">    \\___)=(___/     </span>", type: 'output' },
         { text: '', type: 'output' },
         { text: `OS: K-Kit UI Framework\nShell: K-CLI\nTheme: ${document?.querySelector('[data-theme]')?.getAttribute('data-theme') || 'light'}`, type: 'output' },
     ],

@@ -25,6 +25,7 @@
                         role="alertdialog"
                         aria-modal="true"
                         :aria-label="config?.title"
+                        tabindex="-1"
                     >
                         <!-- Header -->
                         <div class="k-confirm-header">
@@ -133,6 +134,17 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+/* tabindex="-1" makes the dialog programmatically focusable; only show a ring
+   for keyboard focus so a click inside doesn't paint one */
+.k-confirm:focus {
+    outline: none;
+}
+
+.k-confirm:focus-visible {
+    outline: 2px solid var(--k-border-focus);
+    outline-offset: 2px;
 }
 
 .k-confirm-header {

@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import { ref, onUnmounted, watch } from 'vue'
+import { cssVar } from '../utils/cssVar'
 import { Mic, Square, Play, Pause, Trash2, SendHorizontal } from 'lucide-vue-next'
 
 const emit = defineEmits<{
@@ -104,7 +105,7 @@ const drawWaveform = (active = false) => {
         const x = i * (barW + gap)
         const barH = Math.max(val * h * 0.8, 2)
         const y = (h - barH) / 2
-        ctx.fillStyle = active ? '#1db954' : '#cbd5e1'
+        ctx.fillStyle = active ? cssVar(ctx.canvas, '--k-primary', '#1db954') : '#cbd5e1'
         ctx.beginPath()
         ctx.roundRect(x, y, barW, barH, 1)
         ctx.fill()

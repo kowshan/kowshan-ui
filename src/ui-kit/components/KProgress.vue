@@ -89,7 +89,7 @@ const percent = computed(() => props.modelValue ?? props.percent ?? 0)
     height: 100%;
     border-radius: 999px;
     transition: width 0.3s ease;
-    background-color: #1db954;
+    background-color: var(--k-primary);
 }
 
 .k-progress-fill.striped {
@@ -115,8 +115,8 @@ const percent = computed(() => props.modelValue ?? props.percent ?? 0)
     width: 40%;
 }
 
-.k-progress-primary .k-progress-fill { background-color: #1db954; }
-.k-progress-success .k-progress-fill { background-color: #10b981; }
+.k-progress-primary .k-progress-fill { background-color: var(--k-primary); }
+.k-progress-success .k-progress-fill { background-color: var(--k-success); }
 .k-progress-warning .k-progress-fill { background-color: #f59e0b; }
 .k-progress-danger .k-progress-fill { background-color: #ef4444; }
 .k-progress-info .k-progress-fill { background-color: #3b82f6; }

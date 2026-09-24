@@ -100,7 +100,7 @@ const monthLabels = computed(() => {
     return result
 })
 
-const scaleColors = ['var(--k-surface-hover, #ebedf0)', 'rgba(25,195,125,0.25)', 'rgba(25,195,125,0.5)', 'rgba(25,195,125,0.75)', 'rgba(25,195,125,1)']
+const scaleColors = ['var(--k-surface-hover, #ebedf0)', 'color-mix(in srgb, var(--k-primary) 25%, transparent)', 'color-mix(in srgb, var(--k-primary) 50%, transparent)', 'color-mix(in srgb, var(--k-primary) 75%, transparent)', 'var(--k-primary)']
 
 const total = computed(() => Object.values(props.data || {}).reduce((a, b) => a + b, 0))
 

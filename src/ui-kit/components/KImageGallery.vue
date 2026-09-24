@@ -245,7 +245,6 @@ onBeforeUnmount(() => {
     justify-content: center;
     padding: 24px;
     background: rgba(0, 0, 0, 0.86);
-    backdrop-filter: blur(2px);
     font-family: inherit;
 }
 .k-ig-lb-figure {

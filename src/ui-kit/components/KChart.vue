@@ -11,7 +11,7 @@
                     cy="50%"
                     :r="radius"
                     fill="none"
-                    :stroke="seg.color"
+                    :style="{ stroke: seg.color }"
                     :stroke-width="donutThickness"
                     stroke-linecap="butt"
                     :stroke-dasharray="`${seg.length} ${circumference - seg.length}`"
@@ -35,8 +35,8 @@
         >
             <defs>
                 <linearGradient :id="`k-chart-fill-${uid}`" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" :stop-color="mainColor" stop-opacity="0.28" />
-                    <stop offset="100%" :stop-color="mainColor" stop-opacity="0.02" />
+                    <stop offset="0%" :style="{ stopColor: mainColor, stopOpacity: 0.28 }" />
+                    <stop offset="100%" :style="{ stopColor: mainColor, stopOpacity: 0.02 }" />
                 </linearGradient>
             </defs>
 
@@ -91,7 +91,7 @@
                     :width="barW"
                     :height="barH(i)"
                     rx="3"
-                    :fill="colorFor(i)"
+                    :style="{ fill: colorFor(i) }"
                 />
             </g>
 
@@ -103,7 +103,7 @@
                     :cx="x(i)"
                     :cy="yValue(d.value)"
                     r="3"
-                    :fill="colorFor(i)"
+                    :style="{ fill: colorFor(i) }"
                 />
             </g>
 
@@ -125,6 +125,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useKitId } from '../composables/useKitId'
 
 export interface KChartDatum {
     label: string
@@ -148,7 +149,7 @@ const props = withDefaults(defineProps<{
 }>(), {
     type: 'line',
     height: 220,
-    colors: () => ['#1db954', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
+    colors: () => ['var(--k-primary)', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
     showGrid: true,
     showAxis: true,
     donutSize: 180,
@@ -156,7 +157,7 @@ const props = withDefaults(defineProps<{
     centerLabel: 'مجموع'
 })
 
-const uid = computed(() => Math.random().toString(36).slice(2, 8))
+const { id: uid } = useKitId('k-chart')
 const mainColor = computed(() => props.colors[0])
 
 

@@ -276,8 +276,8 @@ watch(() => props.messages.length, () => {
 .k-chat-sidebar-count {
     font-size: 0.62rem;
     font-weight: 600;
-    color: #22c55e;
-    background: color-mix(in srgb, #22c55e 10%, transparent);
+    color: var(--k-success);
+    background: color-mix(in srgb, var(--k-success) 10%, transparent);
     padding: 2px 8px;
     border-radius: 10px;
 }
@@ -415,7 +415,7 @@ watch(() => props.messages.length, () => {
     font-size: 0.64rem;
     color: var(--k-text-muted);
 }
-.k-chat-header-sub.is-online { color: #22c55e; }
+.k-chat-header-sub.is-online { color: var(--k-success); }
 .k-chat-header-actions { display: flex; gap: 4px; }
 .k-chat-header-btn {
     border: none;

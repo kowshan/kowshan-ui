@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'
+import { cssVar } from '../utils/cssVar'
 import { Play, Pause } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{
@@ -39,7 +40,8 @@ const props = withDefaults(defineProps<{
     barWidth: 2,
     barGap: 1,
     color: '#cbd5e1',
-    progressColor: '#1db954',
+    /** defaults to the brand colour (resolved from --k-primary on the canvas) */
+    progressColor: '',
 })
 
 const emit = defineEmits<{
@@ -83,7 +85,9 @@ const draw = () => {
         const x = i * totalBar
         const barH = val * h * 0.85
         const y = (h - barH) / 2
-        ctx.fillStyle = x + props.barWidth < progressX ? props.progressColor : props.color
+        ctx.fillStyle = x + props.barWidth < progressX
+            ? props.progressColor || cssVar(ctx.canvas, '--k-primary', '#1db954')
+            : props.color
         ctx.beginPath()
         ctx.roundRect(x, y, props.barWidth, barH, 1)
         ctx.fill()
@@ -178,7 +182,7 @@ defineExpose({
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent 0%, rgba(29,185,84,0.06) 100%);
+    background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--k-primary) 6%, transparent) 100%);
     transition: width 0.1s linear;
 }
 .k-wave-controls {
@@ -200,7 +204,7 @@ defineExpose({
     border: none;
     cursor: pointer;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(29,185,84,0.3);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--k-primary) 30%, transparent);
     transition: transform 0.15s ease;
 }
 .k-wave-play:hover { transform: scale(1.08); }

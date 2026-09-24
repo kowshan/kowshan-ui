@@ -35,7 +35,7 @@
                     :y="d.y"
                     :width="barW"
                     :height="Math.max(d.h, 1)"
-                    :fill="d.color"
+                    :style="{ fill: d.color }"
                     rx="3"
                     class="k-waterfall-bar"
                 />
@@ -125,7 +125,7 @@ const bars = computed(() => {
         const isTotal = props.data[i].color
         const color = isTotal
             ? props.data[i].color!
-            : val >= 0 ? '#10b981' : '#ef4444'
+            : val >= 0 ? 'var(--k-success)' : 'var(--k-error)'
         return {
             x: padLeft + i * gap + (gap - barW.value) / 2,
             y: yScale(top),

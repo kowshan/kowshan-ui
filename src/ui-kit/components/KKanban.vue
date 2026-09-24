@@ -134,7 +134,7 @@ const onDragStart = (item: KKanbanItem, col: KKanbanColumn) => {
         dt.setData('text/plain', item.id)
         const ghost = document.createElement('div')
         ghost.textContent = item.title
-        ghost.style.cssText = 'position:fixed;top:-9999px;font-size:12px;color:#fff;background:#1db954;padding:6px 12px;border-radius:8px;'
+        ghost.style.cssText = 'position:fixed;top:-9999px;font-size:12px;color:#fff;background:var(--k-primary);padding:6px 12px;border-radius:8px;'
         document.body.appendChild(ghost)
         dt.setDragImage?.(ghost, 0, 0)
         setTimeout(() => ghost.remove(), 0)

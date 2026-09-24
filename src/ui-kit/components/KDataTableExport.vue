@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Download, FileJson, Printer } from 'lucide-vue-next'
+import { escapeHtml, sanitizeHtml } from '../utils/html'
 
 export interface ExportColumn {
     key: string
@@ -116,13 +117,17 @@ const printTable = () => {
     if (!printArea.value) return
     const win = window.open('', '_blank')
     if (!win) return
+    // The table's own markup is copied into a same-origin window, and anything
+    // document.write'd in there can execute (a cell that renders consumer HTML
+    // would run its script in the print window). Sanitize before writing.
+    const tableHtml = sanitizeHtml(printArea.value.innerHTML)
     win.document.write(`
-        <html><head><title>${props.filename}</title>
+        <html><head><title>${escapeHtml(props.filename)}</title>
         <style>body{font-family:sans-serif;padding:20px;direction:rtl}
         table{width:100%;border-collapse:collapse}
         th,td{padding:8px 12px;border:1px solid #ddd;text-align:right;font-size:13px}
         th{background:#f5f5f5;font-weight:700}</style></head><body>
-        ${printArea.value.innerHTML}</body></html>
+        ${tableHtml}</body></html>
     `)
     win.document.close()
     win.print()

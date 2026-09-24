@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
     glow?: boolean
     radius?: string
 }>(), {
-    color: '#1db954',
+    color: 'var(--k-primary)',
     glow: true,
     radius: '16px'
 })
@@ -55,12 +55,12 @@ const onLeave = () => {
 }
 
 const beamStyle = computed(() => ({
-    background: `radial-gradient(400px circle at ${x.value}px ${y.value}px, ${props.color}22, transparent 60%)`,
+    background: `radial-gradient(400px circle at ${x.value}px ${y.value}px, color-mix(in srgb, ${props.color} 13%, transparent), transparent 60%)`,
     opacity: hovering.value ? 1 : 0
 }))
 
 const borderStyle = computed(() => ({
-    background: `radial-gradient(250px circle at ${x.value}px ${y.value}px, ${props.color}55, transparent 65%)`,
+    background: `radial-gradient(250px circle at ${x.value}px ${y.value}px, color-mix(in srgb, ${props.color} 33%, transparent), transparent 65%)`,
     opacity: hovering.value ? 1 : 0
 }))
 </script>

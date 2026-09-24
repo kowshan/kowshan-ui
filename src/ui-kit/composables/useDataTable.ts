@@ -11,6 +11,8 @@ export interface Column {
     slot?: boolean
     /** minimum width hint for the column */
     width?: string
+    /** maximum width — cells truncate with ellipsis past it (default 250px) */
+    maxWidth?: string
     /** allow the cell text to wrap instead of forcing one line */
     wrap?: boolean
 }

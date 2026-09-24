@@ -206,8 +206,8 @@ const pick = (day: number) => {
 
 /* States */
 .k-avail-cell.is-free {
-    background: color-mix(in srgb, #10b981 10%, transparent);
-    color: #059669;
+    background: color-mix(in srgb, var(--k-success) 10%, transparent);
+    color: var(--k-success-text);
 }
 
 .k-avail-cell.is-booked {

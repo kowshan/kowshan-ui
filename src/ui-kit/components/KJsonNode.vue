@@ -124,7 +124,7 @@ const valueClass = computed(() => {
     font-size: 0.68rem;
 }
 
-.k-json-value.is-string { color: #10b981; }
+.k-json-value.is-string { color: var(--k-success); }
 .k-json-value.is-number { color: #3b82f6; }
 .k-json-value.is-bool { color: #8b5cf6; }
 .k-json-value.is-null { color: var(--k-text-muted, #94a3b8); font-style: italic; }

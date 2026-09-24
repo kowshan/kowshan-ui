@@ -48,7 +48,7 @@ const lazyWrapper = (path: string) => defineAsyncComponent({
 const name = ref('')
 
 // Statically discover every showcase page (Vite-friendly, no dynamic-import guessing)
-const pages = import.meta.glob<{ default: Component }>('./K*.vue')
+const pages = import.meta.glob<{ default: Component }>(['./K*.vue', './Example*.vue'])
 
 const pageComponent = shallowRef<Component | null>(null)
 

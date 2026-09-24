@@ -61,8 +61,7 @@ const ringStyle = computed(() => ({
     position: absolute;
     inset: 0;
     z-index: 10;
-    background: color-mix(in srgb, var(--k-bg, #fff) 72%, transparent);
-    backdrop-filter: blur(2px);
+    background: color-mix(in srgb, var(--k-bg, #fff) 82%, transparent);
     border-radius: inherit;
 }
 

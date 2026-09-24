@@ -165,11 +165,11 @@ const dismiss = () => {
 
 .k-alert-success {
     background: var(--k-success-light, #d1fae5);
-    border-color: color-mix(in srgb, #10b981 30%, transparent);
+    border-color: color-mix(in srgb, var(--k-success) 30%, transparent);
     color: #065f46;
 }
 
-.k-alert-success .k-alert-icon { color: #10b981; }
+.k-alert-success .k-alert-icon { color: var(--k-success); }
 
 .k-alert-warning {
     background: var(--k-warning-light, #fef3c7);
@@ -204,10 +204,10 @@ const dismiss = () => {
 
 .k-ui[data-theme='dark'] .k-alert-success,
 .k-ui[data-theme='oled'] .k-alert-success {
-    background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.25); color: #6ee7b7;
+    background: color-mix(in srgb, var(--k-success) 12%, transparent); border-color: color-mix(in srgb, var(--k-success) 25%, transparent); color: var(--k-success-text);
 }
 .k-ui[data-theme='dark'] .k-alert-success .k-alert-icon,
-.k-ui[data-theme='oled'] .k-alert-success .k-alert-icon { color: #34d399; }
+.k-ui[data-theme='oled'] .k-alert-success .k-alert-icon { color: var(--k-success-text); }
 
 .k-ui[data-theme='dark'] .k-alert-warning,
 .k-ui[data-theme='oled'] .k-alert-warning {

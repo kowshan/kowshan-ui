@@ -143,7 +143,7 @@
             </Transition>
 
         <!-- Message Area -->
-        <div class="k-message-area">
+        <div v-if="errorMessage || hint" class="k-message-area">
             <div v-if="errorMessage" class="k-error-message">
                 <AlertCircle class="message-icon" />
                 {{ errorMessage }}
@@ -470,6 +470,13 @@ watch(() => props.modelValue, (newVal) => {
         runValidation()
     }
 })
+
+// Keep async options in sync when the parent replaces the list (e.g. it clears
+// search results after a selection) — otherwise the selected label goes blank
+// because nothing in the current options matches the backend value anymore.
+watch(() => props.options, (newOpts) => {
+    if (props.asyncSearch && newOpts) asyncOptions.value = newOpts
+}, { deep: true })
 
 // Watch open state to trigger initial load
 watch(isOpen, (open) => {

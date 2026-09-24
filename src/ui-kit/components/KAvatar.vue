@@ -67,7 +67,7 @@ const initials = computed(() => {
 
 const fallbackStyle = computed(() => {
     const colors = [
-        '#1db954', '#3b82f6', '#10b981', '#8b5cf6',
+        'var(--k-primary)', '#3b82f6', '#10b981', '#8b5cf6',
         '#ef4444', '#f59e0b', '#06b6d4', '#ec4899'
     ]
     // Deterministic color from name

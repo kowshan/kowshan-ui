@@ -241,14 +241,14 @@ const runButton = (t: any, b: ToastButton) => {
 }
 
 .k-toast.is-info .k-toast-icon { background: #e0f2fe; color: #0284c7; }
-.k-toast.is-success .k-toast-icon { background: #dcfce7; color: #16a34a; }
+.k-toast.is-success .k-toast-icon { background: var(--k-success-light); color: var(--k-success-text); }
 .k-toast.is-warning .k-toast-icon { background: #fef3c7; color: #d97706; }
 .k-toast.is-error .k-toast-icon { background: #fee2e2; color: #dc2626; }
 
 .k-ui[data-theme="dark"] .k-toast.is-info .k-toast-icon,
 .k-ui[data-theme="oled"] .k-toast.is-info .k-toast-icon { background: rgba(2, 132, 199, 0.2); color: #38bdf8; }
 .k-ui[data-theme="dark"] .k-toast.is-success .k-toast-icon,
-.k-ui[data-theme="oled"] .k-toast.is-success .k-toast-icon { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
+.k-ui[data-theme="oled"] .k-toast.is-success .k-toast-icon { background: color-mix(in srgb, var(--k-success-text) 20%, transparent); color: var(--k-success-text); }
 .k-ui[data-theme="dark"] .k-toast.is-warning .k-toast-icon,
 .k-ui[data-theme="oled"] .k-toast.is-warning .k-toast-icon { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
 .k-ui[data-theme="dark"] .k-toast.is-error .k-toast-icon,

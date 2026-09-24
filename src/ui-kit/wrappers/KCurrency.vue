@@ -72,7 +72,7 @@
             {{ persianTextPreview || persianTextDisplay }}
         </div>
         <!-- Message Area -->
-        <div class="k-message-area">
+        <div v-if="errorMessage || hint" class="k-message-area">
             <div v-if="errorMessage" class="k-error-message">
                 <AlertCircle class="message-icon" />
                 {{ errorMessage }}

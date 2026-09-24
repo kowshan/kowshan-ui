@@ -33,7 +33,7 @@
             />
             <KButton
                 text="تأیید"
-                bg-color="#1db954"
+                bg-color="var(--k-primary)"
                 text-color="#ffffff"
                 @click="confirm"
             />

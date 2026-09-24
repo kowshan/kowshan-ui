@@ -51,8 +51,8 @@ const label = computed(() => labels[props.status] || props.status)
 }
 
 /* Sizes */
-.k-presence.is-online .k-presence-dot { width: 10px; height: 10px; background: #22c55e; }
-.k-presence.is-online .k-presence-ping { background: #22c55e; }
+.k-presence.is-online .k-presence-dot { width: 10px; height: 10px; background: var(--k-success); }
+.k-presence.is-online .k-presence-ping { background: var(--k-success); }
 .k-presence.is-away .k-presence-dot { width: 10px; height: 10px; background: #f59e0b; }
 .k-presence.is-away .k-presence-ping { background: #f59e0b; }
 .k-presence.is-busy .k-presence-dot { width: 10px; height: 10px; background: #ef4444; }

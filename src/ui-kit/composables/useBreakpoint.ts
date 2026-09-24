@@ -1,5 +1,5 @@
 // composables/useBreakpoint.ts
-import { ref, computed, onScopeDispose } from 'vue'
+import { ref, computed, onMounted, onScopeDispose } from 'vue'
 
 export type KBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
@@ -24,8 +24,14 @@ export function useBreakpoint() {
         xs: false, sm: false, md: false, lg: false, xl: false
     })
 
-    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-        const mqls: MediaQueryList[] = []
+    const mqls: MediaQueryList[] = []
+    const handlers: Array<(e: MediaQueryListEvent) => void> = []
+
+    // Resolving `matchMedia` during setup hydrates a desktop-sized tree over the server's
+    // mobile-first markup (every query is `false` on the server) → hydration mismatch.
+    // Adopt the real viewport once mounted instead; the first paint is unchanged.
+    onMounted(() => {
+        if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
         for (const key of Object.keys(QUERIES) as KBreakpoint[]) {
             const mql = window.matchMedia(QUERIES[key])
             mqls.push(mql)
@@ -33,12 +39,14 @@ export function useBreakpoint() {
             const handler = (e: MediaQueryListEvent) => {
                 matches.value[key] = e.matches
             }
+            handlers.push(handler)
             mql.addEventListener('change', handler)
         }
-        onScopeDispose(() => {
-            mqls.forEach(mql => mql.removeEventListener('change', () => {}))
-        })
-    }
+    })
+
+    onScopeDispose(() => {
+        mqls.forEach((mql, i) => mql.removeEventListener('change', handlers[i]))
+    })
 
     const is = (bp: KBreakpoint) => matches.value[bp]
 

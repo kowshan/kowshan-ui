@@ -11,7 +11,7 @@
                 <div class="dt__title">
                     <KIconButton
                         :icon="icon"
-                        bg-color="#1db954"
+                        bg-color="var(--k-primary)"
                         text-color="#ffffff"
                     />
 
@@ -32,7 +32,7 @@
                     <div class="dt__tool" ref="columnRef">
                         <KIconButton
                             :icon="SettingsIcon"
-                            bg-color="#1db954"
+                            bg-color="var(--k-primary)"
                             text-color="#ffffff"
                             tooltip="ستون‌ها"
                             @click="toggleColumns"
@@ -62,7 +62,7 @@
                     <div class="dt__tool" ref="filterRef">
                         <KIconButton
                             :icon="FilterIcon"
-                            bg-color="#1db954"
+                            bg-color="var(--k-primary)"
                             text-color="#ffffff"
                             tooltip="فیلترها"
                             @click="toggleFilters"
@@ -151,7 +151,7 @@
                             >
                                 {{ getRowNumber(i) }}
                             </span>
-                            <span v-else>
+                            <span v-else :title="getValue(row, col)">
                                 {{ getValue(row, col) }}
                             </span>
                         </td>
@@ -257,11 +257,14 @@ const wrapperStyle = computed(() => {
 const thStyle = (col: Column) => ({
     textAlign: col.align || 'right',
     width: col.width,
+    maxWidth: col.maxWidth,
     whiteSpace: col.wrap ? 'normal' : 'nowrap'
 })
 
 const tdStyle = (col: Column) => ({
     textAlign: col.align || 'right',
+    // a max width keeps one long cell from stretching the whole table
+    maxWidth: col.maxWidth || '250px',
     whiteSpace: col.wrap ? 'normal' : 'nowrap'
 })
 </script>
@@ -393,7 +396,7 @@ th:hover {
 
 th.is-sorted .dt__sort-icon {
     opacity: 1;
-    color: #1db954;
+    color: var(--k-primary);
 }
 
 th.is-sorted .dt__sort-icon.is-asc {
@@ -477,7 +480,7 @@ tbody tr:last-child td {
 .loader {
     height: 4px;
     width: 100%;
-    --c: no-repeat linear-gradient(#1db954 0 0);
+    --c: no-repeat linear-gradient(var(--k-primary) 0 0);
     background: var(--c), var(--c), transparent;
     background-size: 60% 100%;
     animation: k-dt-loading 3s infinite;

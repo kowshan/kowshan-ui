@@ -1,10 +1,14 @@
 <!-- components/KStepper.vue -->
 <template>
     <nav
+        ref="navEl"
         class="k-stepper"
         role="tablist"
         aria-label="مراحل"
+        :tabindex="clickable ? undefined : 0"
+        :style="{ '--k-fade-start': fadeStart + 'px', '--k-fade-end': fadeEnd + 'px' }"
         @keydown="handleKeydown"
+        @scroll.passive="updateFades"
     >
         <template v-for="(step, index) in steps" :key="step.id">
             <div
@@ -12,11 +16,12 @@
                 :class="{
                     'is-active': model === step.id,
                     'is-done': isDone(index),
-                    'is-disabled': step.disabled
+                    'is-disabled': step.disabled,
+                    'is-locked': !clickable
                 }"
                 role="tab"
                 :aria-selected="model === step.id"
-                :tabindex="model === step.id ? 0 : -1"
+                :tabindex="clickable && model === step.id ? 0 : -1"
                 @click="selectStep(step.id)"
                 @keydown.enter.prevent="selectStep(step.id)"
                 @keydown.space.prevent="selectStep(step.id)"
@@ -41,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Check } from 'lucide-vue-next'
 
 interface StepItem {
@@ -50,9 +55,13 @@ interface StepItem {
     disabled?: boolean
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     steps: StepItem[]
-}>()
+    /** when false the stepper is a progress indicator only (assessments, wizards) */
+    clickable?: boolean
+}>(), {
+    clickable: true,
+})
 
 const model = defineModel<string>({ required: true })
 
@@ -63,12 +72,64 @@ const currentIndex = computed(() =>
 const isDone = (index: number) => index < currentIndex.value
 
 const selectStep = (id: string) => {
+    if (!props.clickable) return
     const step = props.steps.find(s => s.id === id)
     if (!step || step.disabled) return
     model.value = id
 }
 
+/* ── overflow: scroll horizontally, fade whichever edge is cut off ─────
+   The fade is a `mask-image` on the scroller itself, so it stays correct on
+   any background (cards, glass, dark mode) instead of painting a colour. */
+const FADE = 28
+const navEl = ref<HTMLElement>()
+const fadeStart = ref(0)   // visual left edge
+const fadeEnd = ref(0)     // visual right edge
+let observer: ResizeObserver | null = null
+
+function updateFades() {
+    const el = navEl.value
+    if (!el) {
+        fadeStart.value = fadeEnd.value = 0
+        return
+    }
+    const max = el.scrollWidth - el.clientWidth
+    if (max <= 1) {
+        fadeStart.value = fadeEnd.value = 0
+        return
+    }
+    // |scrollLeft| grows towards the inline end in both LTR and RTL
+    // (Chrome reports it negative in RTL, Firefox positive — hence abs)
+    const pos = Math.abs(el.scrollLeft)
+    const cutAtStart = pos > 2
+    const cutAtEnd = pos < max - 2
+    const rtl = getComputedStyle(el).direction === 'rtl'
+    fadeStart.value = (rtl ? cutAtEnd : cutAtStart) ? FADE : 0
+    fadeEnd.value = (rtl ? cutAtStart : cutAtEnd) ? FADE : 0
+}
+
+onMounted(() => {
+    updateFades()
+    if (typeof ResizeObserver !== 'undefined' && navEl.value) {
+        observer = new ResizeObserver(updateFades)
+        observer.observe(navEl.value)
+    }
+    window.addEventListener('resize', updateFades)
+})
+
+onBeforeUnmount(() => {
+    observer?.disconnect()
+    observer = null
+    window.removeEventListener('resize', updateFades)
+})
+
+watch(
+    [() => props.steps.length, model, () => props.clickable],
+    () => nextTick(updateFades)
+)
+
 const handleKeydown = (e: KeyboardEvent) => {
+    if (!props.clickable) return
     let next: number | null = null
 
     switch (e.key) {
@@ -101,6 +162,32 @@ const handleKeydown = (e: KeyboardEvent) => {
     gap: 0;
     width: 100%;
     user-select: none;
+    /* long step lists scroll instead of squashing — fade the cut-off edge */
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--k-fade-start, 0px),
+        #000 calc(100% - var(--k-fade-end, 0px)),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--k-fade-start, 0px),
+        #000 calc(100% - var(--k-fade-end, 0px)),
+        transparent 100%
+    );
+}
+
+.k-stepper::-webkit-scrollbar { display: none; }
+
+.k-stepper:focus-visible {
+    outline: 2px solid var(--k-primary, #1db954);
+    outline-offset: 2px;
 }
 
 .k-step {
@@ -114,9 +201,12 @@ const handleKeydown = (e: KeyboardEvent) => {
     flex-shrink: 0;
 }
 
-.k-step:hover:not(.is-disabled):not(.is-active) {
+.k-step:hover:not(.is-disabled):not(.is-active):not(.is-locked) {
     background: var(--k-surface-hover);
 }
+
+/* locked = progress indicator only — no pointer affordance */
+.k-step.is-locked { cursor: default; }
 
 .k-step.is-disabled {
     opacity: 0.5;
@@ -140,15 +230,15 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 .k-step.is-active .k-step-circle {
-    border-color: #1db954;
+    border-color: var(--k-primary, #1db954);
     background: var(--k-primary, #1db954);
     color: #fff;
-    box-shadow: 0 0 0 3px rgba(202, 114, 38, 0.15);
+    box-shadow: 0 0 0 3px var(--k-primary-light, rgba(29, 185, 84, 0.18));
 }
 
 .k-step.is-done .k-step-circle {
-    border-color: #10b981;
-    background: #10b981;
+    border-color: var(--k-success, #10b981);
+    background: var(--k-success, #10b981);
     color: #fff;
 }
 
@@ -166,7 +256,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 .k-step.is-active .k-step-label {
-    color: #1e293b;
+    color: var(--k-text-primary);
     font-weight: 700;
 }
 
@@ -186,11 +276,11 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 .k-step-line.is-done {
-    background: #10b981;
+    background: var(--k-success, #10b981);
 }
 
 .k-step:focus-visible {
-    outline: 2px solid #1db954;
+    outline: 2px solid var(--k-primary, #1db954);
     outline-offset: 2px;
 }
 </style>

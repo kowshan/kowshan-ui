@@ -310,9 +310,9 @@ const removeFile = (id: number) => {
     color: #6366f1;
 }
 
-.k-upload-file-icon.ext-image { background: #ecfdf5; color: #10b981; }
+.k-upload-file-icon.ext-image { background: var(--k-success-light); color: var(--k-success); }
 .k-upload-file-icon.ext-pdf { background: #fee2e2; color: #dc2626; }
-.k-upload-file-icon.ext-sheet { background: #ecfdf5; color: #22c55e; }
+.k-upload-file-icon.ext-sheet { background: var(--k-success-light); color: var(--k-success); }
 .k-upload-file-icon.ext-doc { background: #eff6ff; color: #3b82f6; }
 
 .k-upload-file-icon .icon {

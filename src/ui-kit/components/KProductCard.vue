@@ -55,7 +55,7 @@ const props = withDefaults(defineProps<{
     outOfStock?: boolean
     currency?: string
 }>(), {
-    badgeColor: '#1db954',
+    badgeColor: 'var(--k-primary)',
     currency: 'تومان',
 })
 

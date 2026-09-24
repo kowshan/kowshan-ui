@@ -76,7 +76,7 @@
         </div>
 
         <!-- Message Area (error takes priority) -->
-        <div class="k-message-area">
+        <div v-if="errorMessage || hint" class="k-message-area">
             <div v-if="errorMessage" class="k-error-message">
                 <AlertCircle class="message-icon" />
                 {{ errorMessage }}

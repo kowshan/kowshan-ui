@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<{
 }>(), {})
 
 
-const colors = ['#1db954', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
+const colors = ['var(--k-primary)', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
 
 const maxVal = computed(() => Math.max(...props.stages.map(s => s.value)))
 const barWidth = (val: number) => (val / maxVal.value) * 100

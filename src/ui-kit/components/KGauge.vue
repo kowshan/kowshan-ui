@@ -3,7 +3,7 @@
     KGauge — radial dial gauge (0-100):
 
       <KGauge :value="72" label="رضایت مشتری" />
-      <KGauge :value="45" color="#10b981" :size="140" />
+      <KGauge :value="45" color="var(--k-success)" :size="140" />
 -->
 <template>
     <div dir="ltr" class="k-gauge" :style="{ width: size + 'px' }">
@@ -12,7 +12,7 @@
             <path
                 :d="trackPath"
                 fill="none"
-                :stroke="trackColor"
+                :style="{ stroke: trackColor }"
                 :stroke-width="thickness"
                 stroke-linecap="round"
             />
@@ -20,12 +20,11 @@
             <path
                 :d="trackPath"
                 fill="none"
-                :stroke="resolvedColor"
                 :stroke-width="thickness"
                 stroke-linecap="round"
                 :stroke-dasharray="`${arcLength} ${arcLength}`"
                 :stroke-dashoffset="arcLength - arcLength * fraction"
-                :style="{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1), stroke 0.3s ease' }"
+                :style="{ stroke: resolvedColor, transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1), stroke 0.3s ease' }"
             />
         </svg>
 
@@ -92,9 +91,9 @@ const resolvedColor = computed(() => {
     const v = props.value
     const danger = props.thresholds?.danger ?? 40
     const warning = props.thresholds?.warning ?? 70
-    if (v < danger) return '#ef4444'
-    if (v < warning) return '#f59e0b'
-    return '#10b981'
+    if (v < danger) return 'var(--k-error)'
+    if (v < warning) return 'var(--k-warning)'
+    return 'var(--k-success)'
 })
 
 const trackColor = 'var(--k-surface-hover, #e2e8f0)'

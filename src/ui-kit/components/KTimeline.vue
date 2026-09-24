@@ -97,8 +97,8 @@ const isVariant = (c: string) => variants.includes(c)
     z-index: 1;
 }
 
-.k-dot-primary { background: #1db954; }
-.k-dot-success { background: #10b981; }
+.k-dot-primary { background: var(--k-primary); }
+.k-dot-success { background: var(--k-success); }
 .k-dot-warning { background: #f59e0b; }
 .k-dot-danger { background: #ef4444; }
 .k-dot-info { background: #8b5cf6; }

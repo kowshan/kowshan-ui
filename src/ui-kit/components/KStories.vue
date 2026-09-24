@@ -234,7 +234,7 @@ onMounted(() => {
 .k-story-ring {
     padding: 2.5px;
     border-radius: 50%;
-    background: conic-gradient(from 90deg, #1db954, #f59e0b, #ef4444, #8b5cf6, #1db954);
+    background: conic-gradient(from 90deg, var(--k-primary), #f59e0b, #ef4444, #8b5cf6, var(--k-primary));
     display: inline-flex;
 }
 
@@ -243,7 +243,7 @@ onMounted(() => {
 }
 
 .k-story-avatar.is-active .k-story-ring {
-    box-shadow: 0 0 0 3px color-mix(in srgb, #1db954 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-primary) 30%, transparent);
 }
 
 .k-story-name {

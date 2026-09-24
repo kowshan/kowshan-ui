@@ -11,12 +11,14 @@
             >
                 <Transition name="k-modal-pop" appear>
                     <div
+                        ref="modalEl"
                         class="k-modal"
                         :class="[`k-modal-${size}`]"
                         role="dialog"
                         aria-modal="true"
                         :aria-label="title || 'dialog'"
                         :style="modalStyle"
+                        tabindex="-1"
                     >
                         <!-- Header -->
                         <div v-if="title || $slots.header" class="k-modal-header">
@@ -51,9 +53,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import { useKitTheme } from '../composables/useKitTheme'
+import { useKFocusTrap } from '../composables/useKFocusTrap'
 import { useModalStore } from '../stores/modalStore'
 
 const theme = useKitTheme()
@@ -92,6 +95,13 @@ const emits = defineEmits<{
 const isVisible = computed(() =>
     props.id ? modal.isOpen(props.id) : props.visible
 )
+
+/* Focus management: move focus into the dialog on open, keep Tab inside it,
+   and hand focus back to whatever was focused before (the trigger) on close.
+   Without it, dismissing a modal left focus on a node that had just left the
+   DOM, and the dialog itself was never announced to screen readers. */
+const modalEl = ref<HTMLElement | null>(null)
+useKFocusTrap(modalEl, () => isVisible.value)
 
 const modalStyle = computed(() => ({
     // an explicit `width` overrides the size-class max-width so
@@ -160,6 +170,17 @@ onUnmounted(() => {
     max-height: calc(100vh - 60px);
     width: 100%;
     transition: width 0.3s ease;
+}
+
+/* tabindex="-1" makes the dialog programmatically focusable; only show a ring
+   for keyboard focus so a click inside the body doesn't paint one */
+.k-modal:focus {
+    outline: none;
+}
+
+.k-modal:focus-visible {
+    outline: 2px solid var(--k-border-focus);
+    outline-offset: 2px;
 }
 
 .k-modal-sm { max-width: 380px; }

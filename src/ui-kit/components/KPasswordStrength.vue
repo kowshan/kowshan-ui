@@ -153,22 +153,22 @@ defineExpose({ focus: () => inputRef.value?.focus(), strengthLevel })
 .k-pws-meter-fill.weak { background: #ef4444; }
 .k-pws-meter-fill.fair { background: #f97316; }
 .k-pws-meter-fill.good { background: #eab308; }
-.k-pws-meter-fill.strong { background: #22c55e; }
-.k-pws-meter-fill.very-strong { background: #1db954; }
+.k-pws-meter-fill.strong { background: var(--k-success); }
+.k-pws-meter-fill.very-strong { background: var(--k-primary); }
 
 .k-pws-label { font-size: 0.7rem; font-weight: 600; }
 .k-pws-label.weak { color: #ef4444; }
 .k-pws-label.fair { color: #f97316; }
 .k-pws-label.good { color: #eab308; }
-.k-pws-label.strong { color: #22c55e; }
-.k-pws-label.very-strong { color: #1db954; }
+.k-pws-label.strong { color: var(--k-success); }
+.k-pws-label.very-strong { color: var(--k-primary); }
 
 .k-pws-criteria { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
 .k-pws-criterion {
     display: flex; align-items: center; gap: 6px;
     font-size: 0.7rem; color: var(--k-text-muted); transition: color 0.15s;
 }
-.k-pws-criterion.is-met { color: #22c55e; }
+.k-pws-criterion.is-met { color: var(--k-success); }
 
 .k-message-area { font-size: 0.7rem; }
 .k-error-message { display: flex; align-items: center; gap: 4px; color: var(--k-error); }

@@ -97,11 +97,11 @@
         <!-- Legend -->
         <div class="kgantt-legend">
             <span class="kgantt-legend-item">
-                <span class="kgantt-legend-swatch" style="background: #1db954"></span>
+                <span class="kgantt-legend-swatch" style="background: var(--k-primary)"></span>
                 نیاز شغل (بالا)
             </span>
             <span class="kgantt-legend-item">
-                <span class="kgantt-legend-swatch" style="background: #10B981"></span>
+                <span class="kgantt-legend-swatch" style="background: var(--k-success)"></span>
                 سطح شما — تکمیل (پایین)
             </span>
             <span class="kgantt-legend-item">
@@ -165,7 +165,7 @@ defineEmits<{
 }>()
 
 const TYPE_META: Record<string, { label: string; color: string; icon: any }> = {
-    skills: { label: 'مهارت‌ها', color: '#1db954', icon: Brain },
+    skills: { label: 'مهارت‌ها', color: 'var(--k-primary)', icon: Brain },
     knowledges: { label: 'دانش‌ها', color: '#8B5CF6', icon: BookOpen },
     characters: { label: 'رفتارها', color: '#EF4444', icon: UserCircle2 },
     abilities: { label: 'توانایی‌ها', color: '#F59E0B', icon: Bot }
@@ -344,7 +344,7 @@ const fillClass = (cell: GanttItem) => {
 }
 
 .kgantt-cell.is-met {
-    background: color-mix(in srgb, #10B981 3%, transparent);
+    background: color-mix(in srgb, var(--k-success) 3%, transparent);
 }
 
 .kgantt-cell.is-empty {
@@ -405,11 +405,11 @@ const fillClass = (cell: GanttItem) => {
 }
 
 .kgantt-pill-fill--req {
-    background: #1db954;
+    background: var(--k-primary);
 }
 
-.kgantt-pill-fill.is-good { background: #10B981; }
-.kgantt-pill-fill.is-close { background: #34D399; }
+.kgantt-pill-fill.is-good { background: var(--k-success); }
+.kgantt-pill-fill.is-close { background: var(--k-success); }
 .kgantt-pill-fill.is-warn { background: #F59E0B; }
 .kgantt-pill-fill.is-far { background: #EF4444; }
 
@@ -424,8 +424,8 @@ const fillClass = (cell: GanttItem) => {
     flex-shrink: 0;
 }
 
-.kgantt-pill-val.is-good { color: #059669; }
-.kgantt-pill-val.is-close { color: #059669; }
+.kgantt-pill-val.is-good { color: var(--k-success-text); }
+.kgantt-pill-val.is-close { color: var(--k-success-text); }
 .kgantt-pill-val.is-warn { color: #D97706; }
 .kgantt-pill-val.is-far { color: #DC2626; }
 

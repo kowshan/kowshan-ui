@@ -74,8 +74,7 @@ const onAction = (action: { id: string }) => {
 .k-fab-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.2);
-    backdrop-filter: blur(2px);
+    background: rgba(0,0,0,0.35);
     z-index: -1;
 }
 .k-fab {

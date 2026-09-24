@@ -222,11 +222,10 @@ onUnmounted(() => {
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.14);
     color: #fff;
     cursor: pointer;
     transition: background 0.2s ease;
-    backdrop-filter: blur(4px);
 }
 
 .k-lightbox-btn:hover {

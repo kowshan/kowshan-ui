@@ -136,13 +136,13 @@ const select = (opt: KRadioOption) => {
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: #1db954;
+    background: var(--k-primary);
     transform: scale(0);
     transition: transform 0.15s ease;
 }
 
 .k-radio-item.is-checked .k-radio-dot {
-    border-color: #1db954;
+    border-color: var(--k-primary);
 }
 
 .k-radio-item.is-checked .k-radio-dot::after {
@@ -207,7 +207,7 @@ const select = (opt: KRadioOption) => {
 }
 
 .k-radio-cards .k-radio-item:hover:not(.is-disabled) {
-    border-color: #1db954;
+    border-color: var(--k-primary);
 }
 
 .k-radio-content {
@@ -245,7 +245,7 @@ const select = (opt: KRadioOption) => {
 }
 
 .k-radio-item:focus-within .k-radio-dot {
-    outline: 2px solid #1db954;
+    outline: 2px solid var(--k-primary);
     outline-offset: 2px;
 }
 </style>

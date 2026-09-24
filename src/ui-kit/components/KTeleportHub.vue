@@ -7,7 +7,13 @@
        </Teleport>
 -->
 <template>
-    <div id="k-teleport-hub" class="k-teleport-hub" aria-hidden="true" />
+    <!-- No aria-hidden here: teleported modals/dropdowns/toasts land *inside*
+         this element, and aria-hidden on an ancestor hides them from assistive
+         tech (Chrome also blocks it and logs "Blocked aria-hidden on an element
+         because its descendant retained focus"). The hub is inert by itself —
+         it is pointer-events:none and empty until something teleports in — so
+         it needs no ARIA at all. -->
+    <div id="k-teleport-hub" class="k-teleport-hub" />
 </template>
 
 <style>

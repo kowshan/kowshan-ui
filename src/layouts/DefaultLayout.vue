@@ -2,7 +2,7 @@
 <template>
     <div class="kit-shell">
         <header class="kit-header">
-            <h1 class="kit-title">Kowshan Kit (k-kit v1.0.0 Beta)</h1>
+            <h1 class="kit-title">Kowshan Kit (k-kit v1.0.0)</h1>
             <div class="kit-themes">
                 <component
                     v-for="t in themes"
@@ -73,6 +73,7 @@ const select = (name: string) => {
 // Full component list — flat, A-Z
 const allNames = [
     'KAccordion','KActivityHeatmap','KAlert','KAppBar','KAssessment',
+    'KAssessmentContent','KAssessmentInput','KAssessmentOption','KAssessmentQuestion','KAssessmentResult',
     'KAudioPlayer','KAudioWaveform','KAutocomplete','KAvailabilityGrid','KAvatar','KAvatarGroup',
     'KBackToTop','KBadge','KBankCardInput','KBookmarkBar','KBottomNav','KBottomSheet','KBreadcrumb','KButton',
     'KCalendarHeatmap','KCameraCapture','KCaptcha','KCard','KCarousel','KCartItem','KChart','KChat','KChatInput',
@@ -97,7 +98,7 @@ const allNames = [
     'KRating','KResultPage',
     'KScatterPlot','KScreenRecorder','KSearchInput','KShibaInput','KSidebar','KSignaturePad',
     'KSkeleton','KSortableList','KSparkline','KSpinner','KSplitPane','KSpotlightCard',
-    'KStatCard','KStepper','KStickyHeader','KStories',
+    'KStatCard','KStepper','KStickyHeader','KStories','KSwiper','KSwiperButton',
     'KTabs','KTagInput','KTeamCard','KTeleportHub','KTestimonialCard','KTimeline',
     'KTimePickerModal','KToastHost','KTooltip','KTreeMap','KTreeNode','KTreeView','KTypingIndicator',
     'KUpdatePrompt',
@@ -107,6 +108,15 @@ const allNames = [
     'KCheckbox','KCurrency','KDataTable','KDatePicker','KFileInput','KImageUpload',
     'KMap','KMediaGallery','KMultiSelect','KPasswordInput','KRadioGroup',
     'KSelect','KSlider','KTextarea','KTextInput','KTimePicker','KToggle',
+]
+
+// Pinned groups at the bottom of the list (not part of the A→Z catalogue)
+const pinnedGroups = [
+    {
+        letter: 'examples',
+        names: ['ExampleAssessment1', 'ExampleAssessment2', 'ExampleAssessment3', 'ExampleAssessment4', 'ExampleAssessment5'],
+    },
+    { letter: 'extra', names: ['KCalendar', 'KAssessmentWizard'] },
 ]
 
 const filtered = computed(() => {
@@ -119,9 +129,13 @@ const filtered = computed(() => {
         groups.get(letter)!.push(name)
     }
     for (const list of groups.values()) list.sort((a, b) => a.localeCompare(b))
-    return [...groups.entries()]
+    const letters = [...groups.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([letter, items]) => ({ letter, items }))
+    const pinned = pinnedGroups
+        .map(g => ({ letter: g.letter, items: g.names.filter(n => !q || n.toLowerCase().includes(q)) }))
+        .filter(g => g.items.length)
+    return [...letters, ...pinned]
 })
 
 provide('selected', selected)

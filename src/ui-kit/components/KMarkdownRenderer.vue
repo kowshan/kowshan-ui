@@ -5,6 +5,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { escapeHtml, safeUrl } from '../utils/html'
 
 const props = withDefaults(defineProps<{
     content: string
@@ -12,13 +13,18 @@ const props = withDefaults(defineProps<{
     maxHeight?: string
 }>(), { compact: false, maxHeight: '' })
 
-// Minimal markdown parser — handles common patterns without dependencies
+// Minimal markdown parser — handles common patterns without dependencies.
+//
+// The source is escaped BEFORE any transformation: markdown is a text format,
+// so raw HTML in it is just text. That makes the output safe by construction —
+// the only tags that can exist are the ones added below, and an injected
+// `<img onerror=…>` can never become an element. It also means the code-block
+// branch needs no escaping of its own.
 const rendered = computed(() => {
-    let md = props.content
+    let md = escapeHtml(props.content)
     // Code blocks
     md = md.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
-        const escaped = code.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        return `<pre class="k-md-pre"><code class="k-md-code lang-${lang || 'text'}">${escaped}</code></pre>`
+        return `<pre class="k-md-pre"><code class="k-md-code lang-${lang || 'text'}">${code}</code></pre>`
     })
     // Inline code
     md = md.replace(/`([^`]+)`/g, '<code class="k-md-inline">$1</code>')
@@ -28,10 +34,13 @@ const rendered = computed(() => {
     md = md.replace(/\*(.+?)\*/g, '<em>$1</em>')
     // Strikethrough
     md = md.replace(/~~(.+?)~~/g, '<del>$1</del>')
-    // Links
-    md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    // Links — the URL goes through safeUrl(): a `[x](javascript:…)` href runs
+    // script on click, so the scheme is allow-listed and attribute-escaped.
+    md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) =>
+        `<a href="${safeUrl(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`)
     // Images
-    md = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="k-md-img" />')
+    md = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) =>
+        `<img src="${safeUrl(url)}" alt="${alt}" class="k-md-img" />`)
     // Headings
     md = md.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>')
     md = md.replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>')

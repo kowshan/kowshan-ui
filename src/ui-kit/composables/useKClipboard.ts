@@ -1,5 +1,5 @@
 // composables/useKClipboard.ts
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 /**
  * useKClipboard — copy text with a fallback + copied state:
@@ -11,8 +11,14 @@ import { ref } from 'vue'
 export function useKClipboard(options?: { resetAfter?: number }) {
     const resetAfter = options?.resetAfter ?? 2000
     const copied = ref(false)
-    const supported = ref(typeof navigator !== 'undefined' && !!navigator.clipboard?.writeText)
+    // Starts false on both sides; probing `navigator.clipboard` during setup would
+    // make any markup driven by `supported` hydrate differently than the server sent.
+    const supported = ref(false)
     let timer: ReturnType<typeof setTimeout> | null = null
+
+    onMounted(() => {
+        supported.value = !!navigator.clipboard?.writeText
+    })
 
     async function copy(text: string): Promise<boolean> {
         try {

@@ -54,7 +54,7 @@ const customColors = computed(() => {
 
 /* Variants (solid) */
 .k-badge-primary { background: #dbeafe; color: #1d4ed8; }
-.k-badge-success { background: #d1fae5; color: #047857; }
+.k-badge-success { background: var(--k-success-light); color: var(--k-success-text); }
 .k-badge-warning { background: #fef3c7; color: #b45309; }
 .k-badge-danger  { background: #fee2e2; color: #b91c1c; }
 .k-badge-info    { background: #ede9fe; color: #6d28d9; }
@@ -62,7 +62,7 @@ const customColors = computed(() => {
 
 /* Outline variants */
 .k-badge.is-outline.k-badge-primary { background: transparent; border: 1px solid #93c5fd; color: #1d4ed8; }
-.k-badge.is-outline.k-badge-success { background: transparent; border: 1px solid #6ee7b7; color: #047857; }
+.k-badge.is-outline.k-badge-success { background: transparent; border: 1px solid var(--k-success-text); color: var(--k-success-text); }
 .k-badge.is-outline.k-badge-warning { background: transparent; border: 1px solid #fcd34d; color: #b45309; }
 .k-badge.is-outline.k-badge-danger  { background: transparent; border: 1px solid #fca5a5; color: #b91c1c; }
 .k-badge.is-outline.k-badge-info    { background: transparent; border: 1px solid #c4b5fd; color: #6d28d9; }
@@ -102,14 +102,14 @@ const customColors = computed(() => {
 
 /* Dark mode */
 [data-theme='dark'] .k-badge-primary { background: rgba(59,130,246,0.15); color: #93c5fd; }
-[data-theme='dark'] .k-badge-success { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+[data-theme='dark'] .k-badge-success { background: color-mix(in srgb, var(--k-success) 15%, transparent); color: var(--k-success-text); }
 [data-theme='dark'] .k-badge-warning { background: rgba(245,158,11,0.15); color: #fcd34d; }
 [data-theme='dark'] .k-badge-danger  { background: rgba(239,68,68,0.15); color: #fca5a5; }
 [data-theme='dark'] .k-badge-info    { background: rgba(139,92,246,0.15); color: #c4b5fd; }
 [data-theme='dark'] .k-badge-neutral { background: rgba(71,85,105,0.2); color: #94a3b8; }
 
 [data-theme='dark'] .k-badge.is-outline.k-badge-primary { border-color: rgba(147,197,253,0.3); color: #93c5fd; }
-[data-theme='dark'] .k-badge.is-outline.k-badge-success { border-color: rgba(110,231,183,0.3); color: #6ee7b7; }
+[data-theme='dark'] .k-badge.is-outline.k-badge-success { border-color: color-mix(in srgb, var(--k-success-text) 30%, transparent); color: var(--k-success-text); }
 [data-theme='dark'] .k-badge.is-outline.k-badge-warning { border-color: rgba(252,211,77,0.3); color: #fcd34d; }
 [data-theme='dark'] .k-badge.is-outline.k-badge-danger  { border-color: rgba(252,165,165,0.3); color: #fca5a5; }
 [data-theme='dark'] .k-badge.is-outline.k-badge-info    { border-color: rgba(196,181,253,0.3); color: #c4b5fd; }

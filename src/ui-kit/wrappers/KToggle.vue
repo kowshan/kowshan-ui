@@ -80,7 +80,7 @@ const toggle = () => {
 }
 
 .k-toggle-btn.is-checked {
-    background: var(--k-toggle-color, #10b981);
+    background: var(--k-toggle-color, var(--k-primary));
 }
 
 .k-toggle-thumb {
@@ -140,7 +140,7 @@ const toggle = () => {
 }
 
 .k-toggle-btn:focus-visible {
-    outline: 2px solid var(--k-toggle-color, #10b981);
+    outline: 2px solid var(--k-toggle-color, var(--k-primary));
     outline-offset: 2px;
 }
 </style>

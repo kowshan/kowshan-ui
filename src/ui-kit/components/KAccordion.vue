@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useKitId } from '../composables/useKitId'
 import { ChevronDown } from 'lucide-vue-next'
 
 export interface KAccordionItem {
@@ -69,7 +70,7 @@ const emits = defineEmits<{
     (e: 'toggle', index: number, open: boolean): void
 }>()
 
-const uid = computed(() => Math.random().toString(36).slice(2, 8))
+const { id: uid } = useKitId('k-acc')
 
 const openIndexes = ref<number[]>(
     Array.isArray(props.open)

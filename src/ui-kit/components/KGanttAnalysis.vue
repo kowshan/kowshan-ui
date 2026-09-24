@@ -51,7 +51,7 @@
                 <div class="k-gantt-row-label">
                     <div
                         class="k-gantt-row-icon"
-                        :style="{ background: row.color + '1a', color: row.color }"
+                        :style="{ background: `color-mix(in srgb, ${row.color} 10%, transparent)`, color: row.color }"
                     >
                         <Brain v-if="row.type === 'skills'" :size="14" />
                         <BookOpen v-else-if="row.type === 'knowledges'" :size="14" />
@@ -138,11 +138,11 @@
         <!-- Legend -->
         <div class="k-gantt-legend">
             <div class="k-gantt-legend-item">
-                <span class="k-gantt-legend-dot" style="background: #1db954"></span>
+                <span class="k-gantt-legend-dot" style="background: var(--k-primary)"></span>
                 <span>نیاز شغل</span>
             </div>
             <div class="k-gantt-legend-item">
-                <span class="k-gantt-legend-dot" style="background: #10B981"></span>
+                <span class="k-gantt-legend-dot" style="background: var(--k-success)"></span>
                 <span>سطح شما</span>
             </div>
             <div class="k-gantt-legend-item">
@@ -222,7 +222,7 @@ defineEmits<{
 const { toPersianDigits } = usePersianNumbers()
 
 const TYPE_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
-    skills: { label: 'مهارت‌ها', icon: Brain, color: '#1db954' },
+    skills: { label: 'مهارت‌ها', icon: Brain, color: 'var(--k-primary)' },
     knowledges: { label: 'دانش‌ها', icon: BookOpen, color: '#8B5CF6' },
     characters: { label: 'رفتارها', icon: UserCircle2, color: '#EF4444' },
     abilities: { label: 'توانایی‌ها', icon: Bot, color: '#F59E0B' }
@@ -307,10 +307,10 @@ const gapClass = (cell: GanttItem) => {
 
 const getCustomerColor = (cell: GanttItem) => {
     const gap = cellGap(cell)
-    if (gap <= 0) return '#10B981'    // met or exceeded
-    if (gap <= 20) return '#10B981'   // close
-    if (gap <= 50) return '#F59E0B'   // needs work
-    return '#EF4444'                   // big gap
+    if (gap <= 0) return 'var(--k-success)'    // met or exceeded
+    if (gap <= 20) return 'var(--k-success)'   // close
+    if (gap <= 50) return 'var(--k-warning)'   // needs work
+    return 'var(--k-error)'                   // big gap
 }
 </script>
 
@@ -498,11 +498,11 @@ const getCustomerColor = (cell: GanttItem) => {
 }
 
 .k-gantt-bar-required {
-    background: #1db954;
+    background: var(--k-primary);
 }
 
 .k-gantt-bar-customer {
-    background: #10B981;
+    background: var(--k-success);
 }
 
 .k-gantt-bar-value {
@@ -529,8 +529,8 @@ const getCustomerColor = (cell: GanttItem) => {
 }
 
 .k-gantt-gap-badge.is-close {
-    background: color-mix(in srgb, #10B981 12%, transparent);
-    color: #059669;
+    background: color-mix(in srgb, var(--k-success) 12%, transparent);
+    color: var(--k-success-text);
 }
 
 .k-gantt-gap-badge.is-medium {
@@ -544,8 +544,8 @@ const getCustomerColor = (cell: GanttItem) => {
 }
 
 .k-gantt-gap-badge.is-complete {
-    background: color-mix(in srgb, #10B981 12%, transparent);
-    color: #059669;
+    background: color-mix(in srgb, var(--k-success) 12%, transparent);
+    color: var(--k-success-text);
 }
 
 /* Dependency badge */

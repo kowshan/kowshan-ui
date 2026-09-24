@@ -21,7 +21,10 @@
                     <span v-if="comment.badge" class="k-thread-badge" :style="{ background: comment.badgeColor }">{{ comment.badge }}</span>
                     <span class="k-thread-time">{{ comment.time }}</span>
                 </div>
-                <div class="k-thread-content" v-html="comment.content" />
+                <!-- Plain text by default; `allow-html` opts into rich content,
+                     which is sanitized before it reaches v-html -->
+                <div v-if="richContent(comment)" class="k-thread-content" v-html="richContent(comment)" />
+                <div v-else class="k-thread-content">{{ comment.content }}</div>
                 <div class="k-thread-actions">
                     <button
                         v-for="action in commentActions"
@@ -69,6 +72,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { MessageSquare, ThumbsUp, Reply } from 'lucide-vue-next'
+import { sanitizeHtml } from '../utils/html'
+import { useKHydrated } from '../composables/useKHydrated'
 
 export interface ThreadComment {
     id: string
@@ -82,9 +87,19 @@ export interface ThreadComment {
     reactions?: Record<string, number>
 }
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
     comments: ThreadComment[]
-}>(), {})
+    /** Render `content` as HTML. Off by default: comment bodies are the most
+     *  likely place for untrusted text, so plain interpolation is the safe
+     *  default. When on, the HTML is sanitized (DOMPurify) first. */
+    allowHtml?: boolean
+}>(), { allowHtml: false })
+
+// Sanitizing needs a DOM, so it can only happen in the browser — the hydration
+// gate keeps the server's text branch and the client's first render identical.
+const hydrated = useKHydrated()
+const richContent = (comment: ThreadComment): string =>
+    props.allowHtml && hydrated.value ? sanitizeHtml(comment.content) : ''
 
 const emit = defineEmits<{
     action: [payload: { action: string; comment: ThreadComment }]

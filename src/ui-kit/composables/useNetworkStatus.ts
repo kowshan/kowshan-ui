@@ -4,12 +4,16 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 export function useNetworkStatus() {
-    const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
+    // Always start `true` so the server and the *first* client render agree —
+    // reading navigator.onLine during setup would make an offline client
+    // hydrate different markup than the server sent.
+    const isOnline = ref(true)
 
     const goOnline = () => { isOnline.value = true }
     const goOffline = () => { isOnline.value = false }
 
     onMounted(() => {
+        isOnline.value = navigator.onLine
         window.addEventListener('online', goOnline)
         window.addEventListener('offline', goOffline)
     })

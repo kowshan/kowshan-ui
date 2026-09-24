@@ -11,7 +11,7 @@
         ]"
       >
         <template #actions>
-          <KButton text="ادامه مراحل" bg-color="#1db954" text-color="#fff" />
+          <KButton text="ادامه مراحل" bg-color="var(--k-primary)" text-color="#fff" />
         </template>
       </KVerificationCard>
 

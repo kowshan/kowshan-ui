@@ -19,7 +19,7 @@
                 <span class="k-offline-text">
                     <slot>شما آفلاین هستید — تغییرات به‌صورت محلی ذخیره می‌شوند و پس از اتصال همگام‌سازی می‌شوند.</slot>
                 </span>
-                <button v-if="closable" type="button" class="k-offline-close" aria-label="بستن" @click="dismissed = true">
+                <button v-if="closable" type="button" class="k-offline-close" aria-label="بستن" @click="dismiss">
                     <X :size="14" />
                 </button>
             </div>
@@ -42,6 +42,8 @@ const props = withDefaults(defineProps<{
     closable: true
 })
 
+const emit = defineEmits<{ close: [] }>()
+
 const theme = useKitTheme()
 const network = useNetworkStatus()
 const dismissed = ref(false)
@@ -49,6 +51,11 @@ const dismissed = ref(false)
 const isOffline = computed(() =>
     props.show ? true : network.isOnline.value === false && !dismissed.value
 )
+
+const dismiss = () => {
+    dismissed.value = true
+    emit('close')
+}
 </script>
 
 <style scoped>

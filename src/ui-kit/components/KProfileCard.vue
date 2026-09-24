@@ -148,7 +148,7 @@ const faNum = (v: string | number) => toPersianDigits(String(v))
     z-index: 2;
 }
 
-.k-profile-status.is-online { background: #22c55e; }
+.k-profile-status.is-online { background: var(--k-success); }
 .k-profile-status.is-away { background: #f59e0b; }
 .k-profile-status.is-busy { background: #ef4444; }
 .k-profile-status.is-offline { background: #94a3b8; }

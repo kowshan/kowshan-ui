@@ -144,8 +144,8 @@ const displayValue = computed(() => {
     flex-shrink: 0;
 }
 .k-stat-delta.is-up {
-    color: #047857;
-    background: rgba(16, 185, 129, 0.1);
+    color: var(--k-success-text);
+    background: color-mix(in srgb, var(--k-success) 10%, transparent);
 }
 .k-stat-delta.is-down {
     color: #b91c1c;
@@ -176,16 +176,16 @@ const displayValue = computed(() => {
 }
 
 /* ── Variant tint on bg icon color ── */
-.k-stat-primary .k-stat-bg-icon { color: #1db954; }
-.k-stat-success .k-stat-bg-icon { color: #10b981; }
+.k-stat-primary .k-stat-bg-icon { color: var(--k-primary); }
+.k-stat-success .k-stat-bg-icon { color: var(--k-success); }
 .k-stat-warning .k-stat-bg-icon { color: #f59e0b; }
 .k-stat-danger .k-stat-bg-icon { color: #ef4444; }
 .k-stat-info .k-stat-bg-icon { color: #8b5cf6; }
 .k-stat-neutral .k-stat-bg-icon { color: #64748b; }
 
 /* ── Subtle variant glow on hover ── */
-.k-stat-primary:hover { box-shadow: 0 8px 24px rgba(29, 185, 84, 0.1), 0 0 0 1px rgba(29, 185, 84, 0.06); }
-.k-stat-success:hover { box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.06); }
+.k-stat-primary:hover { box-shadow: 0 8px 24px color-mix(in srgb, var(--k-primary) 10%, transparent), 0 0 0 1px color-mix(in srgb, var(--k-primary) 6%, transparent); }
+.k-stat-success:hover { box-shadow: 0 8px 24px color-mix(in srgb, var(--k-success) 10%, transparent), 0 0 0 1px color-mix(in srgb, var(--k-success) 6%, transparent); }
 .k-stat-warning:hover { box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.06); }
 .k-stat-danger:hover { box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1), 0 0 0 1px rgba(239, 68, 68, 0.06); }
 .k-stat-info:hover { box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1), 0 0 0 1px rgba(139, 92, 246, 0.06); }

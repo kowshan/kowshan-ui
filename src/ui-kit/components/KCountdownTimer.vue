@@ -14,21 +14,21 @@
 
         <div v-if="!ended" class="k-countdown-units">
             <div v-if="showDays" class="k-countdown-unit">
-                <span class="k-countdown-num">{{ days }}</span>
+                <span class="k-countdown-num">{{ ready ? days : '--' }}</span>
                 <span class="k-countdown-unit-label">روز</span>
             </div>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ hours }}</span>
+                <span class="k-countdown-num">{{ ready ? hours : '--' }}</span>
                 <span class="k-countdown-unit-label">ساعت</span>
             </div>
             <span class="k-countdown-colon">:</span>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ minutes }}</span>
+                <span class="k-countdown-num">{{ ready ? minutes : '--' }}</span>
                 <span class="k-countdown-unit-label">دقیقه</span>
             </div>
             <span class="k-countdown-colon">:</span>
             <div class="k-countdown-unit">
-                <span class="k-countdown-num">{{ seconds }}</span>
+                <span class="k-countdown-num">{{ ready ? seconds : '--' }}</span>
                 <span class="k-countdown-unit-label">ثانیه</span>
             </div>
         </div>
@@ -63,7 +63,11 @@ const emits = defineEmits<{
 
 const { toPersianDigits } = usePersianNumbers()
 
-const now = ref(Date.now())
+// Starts at 0 — the server's clock is not the reader's clock, so the digits
+    // are only rendered once the component is mounted on the client. Rendering
+    // them from `Date.now()` at setup made every countdown a hydration mismatch.
+    const now = ref(0)
+    const ready = computed(() => now.value > 0)
 const ended = ref(false)
 let timer: ReturnType<typeof setInterval> | null = null
 let endedEmitted = false

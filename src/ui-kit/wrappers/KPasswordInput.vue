@@ -2,7 +2,7 @@
 <template>
     <KTextInput
         ref="passwordRef"
-        v-bind="$attrs"
+        v-bind="forwardedAttrs"
         :type="inputType"
         :model-value="modelValue"
         :right-icon="EyeIcon"
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, useAttrs } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import KTextInput from './KTextInput.vue'
 import type { ValidationRules } from '../types'
@@ -60,6 +60,22 @@ const emits = defineEmits<{
     'change': [value: string | number]
     'clear': []
 }>()
+
+/* This wrapper owns its input type: masked by default, revealed while the eye
+   is on. A consumer's own `type` must therefore never reach the inner input —
+   it would win over `inputType` and leave the field revealed in *both* states
+   (the eye would flip its icon but never re-mask the text). */
+/* inheritAttrs off is load-bearing: with it on, Vue ALSO merges this component's
+   attrs onto the root component (KTextInput) and that merge wins over the props
+   bound here — so a consumer's `type="text"` defeated the toggle even though it
+   is filtered out of `forwardedAttrs` below. */
+defineOptions({ inheritAttrs: false })
+
+const attrs = useAttrs()
+const forwardedAttrs = computed(() => {
+    const { type: _ignored, ...rest } = attrs
+    return rest
+})
 
 const showPassword = ref(false)
 const inputType = computed<any>(() => showPassword.value ? 'text' : 'password')

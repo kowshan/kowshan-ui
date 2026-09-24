@@ -14,8 +14,8 @@
     >
         <defs>
             <linearGradient :id="gradId" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" :stop-color="color" stop-opacity="0.28" />
-                <stop offset="100%" :stop-color="color" stop-opacity="0" />
+                <stop offset="0%" :style="{ stopColor: color, stopOpacity: 0.28 }" />
+                <stop offset="100%" :style="{ stopColor: color, stopOpacity: 0 }" />
             </linearGradient>
         </defs>
 
@@ -28,7 +28,7 @@
             <polyline
                 :points="linePoints"
                 fill="none"
-                :stroke="color"
+                :style="{ stroke: color }"
                 :stroke-width="strokeWidth"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -38,7 +38,7 @@
                 :cx="lastPoint[0]"
                 :cy="lastPoint[1]"
                 r="2.4"
-                :fill="color"
+                :style="{ fill: color }"
             />
         </template>
     </svg>
@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<{
     data: () => [],
     width: 120,
     height: 36,
-    color: '#1db954',
+    color: 'var(--k-primary)',
     strokeWidth: 1.8,
     fill: true,
     showDot: true

@@ -31,9 +31,29 @@
             <KStepper v-model="s5" :steps="fiveSteps" />
         </div>
 
+        <h3 class="sp-sub">فقط نمایش پیشرفت — بدون کلیک</h3>
+        <div class="sp-card">
+            <KStepper v-model="s7" :steps="fiveSteps" :clickable="false" />
+            <p class="sp-note">
+                با <code>:clickable="false"</code> استپر تنها وضعیت را نشان می‌دهد (مثل ویزارد آزمون):
+                نه کلیک و نه کلیدهای ← → جابه‌جا نمی‌کنند. <code>KAssessmentWizard</code> همین حالت را
+                استفاده می‌کند تا کاربر مرحله‌به‌مرحله جلو برود.
+            </p>
+        </div>
+
         <h3 class="sp-sub">برچسب‌های بلند</h3>
         <div class="sp-card">
             <KStepper v-model="s6" :steps="longSteps" />
+        </div>
+
+        <h3 class="sp-sub">مراحل زیاد — اسکرول افقی با محو شدن لبه‌ها</h3>
+        <div class="sp-card" style="max-width: 520px;">
+            <KStepper v-model="s8" :steps="manySteps" />
+            <p class="sp-note">
+                وقتی برچسب‌ها جا نشوند، خودِ استپر افقی اسکرول می‌شود؛ لبه‌ای که محتوایش پنهان است
+                با یک ماسک محو می‌شود (نه با رنگ ثابت، پس روی کارت و دارک‌مود هم درست است) و
+                نوار اسکرول دیده نمی‌شود. با درگ، شیفت+ویدیل یا موس هم می‌شود اسکرول کرد.
+            </p>
         </div>
 
         <h3 class="sp-sub">فرم چندمرحله‌ای — محتوای هر گام</h3>
@@ -103,6 +123,13 @@ const s2 = ref('info')
 const s3 = ref('review')
 const s4 = ref('address')
 const s5 = ref('c')
+const s7 = ref('c')
+const s8 = ref('m3')
+
+const manySteps = [
+    'ثبت‌نام اولیه', 'تأیید شمارهٔ موبایل', 'انتخاب رشته', 'تعیین سطح آنلاین',
+    'مصاحبهٔ شفاهی', 'انتخاب استاد', 'زمان‌بندی کلاس', 'پرداخت شهریه', 'تکمیل مدارک', 'شروع دوره',
+].map((label, i) => ({ id: `m${i + 1}`, label }))
 const s6 = ref('two')
 
 const wizard = ref('info')

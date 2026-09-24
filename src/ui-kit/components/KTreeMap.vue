@@ -29,7 +29,7 @@ const props = defineProps<{
 }>()
 
 
-const palette = ['#1db954','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#14b8a6']
+const palette = ['var(--k-primary)','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#14b8a6']
 
 const total = computed(() => props.data.reduce((a, b) => a + b.value, 0))
 

@@ -278,12 +278,12 @@ defineExpose({ focus: focusInput, clear: () => { modelTags.value = [] } })
     padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 500;
     white-space: nowrap; transition: all 0.15s ease;
 }
-.k-tag.green { background: #bbf7d0; color: #166534; }
+.k-tag.green { background: var(--k-success-light); color: var(--k-success-text); }
 .k-tag.blue { background: #bfdbfe; color: #1e40af; }
 .k-tag.purple { background: #e9d5ff; color: #6b21a8; }
 .k-tag.gray { background: #e2e8f0; color: #334155; }
 
-[data-theme="dark"] .k-tag.green { background: rgba(34,197,94,0.2); color: #4ade80; }
+[data-theme="dark"] .k-tag.green { background: color-mix(in srgb, var(--k-success) 20%, transparent); color: var(--k-success-text); }
 [data-theme="dark"] .k-tag.blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
 [data-theme="dark"] .k-tag.purple { background: rgba(139,92,246,0.2); color: #c4b5fd; }
 [data-theme="dark"] .k-tag.gray { background: rgba(100,116,139,0.25); color: #cbd5e1; }

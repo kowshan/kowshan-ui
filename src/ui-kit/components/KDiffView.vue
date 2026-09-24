@@ -192,7 +192,7 @@ const stats = computed(() => {
     border-bottom: 1px solid transparent;
 }
 .k-diff-line.unchanged { color: var(--k-text-secondary); }
-.k-diff-line.added { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+.k-diff-line.added { background: color-mix(in srgb, var(--k-success) 10%, transparent); color: var(--k-success-text); }
 .k-diff-line.removed { background: rgba(239, 68, 68, 0.08); color: #dc2626; text-decoration: line-through; opacity: 0.8; }
 
 .k-diff-ln {
@@ -208,7 +208,7 @@ const stats = computed(() => {
     border-top: 1px solid var(--k-border); background: var(--k-surface);
 }
 .k-diff-stat { font-size: 0.72rem; font-weight: 600; font-family: inherit; }
-.k-diff-stat-add { color: #16a34a; }
+.k-diff-stat-add { color: var(--k-success-text); }
 .k-diff-stat-remove { color: #dc2626; }
 .k-diff-stat-same { color: var(--k-text-muted); }
 </style>

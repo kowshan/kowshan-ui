@@ -6,7 +6,7 @@
         <KTextInput v-model="form.name" label="نام" />
         <KTextInput v-model="form.phone" label="موبایل" />
         <template #actions="{ errors }">
-          <KButton type="submit" text="ثبت" bg-color="#1db954" text-color="#fff" />
+          <KButton type="submit" text="ثبت" bg-color="var(--k-primary)" text-color="#fff" />
         </template>
       </KForm>
 

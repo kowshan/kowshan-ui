@@ -184,14 +184,14 @@ const pageItems = computed<(number | '...')[]>(() => {
 }
 
 .k-pagination-btn.active {
-    background: #1db954;
-    border-color: #1db954;
+    background: var(--k-primary);
+    border-color: var(--k-primary);
     color: #fff;
     font-weight: 600;
 }
 
 .k-pagination-btn:focus-visible {
-    outline: 2px solid #1db954;
+    outline: 2px solid var(--k-primary);
     outline-offset: 1px;
 }
 
