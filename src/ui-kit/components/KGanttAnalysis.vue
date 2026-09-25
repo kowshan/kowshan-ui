@@ -14,7 +14,7 @@
     Clicking a cell emits `cell-click` with the item details.
 -->
 <template>
-    <div dir="ltr" class="k-gantt" :style="{ '--gantt-cols': totalColumns }">
+    <div :dir="rtl ? 'rtl' : 'ltr'" class="k-gantt" :style="{ '--gantt-cols': totalColumns }">
         <!-- Header -->
         <div class="k-gantt-header">
             <div class="k-gantt-title">
@@ -208,11 +208,17 @@ const props = withDefaults(defineProps<{
     customer?: GanttCustomerData
     /** manually override column count (defaults to max items across all rows) */
     columns?: number
+    /**
+     * Start the timeline from the right (row labels on the right, column 1 rightmost).
+     * Defaults to RTL because the kit is Persian-first; pass `:rtl="false"` for LTR.
+     */
+    rtl?: boolean
 }>(), {
     title: 'تحلیل شکاف شغلی',
     career: () => ({}),
     customer: () => ({}),
-    columns: 0
+    columns: 0,
+    rtl: true
 })
 
 defineEmits<{
@@ -449,7 +455,7 @@ const getCustomerColor = (cell: GanttItem) => {
 }
 
 .k-gantt-cell.has-gap {
-    border-left: 3px solid var(--k-warning, #f59e0b);
+    border-inline-start: 3px solid var(--k-warning, #f59e0b);
 }
 
 .k-gantt-cell-title {

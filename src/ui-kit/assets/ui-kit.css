@@ -87,7 +87,7 @@
     
     /* Borders */
     --k-border: #3f3f46;
-    --k-border-focus: #1db954;
+    --k-border-focus: var(--k-primary);
     --k-border-error: #f87171;
     --k-border-success: #34d399;
     

@@ -23,7 +23,8 @@
                     :style="{ top: y + 'px', left: x + 'px' }"
                     @contextmenu.prevent
                 >
-                    <template v-for="(item, i) in items" :key="item.id">
+                    <!-- keyed by index: dividers carry no id, so `item.id` would collide -->
+                    <template v-for="(item, i) in items" :key="i">
                         <div v-if="item.divider" class="k-cm-divider" />
                         <button
                             v-else

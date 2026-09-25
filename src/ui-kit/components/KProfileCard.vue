@@ -22,7 +22,10 @@
 
         <!-- Avatar -->
         <div class="k-profile-avatar-wrap">
-            <img :src="avatar" :alt="name" class="k-profile-avatar" loading="lazy" />
+            <img v-if="avatar" :src="avatar" :alt="name" class="k-profile-avatar" loading="lazy" />
+            <!-- no image → initials in the same circle; an <img> with no src renders its alt
+                 text and breaks out of the round mask -->
+            <span v-else class="k-profile-avatar k-profile-avatar-fallback" aria-hidden="true">{{ initials }}</span>
         </div>
 
         <!-- Identity -->
@@ -65,13 +68,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { usePersianNumbers } from '../composables/usePersianNumbers'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
+
     name: string
     role?: string
     company?: string
-    avatar: string
+    avatar?: string
     cover?: string
     status?: 'online' | 'away' | 'offline' | 'busy'
     stats?: { label: string; value: string | number }[]
@@ -80,6 +85,7 @@ withDefaults(defineProps<{
 }>(), {
     role: '',
     company: '',
+    avatar: '',
     cover: '',
     status: 'online',
     stats: () => [],
@@ -90,6 +96,11 @@ withDefaults(defineProps<{
 const emits = defineEmits<{
     (e: 'action', id: string): void
 }>()
+
+/** first letter of the first two words — works for «علی رضایی» and for «Ali Rezaei» */
+const initials = computed(() =>
+    (props.name || '').trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0)).join('')
+)
 
 const { toPersianDigits } = usePersianNumbers()
 const faNum = (v: string | number) => toPersianDigits(String(v))
@@ -161,10 +172,28 @@ const faNum = (v: string | number) => toPersianDigits(String(v))
 .k-profile-avatar {
     width: 68px;
     height: 68px;
+    flex: 0 0 68px;
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid var(--k-bg, #ffffff);
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+}
+
+img.k-profile-avatar {
+    display: block;
+    overflow: hidden;
+}
+
+.k-profile-avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--k-primary-light, color-mix(in srgb, var(--k-primary) 14%, transparent));
+    color: var(--k-primary);
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+    user-select: none;
 }
 
 .k-profile-info {

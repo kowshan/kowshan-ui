@@ -16,7 +16,9 @@
                     :style="{ transitionDelay: (actions.length - 1 - i) * 40 + 'ms' }"
                     @click="onAction(action)"
                 >
-                    <span class="k-fab-menu-label">{{ action.label }}</span>
+                    <!-- `dir="auto"` — the label keeps its own language direction while the row
+                         stays LTR, so the icon is always the last thing, sitting on the FAB edge -->
+                    <span class="k-fab-menu-label" dir="auto">{{ action.label }}</span>
                     <span class="k-fab-menu-btn" :style="{ background: action.color || 'var(--k-surface-hover)' }">
                         <component :is="action.icon" :size="16" :style="{ color: action.iconColor || 'var(--k-text-secondary)' }" />
                     </span>
@@ -104,7 +106,14 @@ const onAction = (action: { id: string }) => {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    /* the box is anchored to the inline-end edge (same edge as the FAB), so pin the axis
+       too — otherwise `align-items: flex-end` resolves to the opposite side on an RTL page
+       while the box itself stays anchored right, and the rows drift away from the FAB */
+    direction: ltr;
     align-items: flex-end;
+    /* the FAB is 52px and the action buttons 40px, so a 6px inset on the end edge puts the
+       buttons dead-centre under it — start padding here would only grow the box outwards */
+    padding-inline-end: 6px;
 }
 .k-fab-menu-item {
     display: flex;
@@ -114,13 +123,18 @@ const onAction = (action: { id: string }) => {
     background: none;
     cursor: pointer;
     padding: 0;
+    /* the wrap is anchored to the inline-end edge, so the action button must ALWAYS sit
+       on that edge — force the row LTR instead of following the page direction */
+    direction: ltr;
 }
 .k-fab-menu-label {
     background: var(--k-bg, #fff);
-    padding: 5px 10px;
+    padding: 6px 11px;
     border-radius: 8px;
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.4;
     color: var(--k-text-primary);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     white-space: nowrap;

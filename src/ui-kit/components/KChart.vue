@@ -1,6 +1,6 @@
 <!-- components/KChart.vue -->
 <template>
-    <div class="k-chart" :class="[`k-chart-${type}`, { 'is-donut': type === 'donut' }]">
+    <div ref="wrapRef" class="k-chart" :class="[`k-chart-${type}`, { 'is-donut': type === 'donut' }]">
         <!-- Donut -->
         <div v-if="type === 'donut'" class="k-chart-donut" :style="{ width: size + 'px', height: size + 'px' }">
             <svg :viewBox="`0 0 ${size} ${size}`" :width="size" :height="size">
@@ -30,7 +30,6 @@
             v-else
             class="k-chart-svg"
             :viewBox="`0 0 ${viewW} ${viewH}`"
-            preserveAspectRatio="none"
             :style="{ height: height + 'px' }"
         >
             <defs>
@@ -124,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useKitId } from '../composables/useKitId'
 
 export interface KChartDatum {
@@ -174,8 +173,16 @@ const padR = 12
 const padT = 14
 const padB = 24
 
-const viewW = 640
-const viewH = computed(() => 320)
+/**
+ * The cartesian SVG's user units ARE CSS pixels: the viewBox is pinned to the measured
+ * container width and the requested `height`. A fixed viewBox stretched with
+ * `preserveAspectRatio="none"` scaled x and y differently, which deformed every glyph,
+ * stroke and corner radius along with the plot.
+ */
+const wrapRef = ref<HTMLElement | null>(null)
+const boxW = ref(640)
+const viewW = computed(() => boxW.value || 640)
+const viewH = computed(() => props.height)
 
 const values = computed(() => props.data.map(d => d.value))
 const yMax = computed(() => {
@@ -186,7 +193,7 @@ const yMin = computed(() => 0)
 
 const gridCount = 4
 
-const plotW = computed(() => viewW - padL - padR)
+const plotW = computed(() => viewW.value - padL - padR)
 const plotH = computed(() => viewH.value - padT - padB)
 
 const x = (i: number) => padL + (plotW.value * i) / Math.max(1, props.data.length - 1)
@@ -248,6 +255,26 @@ const centerValue = computed(() => {
     const fmt = props.valueFormatter
     return fmt ? fmt(total.value) : total.value.toLocaleString('en-US')
 })
+
+/* ── measure the container so the viewBox matches its real pixel size ── */
+let ro: ResizeObserver | null = null
+
+const measure = () => {
+    const el = wrapRef.value
+    if (!el) return
+    const w = Math.round(el.clientWidth)
+    if (w > 0) boxW.value = w
+}
+
+onMounted(() => {
+    measure()
+    if (typeof ResizeObserver !== 'undefined' && wrapRef.value) {
+        ro = new ResizeObserver(measure)
+        ro.observe(wrapRef.value)
+    }
+})
+
+onBeforeUnmount(() => ro?.disconnect())
 </script>
 
 <style scoped>
@@ -256,6 +283,7 @@ const centerValue = computed(() => {
 }
 
 .k-chart-svg {
+    display: block;
     width: 100%;
     overflow: visible;
 }

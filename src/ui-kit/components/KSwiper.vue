@@ -185,9 +185,18 @@ let signProbed = false
 function probeScrollSign(el: HTMLElement) {
     if (isVertical.value || !isRtl.value) { scrollSign.value = 1; return }
     const prev = el.scrollLeft
-    el.scrollLeft = -1
-    scrollSign.value = el.scrollLeft < 0 ? -1 : 1
+    // Two traps here, both of which make a 1px probe lie:
+    //   • `scroll-behavior: smooth` — the write isn't readable until it animates
+    //   • `scroll-snap-type: mandatory` — the engine re-snaps a 1px write back to 0
+    //     during the layout flush that reading `scrollLeft` forces
+    // So scroll instantly to the far END (a real snap position) and read that back.
+    const inline = el.style.scrollBehavior
+    el.style.scrollBehavior = 'auto'
+    el.scrollLeft = -maxOffset()
+    const readBack = el.scrollLeft
     el.scrollLeft = prev
+    el.style.scrollBehavior = inline
+    scrollSign.value = readBack < 0 ? -1 : 1
 }
 
 function sync() {

@@ -21,11 +21,15 @@
         >
             <span class="k-bottomnav-icon">
                 <component :is="item.icon" :size="item.iconSize || 20" />
-                <span v-if="item.badge" class="k-bottomnav-badge" :class="{ 'is-dot': item.badge === true }">
-                    {{ item.badge === true ? '' : item.badge }}
-                </span>
             </span>
-            <span class="k-bottomnav-label">{{ item.label }}</span>
+            <span class="k-bottomnav-label">
+                {{ item.label }}
+                <span
+                    v-if="item.badge"
+                    class="k-bottomnav-badge"
+                    :class="{ 'is-dot': item.badge === true }"
+                >{{ item.badge === true ? '' : item.badge }}</span>
+            </span>
         </button>
     </nav>
 </template>
@@ -103,40 +107,42 @@ const select = (item: { id: string }) => {
 }
 
 .k-bottomnav-icon {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* the count rides in the title row as a circle — floating it over the icon made both
+   unreadable at tab-bar sizes */
+.k-bottomnav-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    font-size: 0.62rem;
+    font-weight: 600;
 }
 
 .k-bottomnav-badge {
-    position: absolute;
-    top: -6px;
-    inset-inline-end: -10px;
-    min-width: 14px;
-    height: 14px;
-    padding: 0 3px;
+    flex-shrink: 0;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
     border-radius: 999px;
     background: var(--k-error, #ef4444);
     color: #fff;
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     font-weight: 800;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    border: 1.5px solid var(--k-surface, #fff);
 }
 
 .k-bottomnav-badge.is-dot {
-    min-width: 7px;
-    width: 7px;
-    height: 7px;
+    min-width: 6px;
+    width: 6px;
+    height: 6px;
     padding: 0;
-}
-
-.k-bottomnav-label {
-    font-size: 0.62rem;
-    font-weight: 600;
 }
 </style>

@@ -11,7 +11,7 @@
     Priority-column grid, 2 progress pills per cell (need/you).
 -->
 <template>
-    <div dir="ltr" class="kgantt" :class="{ 'is-inline': inline }">
+    <div :dir="rtl ? 'rtl' : 'ltr'" class="kgantt" :class="{ 'is-inline': inline }">
         <div class="kgantt-scroll">
             <div class="kgantt-grid" :style="{ '--cols': totalColumns }">
                 <!-- Column numbers -->
@@ -151,13 +151,19 @@ const props = withDefaults(defineProps<{
     inline?: boolean
     /** show priority column numbers */
     showPriority?: boolean
+    /**
+     * Start the timeline from the right (row labels on the right, column 1 rightmost).
+     * Defaults to RTL because the kit is Persian-first; pass `:rtl="false"` for LTR.
+     */
+    rtl?: boolean
 }>(), {
     title: 'تحلیل شکاف شغلی',
     career: () => ({}),
     customer: () => ({}),
     columns: 0,
     inline: false,
-    showPriority: false
+    showPriority: false,
+    rtl: true
 })
 
 defineEmits<{
@@ -332,11 +338,11 @@ const fillClass = (cell: GanttItem) => {
     cursor: pointer;
     transition: background 0.12s ease;
     min-width: 0;
-    border-left: 1px solid color-mix(in srgb, var(--k-border, #e2e8f0) 25%, transparent);
+    border-inline-start: 1px solid color-mix(in srgb, var(--k-border, #e2e8f0) 25%, transparent);
 }
 
 .kgantt-cell:first-child {
-    border-left: none;
+    border-inline-start: none;
 }
 
 .kgantt-cell:hover:not(.is-empty) {

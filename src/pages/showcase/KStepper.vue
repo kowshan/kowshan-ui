@@ -20,10 +20,22 @@
             <KStepper v-model="s3" :steps="steps" />
         </div>
 
-        <h3 class="sp-sub">با مرحله غیرفعال</h3>
+        <h3 class="sp-sub">یک مرحله غیرفعال در میانه</h3>
         <div class="sp-card">
             <KStepper v-model="s4" :steps="disabledSteps" />
-            <p class="sp-note">مرحله «پرداخت» غیرفعال است و با کلیک جابه‌جا نمی‌شود.</p>
+            <p class="sp-note">
+                مرحله «پرداخت» غیرفعال است: نه با کلیک و نه با کلید انتخاب نمی‌شود،
+                اما بقیه مراحل آزادانه قابل انتخاب‌اند.
+            </p>
+        </div>
+
+        <h3 class="sp-sub">همه مراحل غیرفعال</h3>
+        <div class="sp-card">
+            <KStepper v-model="s9" :steps="allDisabledSteps" />
+            <p class="sp-note">
+                برای زمانی که هیچ مرحله‌ای قابل پرش نیست و استپر فقط وضعیت را نمایش می‌دهد
+                (نتیجهٔ آزمون، فرم قفل‌شده).
+            </p>
         </div>
 
         <h3 class="sp-sub">۵ مرحله</h3>
@@ -125,6 +137,13 @@ const s4 = ref('address')
 const s5 = ref('c')
 const s7 = ref('c')
 const s8 = ref('m3')
+const s9 = ref('q2')
+
+const allDisabledSteps = [
+    { id: 'q1', label: 'اطلاعات', disabled: true },
+    { id: 'q2', label: 'تأیید شمارهٔ موبایل', disabled: true },
+    { id: 'q3', label: 'انتشار', disabled: true },
+]
 
 const manySteps = [
     'ثبت‌نام اولیه', 'تأیید شمارهٔ موبایل', 'انتخاب رشته', 'تعیین سطح آنلاین',

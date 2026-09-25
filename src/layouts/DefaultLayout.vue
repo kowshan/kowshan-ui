@@ -3,15 +3,34 @@
     <div class="kit-shell">
         <header class="kit-header">
             <h1 class="kit-title">Kowshan Kit (k-kit v1.0.0)</h1>
-            <div class="kit-themes">
-                <component
-                    v-for="t in themes"
-                    :is="t.icon"
-                    :key="t.id"
-                    class="kit-theme-btn"
-                    :class="{ active: theme === t.id }"
-                    @click="setTheme(t.id)"
-                />
+            <div class="kit-header-actions">
+                <!-- Brand swatches — a live demo of "one token re-themes the kit": each one
+                     writes --k-primary on the theme root, and every derived brand token
+                     (hover, tint, focus ring, info) follows. Click the active one to reset. -->
+                <div class="kit-accents" role="group" aria-label="رنگ برند">
+                    <button
+                        v-for="a in accents"
+                        :key="a.color"
+                        type="button"
+                        class="kit-accent"
+                        :class="{ active: accent === a.color }"
+                        :style="{ background: a.color, '--swatch': a.color }"
+                        :title="accent === a.color ? `${a.label} — بازگشت به رنگ پیش‌فرض` : a.label"
+                        :aria-label="a.label"
+                        :aria-pressed="accent === a.color"
+                        @click="setAccent(accent === a.color ? '' : a.color)"
+                    />
+                </div>
+                <div class="kit-themes">
+                    <component
+                        v-for="t in themes"
+                        :is="t.icon"
+                        :key="t.id"
+                        class="kit-theme-btn"
+                        :class="{ active: theme === t.id }"
+                        @click="setTheme(t.id)"
+                    />
+                </div>
             </div>
         </header>
         <div class="kit-body">
@@ -54,12 +73,22 @@ import { useRouter } from 'vue-router'
 
 const theme = inject<Ref<string>>('theme')!
 const setTheme = inject<(t: string) => void>('setTheme')!
+const accent = inject<Ref<string>>('accent')!
+const setAccent = inject<(c: string) => void>('setAccent')!
 const router = useRouter()
 
 const themes = [
     { id: 'light', icon: SunIcon },
     { id: 'dark', icon: MoonIcon },
     { id: 'oled', icon: EyeIcon },
+]
+
+/** 4 brand swatches — premium hues, all of them readable as fills in light, dark and oled */
+const accents = [
+    { color: '#d6336c', label: 'سرخابی' },
+    { color: '#6741d9', label: 'بنفش' },
+    { color: '#c08a2e', label: 'طلایی' },
+    { color: '#0b7285', label: 'فیروزه‌ای' },
 ]
 
 const search = ref('')
@@ -168,9 +197,46 @@ provide('selected', selected)
     color: var(--k-text-primary);
 }
 
+.kit-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
 .kit-themes {
     display: flex;
     gap: 4px;
+}
+
+.kit-accents {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-inline-end: 14px;
+    border-inline-end: 1px solid var(--k-border);
+}
+
+.kit-accent {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid rgb(0 0 0 / 0.15);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.kit-accent:hover {
+    transform: scale(1.12);
+}
+
+.kit-accent.active {
+    box-shadow: 0 0 0 2px var(--k-bg), 0 0 0 4px var(--swatch);
+}
+
+.kit-accent:focus-visible {
+    outline: 2px solid var(--k-border-focus);
+    outline-offset: 2px;
 }
 
 .kit-theme-btn {
