@@ -95,6 +95,11 @@ const props = withDefaults(defineProps<{
     /** Track height in vertical mode — number (px) or any CSS length */
     height?: number | string
     ariaLabel?: string
+    /** 2px of inline padding on the track, so a slide's own border is not shaved
+     *  off at the clip edge. It is inside the scrollport, so at `per-page="1"`
+     *  it also reveals a 2px sliver of the neighbouring slide — pass `false` for
+     *  a single-slide-per-page carousel, where the sliver reads as a bug. */
+    inlineBleed?: boolean
 }>(), {
     perPage: 1,
     breakpoints: () => ({}),
@@ -105,6 +110,7 @@ const props = withDefaults(defineProps<{
     direction: 'horizontal',
     height: 320,
     ariaLabel: 'اسلایدر',
+    inlineBleed: true,
 })
 
 const emit = defineEmits<{
@@ -146,14 +152,24 @@ const stepSize = computed(() => Math.max(1, (slideWidth.value || width.value) + 
 /** how far one page jump moves */
 const pageUnit = computed(() => stepSize.value * (isAuto.value ? 1 : count.value))
 
-/** reachable page positions — derived from real scroll distance, so the last dot always lands */
-const pages = computed(() => Math.max(1, Math.floor(max.value / pageUnit.value) + 1))
+/**
+ * Reachable page positions — derived from the real scroll distance, so the last
+ * dot always lands.
+ *
+ * `ceil`, not `floor`: when the slides do not divide evenly by the page size
+ * (5 cards at 4 per page) `floor` reports one page, which means *no dots* and no
+ * way to reach the cards on the partial last page. `ceil` adds the partial page
+ * as a real position; its target clamps to the maximum scroll offset, so it
+ * shows the tail of the row rather than empty space.
+ */
+const pages = computed(() => Math.max(1, Math.ceil(max.value / pageUnit.value) + 1))
 
 const trackStyle = computed<CSSProperties>(() => ({
     '--k-swiper-gap': `${props.gap}px`,
     '--k-swiper-slide': isAuto.value
         ? 'auto'
         : `calc((100% - ${(count.value - 1) * props.gap}px) / ${count.value})`,
+    '--k-swiper-inline-bleed': props.inlineBleed ? '2px' : '0px',
     // a vertical track needs a definite height for percentage slide sizes
     ...(isVertical.value
         ? { height: typeof props.height === 'number' ? `${props.height}px` : props.height }
@@ -202,7 +218,7 @@ function probeScrollSign(el: HTMLElement) {
 function sync() {
     const off = offset()
     max.value = maxOffset()
-    const total = Math.max(1, Math.floor(max.value / pageUnit.value) + 1)
+    const total = Math.max(1, Math.ceil(max.value / pageUnit.value) + 1)
     index.value = Math.min(total - 1, Math.round(off / pageUnit.value))
     atStart.value = off <= 2
     atEnd.value = off >= max.value - 2
@@ -365,6 +381,17 @@ defineExpose({ next, prev, goTo, index, pages, measure, axis })
     gap: var(--k-swiper-gap, 12px);
     overflow-x: auto;
     overflow-y: hidden;
+    /* Cross-axis bleed: `overflow-y: hidden` clips, so a card whose hover lifts
+       it by 2–4px loses its top border and its bottom shadow against the clip
+       edge. The bleed lives on the axis that is NOT scrolled, so snap geometry
+       is untouched. Card hover styles stay as they are — this is the fix for
+       all of them at once. */
+    padding-block: 8px;
+    /* 2px of inline bleed as well: the last slide's border sits exactly on the
+       clip edge, and sub-pixel rounding from the `calc()` slide width shaves it
+       off. `inline-bleed="false"` zeroes it for 1-per-page carousels, where the
+       inset is inside the scrollport and shows a sliver of the next slide. */
+    padding-inline: var(--k-swiper-inline-bleed, 2px);
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
@@ -387,6 +414,9 @@ defineExpose({ next, prev, goTo, index, pages, measure, axis })
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
+    /* Flipped: here the scrolled axis is y, so the bleed goes inline. */
+    padding-block: 0;
+    padding-inline: 8px;
     scroll-snap-type: y mandatory;
     overscroll-behavior-x: auto;
     overscroll-behavior-y: contain;

@@ -4,20 +4,26 @@
 export function usePersianNumbers() {
     
     // Convert Persian/Arabic digits to English
-    const toEnglishDigits = (value: string): string => {
+    //
+    // `string | number`: a digit converter's most natural argument is a *number*
+    // — a count, a price, a rating — and the previous `string`-only signature
+    // did not fail at the call site, it failed at runtime inside `.replace`
+    // (`value.replace is not a function`), which takes the whole render down on
+    // the server. Coercing here is cheap; a crash is not.
+    const toEnglishDigits = (value: string | number): string => {
         const persianMap: Record<string, string> = {
             '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
             '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
             '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
             '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
         }
-        return value.replace(/[۰-۹٠-٩]/g, (char) => persianMap[char] || char)
+        return String(value).replace(/[۰-۹٠-٩]/g, (char) => persianMap[char] || char)
     }
     
     // Convert English digits to Persian
-    const toPersianDigits = (value: string): string => {
+    const toPersianDigits = (value: string | number): string => {
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-        return value.replace(/\d/g, (d) => persianDigits[parseInt(d)] ?? '')
+        return String(value).replace(/\d/g, (d) => persianDigits[parseInt(d)] ?? '')
     }
 
     // Normalize Arabic variant characters to their Persian forms

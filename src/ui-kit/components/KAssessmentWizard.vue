@@ -16,7 +16,7 @@
 <template>
     <div class="k-aw">
         <!-- ── info bar ─────────────────────────────────────────── -->
-        <header class="k-aw-head">
+        <header v-if="showHeader" class="k-aw-head">
             <img v-if="assessment.info.logo" class="k-aw-logo" :src="assessment.info.logo" alt="" />
             <div class="k-aw-head-body">
                 <h2 class="k-aw-title">{{ assessment.info.title }}</h2>
@@ -35,9 +35,22 @@
         </header>
 
         <!-- ── progress + steps ─────────────────────────────────── -->
-        <KProgress :percent="progress" :label="`${answeredCount} از ${totalQuestions} پاسخ داده شده`" show-percent />
-        <!-- locked: an attempt is linear — the stepper only reports progress -->
-        <KStepper v-if="showStepper && steps.length > 1" v-model="currentId" :steps="steps" :clickable="false" />
+        <KProgress
+            v-if="showProgress"
+            :percent="displayProgress"
+            :label="`${displayAnswered} از ${displayTotal} پاسخ داده شده`"
+            show-percent
+        />
+        <!-- locked: an attempt is linear — the stepper only reports progress.
+             The question phase is ONE step whose pages are inner steps, so the
+             bar stays three circles however many pages the feed has. -->
+        <KStepper
+            v-if="showStepper && stepperSteps.length > 1"
+            v-model="stepperModel"
+            :steps="stepperSteps"
+            :sub-step="subStep"
+            :clickable="false"
+        />
 
         <!-- ── instructions ─────────────────────────────────────── -->
         <section v-if="isInstructions" class="k-aw-instructions">
@@ -146,7 +159,7 @@ import KStepper from './KStepper.vue'
 import KAssessmentContent from './KAssessmentContent.vue'
 import KAssessmentQuestion from './KAssessmentQuestion.vue'
 import KAssessmentResult from './KAssessmentResult.vue'
-import { useAssessment } from '../composables/useAssessment'
+import { isBlank, useAssessment } from '../composables/useAssessment'
 import type {
     Assessment,
     AssessmentAnswers,
@@ -166,6 +179,18 @@ const props = withDefaults(defineProps<{
     submitting?: boolean
     disabled?: boolean
     showStepper?: boolean
+    /** the info header (logo, title, description, meta) — turn it off when the
+        host renders its own header from `assessment.info` */
+    showHeader?: boolean
+    /** the progress bar and its «x از y پاسخ داده شده» label */
+    showProgress?: boolean
+    /**
+     * Count a matrix question as its own rows: a 3-row table is three things to
+     * answer, so it takes three slots towards `per-page`, the «سؤال ۱–۹» ranges
+     * and the answered/total numbers. Off by default — on, the same `per-page`
+     * yields more, shorter steps.
+     */
+    weightRows?: boolean
     /** start on the result step (e.g. reviewing a finished attempt) */
     startAtResult?: boolean
     /** show per-question explanations after submit */
@@ -177,6 +202,9 @@ const props = withDefaults(defineProps<{
     submitting: false,
     disabled: false,
     showStepper: true,
+    showHeader: true,
+    showProgress: true,
+    weightRows: false,
     startAtResult: false,
     revealAnswers: false,
 })
@@ -221,21 +249,43 @@ const buildAnswerList = () => answerList.value.map(a => ({
 /* ── paging ───────────────────────────────────────────────── */
 const sectionOf = (id?: string) => props.assessment.sections.find(s => s.id === id)
 
+/** how many «question slots» a question takes — a matrix counts its own rows */
+const weightOf = (q: AssessmentQuestion) =>
+    props.weightRows && q.input.kind === 'matrix'
+        ? Math.max(1, q.input.matrixRows?.length || 1)
+        : 1
+
 const pages = computed(() => {
     const questions = visibleQuestions.value
     const size = Math.floor(props.perPage || 0)
     const out: { id: string; label: string; questions: AssessmentQuestion[] }[] = []
 
     if (size > 0) {
-        for (let i = 0; i < questions.length; i += size) {
-            const chunk = questions.slice(i, i + size)
+        // fill each page up to `size` slots; a question heavier than `size` still
+        // gets a page of its own rather than being dropped
+        let chunk: AssessmentQuestion[] = []
+        let used = 0
+        let from = 1
+        const flush = () => {
+            if (!chunk.length) return
             const section = sectionOf(chunk[0]?.sectionId)
+            const to = from + used - 1
             out.push({
                 id: `page-${out.length + 1}`,
-                label: `${section ? `${section.title} · ` : ''}سؤال ${i + 1}–${Math.min(i + size, questions.length)}`,
+                label: `${section ? `${section.title} · ` : ''}سؤال ${from}–${to}`,
                 questions: chunk,
             })
+            chunk = []
+            used = 0
+            from = to + 1
         }
+        for (const q of questions) {
+            const weight = weightOf(q)
+            if (chunk.length && used + weight > size) flush()
+            chunk.push(q)
+            used += weight
+        }
+        flush()
     } else {
         for (const section of props.assessment.sections) {
             const chunk = questions.filter(q => q.sectionId === section.id)
@@ -254,6 +304,7 @@ function firstStep() {
 
 const currentId = ref(firstStep())
 
+/* the navigation path: one entry per page */
 const steps = computed(() => {
     const list: { id: string; label: string }[] = []
     if (hasInstructions.value) list.push({ id: '__instructions', label: 'راهنما' })
@@ -261,6 +312,47 @@ const steps = computed(() => {
     list.push({ id: '__result', label: 'نتیجه' })
     return list
 })
+
+/*
+ * What the stepper *shows*. With one page it is the page itself; with several,
+ * the question phase collapses to a single step and the pages become its inner
+ * steps — `KStepper` draws those as dots orbiting the circle. So a 60-question
+ * assessment still reads as راهنما → سؤالها → نتیجه.
+ */
+const stepperSteps = computed(() => {
+    const list: { id: string; label: string; subSteps?: { id: string; label: string }[] }[] = []
+    if (hasInstructions.value) list.push({ id: '__instructions', label: 'راهنما' })
+    if (pages.value.length === 1) {
+        const only = pages.value[0]!
+        list.push({ id: only.id, label: only.label })
+    } else if (pages.value.length > 1) {
+        list.push({
+            id: '__questions',
+            label: 'سؤالها',
+            subSteps: pages.value.map(p => ({ id: p.id, label: p.label })),
+        })
+    }
+    list.push({ id: '__result', label: 'نتیجه' })
+    return list
+})
+
+const isQuestions = computed(() => currentId.value.startsWith('page-'))
+
+const pageIndex = computed(() => Math.max(0, pages.value.findIndex(p => p.id === currentId.value)))
+
+/* the collapsed step speaks for every page, so selecting it keeps the page you
+   are on (the stepper is a progress indicator here — `clickable` is false) */
+const stepperModel = computed({
+    get: () => (isQuestions.value ? '__questions' : currentId.value),
+    set: (id: string) => {
+        if (id === '__questions') return
+        currentId.value = id
+    },
+})
+
+const subStep = computed(() =>
+    isQuestions.value && pages.value.length > 1 ? pageIndex.value : undefined,
+)
 
 const hasInstructions = computed(() => !!props.assessment.instructions)
 const stepIndex = computed(() => Math.max(0, steps.value.findIndex(s => s.id === currentId.value)))
@@ -301,6 +393,26 @@ const finalResult = computed<AssessmentResult>(() => props.result || computedRes
 const totalQuestions = computed(() => visibleQuestions.value.length)
 const answeredList = computed(() => answerList.value.filter(a => a.answered))
 
+/* the same numbers, counted in slots when `weightRows` is on — so the bar and
+   the step ranges never disagree about what a «سؤال» is */
+const slotTotal = computed(() =>
+    visibleQuestions.value.reduce((n, q) => n + weightOf(q), 0),
+)
+/* `answers` is the plain reactive object the engine hands back — NOT a ref, so
+   it is `answers[q.id]`. Writing `answers.value[…]` type-checks (it is a
+   `Record<string, any>`, so the property read is `any`) and then throws at
+   render time, which is why only `weightRows` hosts ever saw it. */
+const slotAnswered = computed(() =>
+    visibleQuestions.value.reduce((n, q) => n + (isBlank(answers[q.id]) ? 0 : weightOf(q)), 0),
+)
+const displayTotal = computed(() => (props.weightRows ? slotTotal.value : totalQuestions.value))
+const displayAnswered = computed(() => (props.weightRows ? slotAnswered.value : answeredCount.value))
+const displayProgress = computed(() =>
+    props.weightRows
+        ? (slotTotal.value ? Math.round((slotAnswered.value / slotTotal.value) * 100) : 0)
+        : progress.value,
+)
+
 const instructionBlocks = computed<ContentBlock[]>(() =>
     (props.assessment.instructions?.items || []).map(item =>
         typeof item === 'string' ? { kind: 'text', text: item } : item
@@ -319,11 +431,22 @@ const canContinue = computed(() => !props.assessment.instructions?.agreement || 
 const submitted = ref(false)
 const revealedIds = ref(new Set<string>())
 
-const stepLabel = computed(() =>
-    isResult.value
-        ? 'نتیجه ارزیابی'
-        : `مرحله ${Math.min(stepIndex.value + 1, Math.max(1, steps.value.length - 1))} از ${Math.max(1, steps.value.length - 1)}`
-)
+const stepLabel = computed(() => {
+    if (isResult.value) return 'نتیجه ارزیابی'
+
+    const total = Math.max(1, stepperSteps.value.length - 1)
+    const shownAs = isQuestions.value ? '__questions' : currentId.value
+    const at = Math.min(
+        stepperSteps.value.findIndex(s => s.id === shownAs) + 1,
+        total,
+    )
+    const base = `مرحله ${at} از ${total}`
+
+    // the collapsed step hides which page you are on — say it in words
+    return isQuestions.value && pages.value.length > 1
+        ? `${base} · صفحه ${pageIndex.value + 1} از ${pages.value.length}`
+        : base
+})
 
 const formatValue = (value: any) => {
     if (value == null || value === '') return '—'
@@ -389,16 +512,6 @@ function restart() {
     goTo(0)
 }
 
-/* expose the engine so a host can score/validate from outside */
-defineExpose({
-    goTo, next, prev, restart, submit,
-    validateAll: engine.validateAll,
-    answerList,
-    activeIds: visibleIds,
-    result: finalResult,
-    answers,
-})
-
 /* ── optional countdown ───────────────────────────────────── */
 // Zero until mounted: reading the clock during setup would render the *server's* time
 // and hydrate a different value on the client (a countdown drifts by the round-trip).
@@ -440,6 +553,28 @@ onBeforeUnmount(() => { if (tick) clearInterval(tick) })
 watch(() => props.assessment, () => {
     currentId.value = firstStep()
     startedAt.value = Date.now()
+})
+
+/*
+ * Expose the engine so a host can score/validate from outside — and the
+ * countdown, for a host that renders the header itself (`show-header="false"`).
+ *
+ * It has to sit *after* the timer: `defineExpose` runs during setup, so naming
+ * `remaining` above its `const` is a temporal-dead-zone crash on the server
+ * («Cannot access 'remaining' before initialization»), not a compile error.
+ */
+defineExpose({
+    goTo, next, prev, restart, submit,
+    validateAll: engine.validateAll,
+    answerList,
+    activeIds: visibleIds,
+    result: finalResult,
+    answers,
+    remaining,
+    clock,
+    currentId,
+    steps,
+    stepperSteps,
 })
 </script>
 

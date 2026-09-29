@@ -2,7 +2,7 @@
     <div
         ref="el"
         class="k-spotlight"
-        :class="{ 'is-glow': glow }"
+        :class="{ 'is-glow': glow, 'has-surface': surface }"
         @mousemove="onMove"
         @mouseleave="onLeave"
     >
@@ -18,7 +18,11 @@
             :style="borderStyle"
         />
 
-        <div dir="ltr" class="k-spotlight__content">
+        <!-- No `dir="ltr"` here: this is a Persian-first kit, and forcing the
+             content LTR flips every card's layout for an RTL consumer. A purely
+             numeric value that needs strict LTR is the *consumer's* call — wrap
+             it in `direction: ltr` on their own element. -->
+        <div class="k-spotlight__content">
             <slot />
         </div>
     </div>
@@ -31,10 +35,15 @@ const props = withDefaults(defineProps<{
     color?: string
     glow?: boolean
     radius?: string
+    /** Opt in to a card surface (background + border). Off by default: this is
+     *  an *effect* layer, so it stays transparent unless the consumer wants a
+     *  card — stacking it on a page that already has surfaces double-boxes it. */
+    surface?: boolean
 }>(), {
     color: 'var(--k-primary)',
     glow: true,
-    radius: '16px'
+    radius: '16px',
+    surface: false
 })
 
 const el = ref<HTMLElement | null>(null)
@@ -70,8 +79,12 @@ const borderStyle = computed(() => ({
     position: relative;
     overflow: hidden;
     border-radius: inherit;
-    background: var(--pars-surface);
-    border: 1px solid var(--pars-border);
+}
+
+/* Opt-in surface. Transparent by default — an effect layer, not a card. */
+.k-spotlight.has-surface {
+    background: var(--k-surface, #f8fafc);
+    border: 1px solid var(--k-border, #e2e8f0);
 }
 
 .k-spotlight__beam,

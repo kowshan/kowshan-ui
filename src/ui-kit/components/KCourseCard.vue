@@ -24,7 +24,11 @@
     <article class="k-course" :class="{ 'is-in-progress': hasProgress }" @click="emits('click', $event)">
         <!-- Thumbnail -->
         <div dir="ltr" class="k-course-media">
-            <img :src="image" :alt="title" loading="lazy" />
+            <!-- `image` is optional and must stay guarded: an empty image src
+                 is resolved by browsers against the *document* URL, which fires
+                 a second request for the page and paints the alt text over the
+                 placeholder surface. No image → leave the surface alone. -->
+            <img v-if="image" :src="image" :alt="title" loading="lazy" />
             <span v-if="category" class="k-course-category">{{ category }}</span>
             <span v-if="discount" class="k-course-discount">{{ discount }}</span>
             <div v-if="durationBadge || hasProgress" class="k-course-meta-bar">
@@ -42,15 +46,18 @@
         <div class="k-course-body">
             <h3 class="k-course-title">{{ title }}</h3>
 
-            <div class="k-course-instructor">
-                <img :src="instructorAvatar" :alt="instructor" loading="lazy" />
-                <span>{{ instructor }}</span>
+            <div v-if="instructor || instructorAvatar" class="k-course-instructor">
+                <img v-if="instructorAvatar" :src="instructorAvatar" :alt="instructor" loading="lazy" />
+                <span v-if="instructor">{{ instructor }}</span>
             </div>
 
-            <div class="k-course-meta">
-                <span class="k-course-rating">
+            <div v-if="rating || reviews || lessons || hours" class="k-course-meta">
+                <!-- Optional fields default to 0, so an unrated card would
+                     otherwise advertise a zero score and a zero review count as
+                     if that were data. Absent means absent. -->
+                <span v-if="rating || reviews" class="k-course-rating">
                     <Star :size="13" fill="currentColor" /> {{ rating }}
-                    <span class="k-course-reviews">({{ reviews }} نظر)</span>
+                    <span v-if="reviews" class="k-course-reviews">({{ reviews }} نظر)</span>
                 </span>
                 <span v-if="lessons || hours" class="k-course-stats">
                     <span v-if="lessons"><PlayCircle :size="12" /> {{ lessons }} درس</span>
@@ -143,7 +150,10 @@ const onEnroll = () => {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    /* No `max-width`: the card fills whatever container it is given — a grid
+       cell, a swiper slide, a list row. A hard 300px cap left every slide wider
+       than the card with dead space beside it, which is what made rows look
+       unevenly spaced. */
     background: var(--k-bg, #ffffff);
     border: 1px solid var(--k-border, #e2e8f0);
     border-radius: 14px;
@@ -178,7 +188,8 @@ const onEnroll = () => {
     font-size: 0.62rem;
     font-weight: 700;
     padding: 3px 9px;
-    border-radius: 999px;
+    /* A ruled tag, not a pill. */
+    border-radius: 2px;
     background: color-mix(in srgb, var(--k-primary, #1db954) 90%, #fff);
     color: #fff;
 }
@@ -214,10 +225,9 @@ const onEnroll = () => {
     font-size: 0.62rem;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: 7px;
-    background: rgba(15, 23, 42, 0.72);
+    border-radius: 4px;
+    background: rgba(15, 23, 42, 0.78);
     color: #fff;
-    backdrop-filter: blur(2px);
 }
 
 .k-course-progress {
@@ -231,7 +241,7 @@ const onEnroll = () => {
 .k-course-progress-bar {
     flex: 1;
     height: 4px;
-    border-radius: 999px;
+    border-radius: 2px;
     background: color-mix(in srgb, #fff 30%, transparent);
     overflow: hidden;
 }
@@ -333,7 +343,8 @@ const onEnroll = () => {
     gap: 10px;
     padding: 12px 14px;
     margin-top: 10px;
-    border-top: 1px dashed var(--k-border, #e2e8f0);
+    /* No separator rule: the footer already has its own weight (price + CTA),
+       and a dashed line across every card read as a stray stroke. */
 }
 
 .k-course-price {

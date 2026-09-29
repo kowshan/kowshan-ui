@@ -35,6 +35,16 @@
             />
         </div>
 
+        <h3 class="sp-sub">بدون ورودی — فقط سنجه و معیارها (زیر دو فیلد)</h3>
+        <div class="sp-card" style="max-width: 420px; display: flex; flex-direction: column; gap: 14px;">
+            <!-- `show-input="false"` renders only the meter + criteria, so a form
+                 can keep two inputs side by side and put the strength block
+                 underneath both of them. -->
+            <KPasswordInput v-model="passPair" label="رمز عبور" />
+            <KPasswordInput v-model="passPairConfirm" label="تکرار رمز عبور" />
+            <KPasswordStrength v-model="passPair" :show-input="false" />
+        </div>
+
         <h3 class="sp-sub">غیرفعال</h3>
         <div class="sp-card" style="max-width: 420px;">
             <KPasswordStrength v-model="pass6" label="رمز عبور" disabled />
@@ -45,6 +55,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import KPasswordInput from '../../ui-kit/wrappers/KPasswordInput.vue'
 import KPasswordStrength from '../../ui-kit/components/KPasswordStrength.vue'
 
 const pass1 = ref('')
@@ -53,6 +64,8 @@ const pass3 = ref('Abc123!@#')
 const pass4 = ref('')
 const pass5 = ref('')
 const pass6 = ref('locked-value')
+const passPair = ref('')
+const passPairConfirm = ref('')
 
 const level1 = ref(0)
 const label1 = ref('')

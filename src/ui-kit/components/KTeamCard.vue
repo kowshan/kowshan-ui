@@ -22,6 +22,14 @@
                 <component :is="s.icon" :size="14" />
             </a>
         </div>
+
+        <!-- The card is a listing card, but a listing still has destinations:
+             a consumer that needs "comments / profile / courses" renders its own
+             row here rather than wrapping the whole card and floating it below
+             the surface. Guarded, so a card without actions keeps its old box. -->
+        <div v-if="$slots.actions" class="k-team-actions">
+            <slot name="actions" />
+        </div>
     </div>
 </template>
 
@@ -116,5 +124,11 @@ defineProps<{
     border-color: var(--k-primary);
     color: var(--k-primary);
     background: var(--k-primary-light);
+}
+
+/* The `#actions` slot: the card only owns the spacing, the consumer owns the
+   buttons (a rating, icon controls, whatever the listing needs). */
+.k-team-actions {
+    margin-top: 12px;
 }
 </style>

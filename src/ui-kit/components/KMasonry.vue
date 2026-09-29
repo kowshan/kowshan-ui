@@ -5,7 +5,7 @@
             v-for="(col, ci) in cols"
             :key="ci"
             class="k-masonry-col"
-            :style="{ gap: gap + 'px' }"
+            :style="columnStyle(ci)"
         >
             <div
                 v-for="(item, ri) in col"
@@ -28,11 +28,15 @@ const props = withDefaults(defineProps<{
     gap?: number
     minItemHeight?: number
     maxItemHeight?: number
+    /** Push every other column down by n px — the staggered "wall" look. The
+     *  first column is never offset, the second is, the third is not, and so on. */
+    stagger?: number
 }>(), {
     columns: 3,
     gap: 16,
     minItemHeight: 0,
     maxItemHeight: 0,
+    stagger: 0,
 })
 
 const root = ref<HTMLElement>()
@@ -56,6 +60,12 @@ const cols = computed(() => {
 })
 
 const hasVarHeight = computed(() => props.maxItemHeight > props.minItemHeight && props.maxItemHeight > 0)
+
+/** Column box: the shared gap, plus the stagger offset on every other column. */
+const columnStyle = (col: number) => ({
+    gap: `${props.gap}px`,
+    ...(props.stagger ? { paddingBlockStart: `${col % 2 ? props.stagger : 0}px` } : {}),
+})
 
 // Generate pseudo-random but deterministic heights based on index
 const getItemStyle = (col: number, row: number) => {

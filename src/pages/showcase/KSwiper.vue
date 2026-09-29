@@ -49,11 +49,38 @@
                 <div class="ks-card-text">توضیح کوتاه نمونه برای اسلاید {{ i }}</div>
             </div>
         </KSwiper>
+        <p class="sp-note">
+            ۱۰ آیتم ÷ ۳ = ۳ صفحهٔ کامل + یک صفحهٔ ناقص ← دات‌ها <b>۴</b> تاست. صفحهٔ ناقص هم یک
+            موقعیت واقعی است (به انتهای نوار می‌چسبد، نه به فضای خالی) و اگر شمرده نشود، سه
+            کارت آخرِ ردیف هیچ راه رسیدنی ندارند.
+        </p>
 
         <h3 class="sp-sub">۱ / ۲ / ۴ در هر صفحه</h3>
         <KSwiper :per-page="1" :gap="10"><div v-for="i in 3" :key="i" class="ks-wide">۱ در صفحه — {{ i }}</div></KSwiper>
         <KSwiper :per-page="2" :gap="10"><div v-for="i in 6" :key="i" class="ks-wide">۲ در صفحه — {{ i }}</div></KSwiper>
         <KSwiper :per-page="4" :gap="10"><div v-for="i in 8" :key="i" class="ks-wide">۴ — {{ i }}</div></KSwiper>
+
+        <!-- Cross-axis bleed: 2px of padding *inside* the scrollport, so a
+             slide's own border is not shaved at the clip edge. At one slide per
+             page that same inset peeks at the next slide — hence the prop. -->
+        <h3 class="sp-sub">حاشیهٔ لبه — <code>inline-bleed</code></h3>
+        <p class="sp-note">
+            نوار ۲ پیکسل پدینگ <b>داخل</b> قاب اسکرول دارد تا حاشیهٔ خود اسلاید در لبهٔ برش خورده
+            نشود. همان ۲ پیکسل چون داخل قاب است، در حالت «۱ در هر صفحه» ذره‌ای از اسلاید بعدی را
+            نشان می‌دهد؛ برای کاروسل تک‌اسلایدی <code>:inline-bleed="false"</code> بدهید.
+        </p>
+        <div class="ks-frame">
+            <span class="sp-note">پیش‌فرض (روشن) — لبهٔ سمت پایان، ذره‌ای از اسلاید بعدی</span>
+            <KSwiper :per-page="1" :gap="10" :dots="true">
+                <div v-for="i in 3" :key="i" class="ks-wide">اسلاید {{ i }}</div>
+            </KSwiper>
+        </div>
+        <div class="ks-frame">
+            <span class="sp-note">کاروسل تک‌اسلایدی — <code>:inline-bleed="false"</code></span>
+            <KSwiper :per-page="1" :gap="10" :dots="true" :inline-bleed="false">
+                <div v-for="i in 3" :key="i" class="ks-wide">اسلاید {{ i }}</div>
+            </KSwiper>
+        </div>
 
         <h3 class="sp-sub">۴ در هر صفحه (تصویر)</h3>
         <KSwiper :per-page="4" :gap="10" :dots="true">

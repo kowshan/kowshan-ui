@@ -325,6 +325,12 @@ const onImgClick = () => {
     border-color: var(--k-error, #dc2626);
 }
 
+/* Reserve room for the clear button so the entered code never sits under it.
+   `:has()` keeps the padding absent while the field is empty. */
+.k-captcha-field:has(.k-captcha-clear) .k-captcha-input {
+    padding-left: 36px;
+}
+
 .k-captcha-clear {
     position: absolute;
     left: 8px;

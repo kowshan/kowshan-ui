@@ -33,6 +33,7 @@
                 :key="a.id"
                 type="button"
                 class="k-appbar-icon"
+                :class="{ 'is-danger': a.variant === 'danger' }"
                 :aria-label="a.label || a.id"
                 @click="emits('action', a.id)"
             >
@@ -60,7 +61,7 @@ withDefaults(defineProps<{
     menuable?: boolean
     sticky?: boolean
     variant?: 'default' | 'glass'
-    actions?: { id: string; icon: any; badge?: string | number | boolean; label?: string }[]
+    actions?: { id: string; icon: any; badge?: string | number | boolean; label?: string; variant?: 'default' | 'danger' }[]
 }>(), {
     title: '',
     menuable: false,
@@ -141,6 +142,15 @@ const emits = defineEmits<{
     color: var(--k-text-secondary, #64748b);
     cursor: pointer;
     transition: all 0.15s ease;
+}
+
+/* Destructive actions (log out, delete) read as destructive before the click. */
+.k-appbar-icon.is-danger {
+    color: var(--k-error, #dc2626);
+}
+
+.k-appbar-icon.is-danger:hover {
+    background: color-mix(in srgb, var(--k-error, #dc2626) 12%, transparent);
 }
 
 .k-appbar-icon:hover {

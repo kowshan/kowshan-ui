@@ -68,6 +68,23 @@
             </p>
         </div>
 
+        <h3 class="sp-sub">زیرمرحله‌ها — نقطه‌های مدار</h3>
+        <div class="sp-card" style="max-width: 640px; display: flex; flex-direction: column; gap: 14px;">
+            <KStepper v-model="s10" :steps="subStepSteps" :sub-step="inner" :clickable="false" />
+            <p class="sp-note">
+                هر مرحله می‌تواند زیرمرحله داشته باشد. زیرمرحله‌ها به‌جای دایره‌های تازه،
+                <b>نقطه‌هایی روی مدار همان دایره</b>اند — پس ۳۰ صفحهٔ سؤال همان‌قدر جا می‌گیرد که
+                ۲ صفحه. نقطهٔ فعال پررنگ است، گذشت‌ه‌ها سبز می‌شوند و گذاشتن موس روی هر نقطه
+                برچسبِ همان زیرمرحله را نشان می‌دهد. <code>v-model</code> همان شناسهٔ مرحله می‌ماند؛
+                زیرمرحلهٔ فعال با پراپ جداگانهٔ <code>sub-step</code> (اندیس، از صفر) می‌آید،
+                چون فقط مدارِ مرحلهٔ جاری روشن می‌شود.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <KButton text="زیرمرحله بعد" @click="inner = Math.min(inner + 1, 4)" />
+                <KButton text="زیرمرحله قبل" :bg-color="'transparent'" @click="inner = Math.max(inner - 1, 0)" />
+            </div>
+        </div>
+
         <h3 class="sp-sub">فرم چندمرحله‌ای — محتوای هر گام</h3>
         <div class="sp-card" style="max-width: 640px; display: flex; flex-direction: column; gap: 18px;">
             <KStepper v-model="wizard" :steps="steps" />
@@ -129,6 +146,27 @@ const longSteps = [
     { id: 'two', label: 'آزمون تعیین سطح آنلاین' },
     { id: 'three', label: 'انتخاب استاد و ساعت کلاس' },
 ]
+
+/* یک مرحلهٔ «پرسش‌ها» با ۵ صفحه — همان الگوی KAssessmentWizard */
+const subStepSteps = [
+    { id: 'form', label: 'فرم' },
+    { id: 'birth', label: 'تاریخ تولد' },
+    {
+        id: 'survey',
+        label: 'پرسش‌ها',
+        subSteps: [
+            'اطلاعات پایه · سؤال ۱–۴',
+            'دانش فنی · سؤال ۵–۸',
+            'مهارت‌ها · سؤال ۹–۱۲',
+            'شواهد · سؤال ۱۳–۱۶',
+            'بازبینی · سؤال ۱۷–۱۸',
+        ],
+    },
+    { id: 'done', label: 'تأیید' },
+]
+
+const s10 = ref('survey')
+const inner = ref(2)
 
 const s1 = ref('content')
 const s2 = ref('info')

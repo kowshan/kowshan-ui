@@ -57,7 +57,7 @@ withDefaults(defineProps<{
     title: '',
     description: '',
     icon: null,
-    iconBg: 'linear-gradient(135deg, var(--k-primary), #3b82f6)',
+    iconBg: 'linear-gradient(135deg, var(--k-primary), var(--k-primary-hover))',
     iconColor: '#ffffff',
     linkText: '',
     hoverable: true

@@ -62,8 +62,39 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
-import L from 'leaflet'
+import type * as LeafletNS from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { cssVar } from '../utils/cssVar'
+
+/** Leaflet reads `window`/`document` **when it is evaluated**, so a static import
+ *  makes every server render of a page that uses a map die with
+ *  `window is not defined` — and `<ClientOnly>` does not save it, because the
+ *  import still runs on the server. It is loaded on mount instead; everything
+ *  below that touches the library runs only after that (`L!`). */
+type Leaflet = typeof LeafletNS
+
+let L: Leaflet | null = null
+
+async function loadLeaflet(): Promise<Leaflet> {
+    if (L) return L
+
+    /* Vite's CJS→ESM interop puts the library on `default`; the named exports are
+       the fallback. */
+    const mod = await import('leaflet')
+    const lib = ((mod as any).default ?? mod) as Leaflet
+
+    /* Vite bundles Leaflet's marker images differently from the CDN build, so the
+       icon URLs are set explicitly — this needs the real module in hand. */
+    delete (lib.Icon.Default.prototype as any)._getIconUrl
+    lib.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    })
+
+    L = lib
+    return lib
+}
 import {
     LocateFixed, Loader2, Plus, Minus,
     Map, Satellite, Mountain,
@@ -140,17 +171,9 @@ const hasControl = (id: MapControl) => {
     return props.controls.includes(id)
 }
 
-let map: L.Map | null = null
-let markerLayers: L.Marker[] = []
-let routeLayer: L.Polyline | null = null
-
-// Fix Leaflet default icon paths (Vite bundles them differently)
-delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
+let map: LeafletNS.Map | null = null
+let markerLayers: LeafletNS.Marker[] = []
+let routeLayer: LeafletNS.Polyline | null = null
 
 // ── Tile layers ──
 const tileLayerUrls: Record<string, string> = {
@@ -166,7 +189,7 @@ const tileLayerAttribution: Record<string, string> = {
 }
 
 const activeLayer = ref<string>(props.tile)
-let currentTileLayer: L.TileLayer | null = null
+let currentTileLayer: LeafletNS.TileLayer | null = null
 
 const tileLayers: { id: string; name: string; icon: any }[] = [
     { id: 'osm', name: 'نقشه', icon: Map },
@@ -178,7 +201,7 @@ const switchLayer = (id: string) => {
     if (!map) return
     activeLayer.value = id
     if (currentTileLayer) map.removeLayer(currentTileLayer)
-    currentTileLayer = L.tileLayer(tileLayerUrls[id], {
+    currentTileLayer = L!.tileLayer(tileLayerUrls[id], {
         attribution: tileLayerAttribution[id],
         maxZoom: props.maxZoom,
     }).addTo(map)
@@ -192,7 +215,7 @@ const createMarker = (m: KMapMarker, index: number) => {
         <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
     </svg>`
 
-    const icon = L.divIcon({
+    const icon = L!.divIcon({
         html: svg,
         className: 'k-map-custom-marker',
         iconSize: [28, 38],
@@ -200,7 +223,7 @@ const createMarker = (m: KMapMarker, index: number) => {
         popupAnchor: [0, -38],
     })
 
-    const marker = L.marker([m.lat, m.lng], { icon, draggable: false }).addTo(map!)
+    const marker = L!.marker([m.lat, m.lng], { icon, draggable: false }).addTo(map!)
 
     if (m.html) {
         marker.bindPopup(`<div class="k-map-popup">${m.html}</div>`, { className: 'k-map-popup-wrap' })
@@ -219,7 +242,16 @@ const createMarker = (m: KMapMarker, index: number) => {
 onMounted(async () => {
     if (!container.value) return
 
-    map = L.map(container.value, {
+    /* The library is fetched here, so the first render (server or client) only
+       ever draws the container element. */
+    const L = await loadLeaflet()
+    const el = container.value
+    if (!el) return
+
+    /* `instance` is the local, non-null handle: `map` is module-level and
+       mutable, so narrowing on it does not survive the `await` or the callbacks
+       below, even though both are only reached once it exists. */
+    const instance = L.map(el, {
         center: [props.lat, props.lng],
         zoom: props.zoom,
         zoomControl: false,
@@ -227,6 +259,7 @@ onMounted(async () => {
         minZoom: props.minZoom,
         maxZoom: props.maxZoom,
     })
+    map = instance
 
     // Add initial tile layer
     switchLayer(activeLayer.value)
@@ -250,11 +283,11 @@ onMounted(async () => {
 
     // Scale bar
     if (hasControl('scale')) {
-        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map)
+        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(instance)
     }
 
     // Keep the slot cards pinned to their coordinates
-    map.on('move zoom viewreset resize moveend', updateOverlays)
+    instance.on('move zoom viewreset resize moveend', updateOverlays)
 
     // Add route
     if (props.route?.points?.length) {
@@ -262,21 +295,21 @@ onMounted(async () => {
     }
 
     // Click handler
-    map.on('click', (e: L.LeafletMouseEvent) => {
+    instance.on('click', (e: LeafletNS.LeafletMouseEvent) => {
         emit('click', { lat: e.latlng.lat, lng: e.latlng.lng })
     })
 
     // Cursor coordinates
     if (props.showCoordinates) {
-        map.on('mousemove', (e: L.LeafletMouseEvent) => {
+        instance.on('mousemove', (e: LeafletNS.LeafletMouseEvent) => {
             cursorCoords.value = { lat: e.latlng.lat, lng: e.latlng.lng }
         })
-        map.on('mouseout', () => { cursorCoords.value = null })
+        instance.on('mouseout', () => { cursorCoords.value = null })
     }
 
     // Center on drag
-    map.on('moveend', () => {
-        const center = map!.getCenter()
+    instance.on('moveend', () => {
+        const center = instance.getCenter()
         emit('move', { lat: center.lat, lng: center.lng })
     })
 })
@@ -321,10 +354,12 @@ watch(() => props.route, (r) => {
 // ── Draw route polyline ──
 const drawRoute = (route: KMapRoute) => {
     if (!map || !route.points?.length) return
-    routeLayer = L.polyline(
+    routeLayer = L!.polyline(
         route.points.map(p => [p.lat, p.lng]),
         {
-            color: route.color || '#3b82f6',
+            /* A route is drawn on a canvas/SVG path by Leaflet, where `var()`
+               cannot resolve — so the brand token is *read* instead. */
+            color: route.color || cssVar(container.value, '--k-primary', '#358f80'),
             weight: route.weight || 3,
             opacity: 0.8,
             dashArray: '6, 4',
@@ -376,7 +411,7 @@ defineExpose({
     },
     fitBounds: (markers: KMapMarker[]) => {
         if (!map || !markers.length) return
-        const bounds = L.latLngBounds(markers.map(m => [m.lat, m.lng]))
+        const bounds = L!.latLngBounds(markers.map(m => [m.lat, m.lng]))
         map.fitBounds(bounds, { padding: [40, 40] })
     },
     getMap: () => map,

@@ -50,6 +50,56 @@
             :reveal-answers="true"
             @submit="onSubmit"
         />
+
+        <!-- A host that renders its own header from `assessment.info` turns the
+             wizard's own header and progress bar off, so nothing prints twice. -->
+        <h3 class="sp-sub">۷) هدر با میزبان — <code>show-header</code> / <code>show-progress</code></h3>
+        <p class="sp-note">
+            اگر میزبان خودش هدر را بسازد (عنوان، متادیتا، و تایمر در سمت دیگر)، این دو پراپ
+            خاموش می‌شوند تا اطلاعات دو بار چاپ نشود. موتور همچنان از بیرون در دسترس است:
+            <code>remaining</code>، <code>clock</code>، <code>stepperSteps</code>،
+            <code>answerList</code> و <code>validateAll()</code> — تایمر همین نمونه از
+            <code>clock</code> می‌آید، نه از خود ویزارد.
+        </p>
+        <div class="aw-host">
+            <header class="aw-host-head">
+                <div>
+                    <h4 class="aw-host-title">{{ mathExam.info.title }}</h4>
+                    <div class="aw-host-meta">
+                        <span>{{ mathExam.info.durationMinutes }} دقیقه</span>
+                        <span v-for="m in mathExam.info.meta" :key="m.label">{{ m.label }}: {{ m.value }}</span>
+                    </div>
+                </div>
+                <span v-if="hosted?.remaining != null" class="aw-host-clock">{{ hosted.clock }}</span>
+                <span v-else class="aw-host-clock">--:--</span>
+            </header>
+            <KAssessmentWizard
+                ref="hosted"
+                :assessment="mathExam"
+                :per-page="3"
+                :show-header="false"
+                :show-progress="false"
+                @submit="onSubmit"
+            />
+        </div>
+
+        <h3 class="sp-sub">۸) وزن ردیف‌های ماتریس — <code>weight-rows</code></h3>
+        <p class="sp-note">
+            با <code>weight-rows</code> یک جدول ۳ ردیفی سه «جا» حساب می‌شود — در
+            <code>per-page</code>، در بازه‌های «سؤال ۱–۹» و در عددهای پاسخ‌داده‌شده/کل؛ چون همه از
+            یک تابع وزن می‌آیند، برچسب هیچ‌وقت با نوار اختلاف پیدا نمی‌کند. دو آزمون یکسان، فقط با
+            این پراپ — به تعداد دات‌ها و بازه‌های زیر عنوان نگاه کنید.
+        </p>
+        <div class="aw-compare">
+            <div>
+                <p class="sp-note">خاموش (پیش‌فرض) — هر ماتریس یک سؤال است</p>
+                <KAssessmentWizard :assessment="matrixSteps" :per-page="2" :show-header="false" />
+            </div>
+            <div>
+                <p class="sp-note"><code>weight-rows</code> — هر ردیف ماتریس یک جا</p>
+                <KAssessmentWizard :assessment="matrixSteps" :per-page="2" :show-header="false" :weight-rows="true" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -63,6 +113,10 @@ import type { Assessment, AssessmentResult } from '../../ui-kit/types/assessment
 
 const lastEvent = ref('')
 const lastAnswers = ref<Record<string, any>>({})
+
+/* the wizard in section 7 — its header lives on this page, so the countdown is
+   read from the exposed `clock` instead of being rendered by the component */
+const hosted = ref<any>(null)
 
 const onSubmit = ({ answers }: { answers: Record<string, any>; result: AssessmentResult }) => {
     lastAnswers.value = answers
@@ -355,4 +409,83 @@ const quickQuiz: Assessment = {
         },
     ],
 }
+
+/* ── 8. two 3-row tables — the clearest way to see `weightRows` ─── */
+const matrixRows = [
+    { id: 'listen', label: 'شنیدن' },
+    { id: 'speak', label: 'گفتن' },
+    { id: 'write', label: 'نوشتن' },
+]
+
+const matrixCols = [
+    { id: 'c1', value: 1, label: '۱' },
+    { id: 'c2', value: 2, label: '۲' },
+    { id: 'c3', value: 3, label: '۳' },
+]
+
+const matrixSteps: Assessment = {
+    info: { id: 'matrix-steps', title: 'آزمون ماتریسی — مقایسهٔ وزن ردیف‌ها', durationMinutes: 10 },
+    sections: [
+        {
+            id: 'mx',
+            title: 'بخش ماتریسی',
+            questions: [
+                {
+                    id: 'mx1',
+                    title: 'میزان مهارت شما در هر مهارت',
+                    input: { kind: 'matrix', matrixRows, matrixColumns: matrixCols },
+                },
+                {
+                    id: 'mx2',
+                    title: 'میزان علاقه شما به هر مهارت',
+                    input: { kind: 'matrix', matrixRows, matrixColumns: matrixCols },
+                },
+            ],
+        },
+    ],
+}
 </script>
+
+<style scoped>
+/* the host header — page furniture, so it is not the wizard's own surface */
+.aw-host {
+    border: 1px solid var(--k-border);
+    border-radius: var(--k-radius-md);
+    overflow: hidden;
+}
+.aw-host-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--k-surface);
+    border-bottom: 1px solid var(--k-border);
+}
+.aw-host-title {
+    margin: 0 0 4px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--k-text-primary);
+}
+.aw-host-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.7rem;
+    color: var(--k-text-secondary);
+}
+.aw-host-clock {
+    direction: ltr;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--k-text-primary);
+}
+.aw-compare {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+</style>

@@ -1,12 +1,12 @@
 <!-- KPasswordStrength — password input with animated strength meter and criteria checklist -->
 <template>
     <div class="k-pws">
-        <label v-if="label" class="k-label">
+        <label v-if="label && showInput" class="k-label">
             {{ label }}
             <span v-if="required" class="k-required">*</span>
         </label>
 
-        <div class="k-pws-input-wrap" :class="{ 'is-focused': isFocused, 'has-error': errorMessage }">
+        <div v-if="showInput" class="k-pws-input-wrap" :class="{ 'is-focused': isFocused, 'has-error': errorMessage }">
             <Lock v-if="!showPassword" :size="16" class="k-pws-icon" />
             <Unlock v-else :size="16" class="k-pws-icon" />
             <input
@@ -68,12 +68,17 @@ const props = withDefaults(defineProps<{
     disabled?: boolean
     minLength?: number
     showCriteria?: boolean
+    /** `false` renders the meter + criteria only — for forms that use
+     *  `KPasswordInput` for the password and the confirmation side by side
+     *  and want the strength block underneath both. */
+    showInput?: boolean
     rules?: { key: string; label: string; test: (v: string) => boolean }[]
 }>(), {
     modelValue: '',
     placeholder: 'رمز عبور را وارد کنید...',
     minLength: 8,
     showCriteria: true,
+    showInput: true,
     rules: () => [
         { key: 'length', label: 'حداقل ۸ کاراکتر', test: (v) => v.length >= 8 },
         { key: 'upper', label: 'حداقل یک حرف بزرگ', test: (v) => /[A-Z]/.test(v) },

@@ -2,7 +2,9 @@
 <template>
     <div class="k-pc" :class="{ 'is-out-of-stock': outOfStock }">
         <div class="k-pc-media">
-            <img :src="image" :alt="title" class="k-pc-img" loading="lazy" />
+            <!-- Guarded for the same reason as KCourseCard: an empty image src
+                 is a request for the current document, not "no image". -->
+            <img v-if="image" :src="image" :alt="title" class="k-pc-img" loading="lazy" />
 
             <span v-if="badge" class="k-pc-badge" :style="{ background: badgeColor }">{{ badge }}</span>
             <button class="k-pc-fav" :class="{ 'is-active': favorited }" @click.stop="$emit('toggle-favorite')">

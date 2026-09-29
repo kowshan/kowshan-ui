@@ -32,6 +32,32 @@
             </template>
         </KMasonry>
 
+        <!-- `stagger` pushes every *other* column down: first column never, the
+             second one by n px, the third again not — the "wall" look. -->
+        <h3 class="sp-sub">پله‌ای — <code>stagger</code></h3>
+        <p class="sp-note">
+            <code>stagger</code> به پیکسل، ستون دوم را پایین‌هل می‌دهد (ستون اول هرگز، سومی دوباره
+            نه) تا دیوار شروع پله‌ای بگیرد. ستون اولِ نمونهٔ «سه ستون» بالا همین حالت با مقدار صفر است.
+        </p>
+        <KMasonry :items="cards" :columns="3" :gap="12" :stagger="34">
+            <template #default="{ item }">
+                <div class="ms-card" :style="{ height: item.h + 'px' }">
+                    <strong>{{ item.title }}</strong>
+                    <span class="ms-price">{{ item.price }} تومان</span>
+                </div>
+            </template>
+        </KMasonry>
+
+        <h3 class="sp-sub">همان دیوار با <code>stagger="0"</code> (پیش‌فرض)</h3>
+        <KMasonry :items="cards" :columns="3" :gap="12">
+            <template #default="{ item }">
+                <div class="ms-card" :style="{ height: item.h + 'px' }">
+                    <strong>{{ item.title }}</strong>
+                    <span class="ms-price">{{ item.price }} تومان</span>
+                </div>
+            </template>
+        </KMasonry>
+
         <h3 class="sp-sub">تصاویر با ارتفاع محدود (min/max)</h3>
         <KMasonry :items="images" :columns="3" :min-item-height="90" :max-item-height="200">
             <template #default="{ item }">

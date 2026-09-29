@@ -164,8 +164,13 @@ export function validateAnswer(
                 if (rule.maxSize != null) {
                     const over = files.some((f: any) => f?.size > rule.maxSize!)
                     if (over) {
-                        const mb = (rule.maxSize / (1024 * 1024)).toFixed(1)
-                        return rule.message || `حجم هر فایل باید کمتر از ${mb} مگابایت باشد.`
+                        // scale-aware: a 2 MB limit printed as «0.0 مگابایت» is the
+                        // signature of bytes fed in where kilobytes were meant, and
+                        // a sub-megabyte limit reads better in kilobytes either way
+                        const size = rule.maxSize >= 1024 * 1024
+                            ? `${(rule.maxSize / (1024 * 1024)).toFixed(1)} مگابایت`
+                            : `${Math.round(rule.maxSize / 1024)} کیلوبایت`
+                        return rule.message || `حجم هر فایل باید کمتر از ${size} باشد.`
                     }
                 }
                 if (rule.accept) {

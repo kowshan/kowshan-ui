@@ -129,7 +129,16 @@
 
         <!-- ── RANKING ──────────────────────────────────────── -->
         <div v-else-if="input.kind === 'ranking'" class="k-ai-ranking">
-            <KSortableList :items="rankItems" key-prop="id" @update:items="onRankUpdate" />
+            <!-- the row has to carry its own label: KSortableList renders whatever
+                 the slot gives it, and item text is not part of its contract -->
+            <KSortableList :items="rankItems" key-prop="id" @update:items="onRankUpdate">
+                <template #default="{ item, index }">
+                    <span class="k-ai-rank">
+                        <span class="k-ai-rank-num">{{ index + 1 }}</span>
+                        <span class="k-ai-rank-label">{{ item.label }}</span>
+                    </span>
+                </template>
+            </KSortableList>
             <p class="k-ai-hint">با کشیدن و رها کردن، ترتیب دلخواه را بسازید.</p>
         </div>
 
@@ -208,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots, watch } from 'vue'
+import { computed, onMounted, ref, useSlots, watch } from 'vue'
 import KTextInput from '../wrappers/KTextInput.vue'
 import KTextarea from '../wrappers/KTextarea.vue'
 import KNumberInput from './KNumberInput.vue'
@@ -317,6 +326,20 @@ const onRankUpdate = (items: any[]) => {
     rankItems.value = items
     emitValue(items.map(i => i.id))
 }
+
+/*
+ * A ranking is already a valid answer when it appears: the order it arrives in
+ * *is* a choice, so leaving it untouched must not read as "unanswered" (the
+ * question would sit blank and, when required, block «بعدی» for a user who is
+ * happy with the given order). Adopt that default once, after mount — doing it
+ * during setup would emit while the server-rendered markup still says otherwise.
+ */
+onMounted(() => {
+    if (props.input.kind !== 'ranking') return
+    const current = props.modelValue
+    if (Array.isArray(current) && current.length) return
+    emitValue(rankItems.value.map(i => i.id))
+})
 
 /* ── upload ───────────────────────────────────────────────── */
 const fileValue = computed(() => props.modelValue ?? null)
@@ -436,5 +459,20 @@ function onRecord(blob: Blob) {
     background: var(--k-bg);
 }
 .k-ai-ranking { display: flex; flex-direction: column; gap: 6px; }
+.k-ai-rank { display: flex; align-items: center; gap: 8px; }
+.k-ai-rank-num {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--k-surface);
+    color: var(--k-text-secondary);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+.k-ai-rank-label { font-size: 0.82rem; font-weight: 600; color: var(--k-text-primary); }
 .k-ai-hint { margin: 0; font-size: 0.7rem; color: var(--k-text-muted); }
 </style>

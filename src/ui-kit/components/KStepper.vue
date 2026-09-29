@@ -13,6 +13,7 @@
         <template v-for="(step, index) in steps" :key="step.id">
             <div
                 class="k-step"
+                :data-step-id="step.id"
                 :class="{
                     'is-active': model === step.id,
                     'is-done': isDone(index),
@@ -26,14 +27,40 @@
                 @keydown.enter.prevent="selectStep(step.id)"
                 @keydown.space.prevent="selectStep(step.id)"
             >
-                <span class="k-step-circle">
-                    <Check
-                        v-if="isDone(index)"
-                        class="k-step-check"
-                    />
-                    <span v-else class="k-step-number">{{ index + 1 }}</span>
+                <span
+                    class="k-step-mark"
+                    :class="{ 'has-sub': subStepsOf(step).length > 1 }"
+                    :style="markStyle(subStepsOf(step).length)"
+                >
+                    <span class="k-step-circle">
+                        <Check
+                            v-if="isDone(index)"
+                            class="k-step-check"
+                        />
+                        <span v-else class="k-step-number">{{ index + 1 }}</span>
+                    </span>
+
+                    <!-- inner steps: a dot per sub-step, orbiting the circle -->
+                    <template v-if="subStepsOf(step).length > 1">
+                        <span
+                            v-for="(sub, si) in subStepsOf(step)"
+                            :key="sub.id ?? si"
+                            class="k-step-orbit-dot"
+                            :class="{
+                                'is-sub-done': isSubDone(step, index, si),
+                                'is-sub-active': isSubActive(step, si),
+                            }"
+                            :style="{ '--k-dot-i': si }"
+                            :title="sub.label"
+                            aria-hidden="true"
+                        />
+                    </template>
                 </span>
-                <span class="k-step-label">{{ step.label }}</span>
+                <span class="k-step-text">
+                    <span class="k-step-label">{{ step.label }}</span>
+                    <!-- the inner step the bar cannot show as a circle -->
+                    <span v-if="activeSubLabel(step)" class="k-step-sub">{{ activeSubLabel(step) }}</span>
+                </span>
             </div>
 
             <span
@@ -49,18 +76,35 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Check } from 'lucide-vue-next'
 
+interface SubStepItem {
+    id?: string
+    label?: string
+}
+
 interface StepItem {
     id: string
     label: string
     disabled?: boolean
+    /**
+     * Inner steps — drawn as small dots orbiting the circle instead of as extra
+     * circles, so a step with 30 pages still occupies one slot in the bar.
+     * Strings are accepted as labels.
+     */
+    subSteps?: (SubStepItem | string)[]
 }
 
 const props = withDefaults(defineProps<{
     steps: StepItem[]
     /** when false the stepper is a progress indicator only (assessments, wizards) */
     clickable?: boolean
+    /**
+     * Which inner step of the *current* step is active (0-based). Only the
+     * current step's orbit highlights — the others stay neutral.
+     */
+    subStep?: number
 }>(), {
     clickable: true,
+    subStep: undefined,
 })
 
 const model = defineModel<string>({ required: true })
@@ -70,6 +114,44 @@ const currentIndex = computed(() =>
 )
 
 const isDone = (index: number) => index < currentIndex.value
+
+/* ── inner steps ───────────────────────────────────────────── */
+
+const subStepsOf = (step: StepItem): SubStepItem[] =>
+    (step.subSteps || []).map((sub, i) =>
+        typeof sub === 'string' ? { id: String(i), label: sub } : sub
+    )
+
+const isCurrent = (step: StepItem) => model.value === step.id
+
+const isSubActive = (step: StepItem, si: number) =>
+    isCurrent(step) && props.subStep === si
+
+/**
+ * A dot is done when the whole step is behind us (its orbit reads as finished)
+ * or when we have already passed it inside the current step.
+ */
+const isSubDone = (step: StepItem, index: number, si: number) =>
+    index < currentIndex.value
+    || (isCurrent(step) && props.subStep != null && si < props.subStep)
+
+/** the label of the inner step we are on — rendered as a small sub-title */
+const activeSubLabel = (step: StepItem) => {
+    if (!isCurrent(step) || props.subStep == null) return null
+    return subStepsOf(step)[props.subStep]?.label || null
+}
+
+/**
+ * Orbit geometry, computed here rather than in CSS: `calc(360deg / var(--n))`
+ * depends on division-by-var support, and this keeps the radius in one place.
+ * `ORBIT_R` leaves ~3px between the circle's edge and the dots, so the ring
+ * reads as a separate ring rather than as a bumpy circle.
+ */
+const ORBIT_R = 20
+
+const markStyle = (count: number) => count > 1
+    ? { '--k-orbit-r': `${ORBIT_R}px`, '--k-orbit-arc': `${360 / count}deg` }
+    : undefined
 
 const selectStep = (id: string) => {
     if (!props.clickable) return
@@ -108,8 +190,22 @@ function updateFades() {
     fadeEnd.value = (rtl ? cutAtStart : cutAtEnd) ? FADE : 0
 }
 
+/* ── keep the active step visible ────────────────────────────────────
+   A stepper with more steps than fit is a scroller, so reaching a later
+   step must bring it into view — otherwise the current step is simply
+   off-screen and the bar reads as "nothing is active". `inline: 'nearest'`
+   is what makes this a no-op when the step is already visible. */
+function scrollActiveIntoView() {
+    const el = navEl.value?.querySelector<HTMLElement>(`[data-step-id="${model.value}"]`)
+    if (!el) return
+    const reduce = typeof window !== 'undefined'
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', inline: 'nearest', block: 'nearest' })
+}
+
 onMounted(() => {
     updateFades()
+    scrollActiveIntoView()
     if (typeof ResizeObserver !== 'undefined' && navEl.value) {
         observer = new ResizeObserver(updateFades)
         observer.observe(navEl.value)
@@ -125,7 +221,10 @@ onBeforeUnmount(() => {
 
 watch(
     [() => props.steps.length, model, () => props.clickable],
-    () => nextTick(updateFades)
+    () => nextTick(() => {
+        updateFades()
+        scrollActiveIntoView()
+    })
 )
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -213,6 +312,50 @@ const handleKeydown = (e: KeyboardEvent) => {
     cursor: not-allowed;
 }
 
+/* ── inner steps: the orbit ────────────────────────────────────────────
+   `has-sub` reserves the space the dots orbit through — without it the
+   stepper's own `overflow-x: auto` (which computes `overflow-y` to `auto` too)
+   would clip them. */
+.k-step-mark {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* must fit `ORBIT_R` + the dot's own radius on both sides (20 + 2.5) */
+.k-step-mark.has-sub {
+    width: 46px;
+    height: 46px;
+}
+
+/* physical `left`/`top`, not logical: the orbit is symmetric, and the
+   -50% translate below is physical anyway */
+.k-step-orbit-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--k-border);
+    transform:
+        translate(-50%, -50%)
+        rotate(calc(var(--k-dot-i, 0) * var(--k-orbit-arc, 0deg)))
+        translateY(calc(-1 * var(--k-orbit-r, 15px)));
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.k-step-orbit-dot.is-sub-done {
+    background: var(--k-success, #10b981);
+}
+
+.k-step-orbit-dot.is-sub-active {
+    background: var(--k-primary, #1db954);
+    box-shadow: 0 0 0 2px var(--k-primary-light, rgba(29, 185, 84, 0.18));
+}
+
 .k-step-circle {
     display: flex;
     align-items: center;
@@ -247,12 +390,29 @@ const handleKeydown = (e: KeyboardEvent) => {
     height: 14px;
 }
 
+.k-step-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
 .k-step-label {
     font-size: 0.8rem;
     color: var(--k-text-muted);
     font-weight: 500;
     white-space: nowrap;
     transition: color 0.2s ease;
+}
+
+.k-step-sub {
+    font-size: 0.68rem;
+    color: var(--k-text-muted);
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.k-step.is-active .k-step-sub {
+    color: var(--k-text-secondary);
 }
 
 .k-step.is-active .k-step-label {

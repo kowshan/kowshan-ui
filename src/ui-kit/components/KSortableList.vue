@@ -17,7 +17,10 @@
                     <GripVertical :size="14" />
                 </div>
                 <div class="k-sort-content">
-                    <slot :item="item" :index="i" />
+                    <!-- a host that passes no slot still gets readable rows -->
+                    <slot :item="item" :index="i">
+                        <span class="k-sort-label">{{ item.label ?? item.title ?? item[keyProp] }}</span>
+                    </slot>
                 </div>
                 <button
                     v-if="removable"
@@ -55,7 +58,10 @@ const overIndex = ref<number | null>(null)
 
 const onDragStart = (i: number, e: DragEvent) => {
     dragIndex.value = i
-    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+    if (!e.dataTransfer) return
+    e.dataTransfer.effectAllowed = 'move'
+    // Firefox refuses to start a drag unless some data is set on the transfer
+    e.dataTransfer.setData('text/plain', String(i))
 }
 
 const onDragOver = (i: number) => {
@@ -89,6 +95,11 @@ const onDragEnd = () => {
     background: var(--k-bg, #fff);
     margin-bottom: 6px;
     transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    /* A host reset that sets `-webkit-user-drag: none` on `*` (a common pattern)
+       silently kills HTML5 dragging even on `draggable="true"` — in Chromium the
+       computed value wins over the attribute. State it here so the kit's own drag
+       survives any host reset. */
+    -webkit-user-drag: element;
 }
 .k-sort-row:hover {
     border-color: color-mix(in srgb, var(--k-primary, #1db954) 30%, var(--k-border));
@@ -104,11 +115,17 @@ const onDragEnd = () => {
     padding: 2px;
     display: flex;
     align-items: center;
+    -webkit-user-drag: element;
 }
 .k-sort-handle:active { cursor: grabbing; }
 .k-sort-content {
     flex: 1;
     min-width: 0;
+}
+.k-sort-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--k-text-primary);
 }
 .k-sort-remove {
     border: none;

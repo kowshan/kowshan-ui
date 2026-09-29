@@ -2,6 +2,7 @@
 <!--
     KConfirmDialog — promise-based confirm (mount once, usually in KGlobalLayer):
 
+      import { useModalStore } from '~/ui-kit/stores/modalStore' // not auto-imported
       const ok = await useModalStore().confirm({
         title: 'حذف مشتری',
         message: 'این عمل قابل بازگشت نیست.',

@@ -49,6 +49,30 @@
             </KSpotlightCard>
         </div>
 
+        <!-- Surface: off by default, because this is an effect layer rather than
+             a card — the same component inside a page that already has surfaces
+             would otherwise double-box. -->
+        <h3 class="sp-sub">سطح — <code>surface</code> روشن / خاموش</h3>
+        <p class="sp-note">
+            پیش‌فرض <code>surface=false</code> است: کامپوننت فقط لایهٔ افکت است و پس‌زمینه/حاشیه
+            ندارد، پس روی هر سطحی می‌نشیند. با <code>surface</code> خودش کارت می‌شود و از توکن‌های
+            تم پس‌زمینه و حاشیه می‌گیرد.
+        </p>
+        <div class="sp-card" style="display: flex; flex-wrap: wrap; gap: 16px;">
+            <KSpotlightCard style="width: 240px;">
+                <div class="body">
+                    <h4 class="t">بدون سطح (پیش‌فرض)</h4>
+                    <p class="d">شفاف — افکت روی پس‌زمینهٔ والد می‌نشیند</p>
+                </div>
+            </KSpotlightCard>
+            <KSpotlightCard surface style="width: 240px;">
+                <div class="body">
+                    <h4 class="t">با سطح</h4>
+                    <p class="d">پس‌زمینه + حاشیه از <code>--k-surface</code> و <code>--k-border</code></p>
+                </div>
+            </KSpotlightCard>
+        </div>
+
         <h3 class="sp-sub">کاربردی — کارت ویژگی محصول</h3>
         <div class="sp-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
             <KSpotlightCard v-for="f in features" :key="f.title" :color="f.color">

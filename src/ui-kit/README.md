@@ -300,6 +300,7 @@ The optional **yekan-bakh** font can be bundled from the Nuxt app's
 | Component | Notes |
 |---|---|
 | `KTextInput` | label, hint, error, clearable, icons, password toggle |
+| `KPasswordStrength` | password input + strength meter + criteria rules; `show-input: false` renders the meter and criteria alone, for forms that place it under a password/confirm pair |
 | `KTextarea` | rows, char counter |
 | `KSelect` | searchable, clearable, grouped, async options |
 | `KMultiSelect` | multi-value select |
@@ -352,10 +353,10 @@ The optional **yekan-bakh** font can be bundled from the Nuxt app's
 | `KBreadcrumb` | clickable trail, icons |
 | `KDropdownMenu` | items, dividers, shortcuts, danger, align/dir |
 | `KAccordion` | multiple-open, animated |
-| `KStepper` | step wizard |
+| `KStepper` | step wizard — clickable or progress-only, scrolls horizontally with edge fades and keeps the active step in view |
 | `KCommandPalette` | ⌘K palette — groups, icons, shortcuts, keyboard nav, global `Ctrl+K` |
 | `KSidebar` | collapsible app sidebar — grouped items, badges, brand + footer slots, collapses to icon-only |
-| `KAppBar` | app top bar — title, search slot, action buttons with badges, avatar slot, sticky/glass variants |
+| `KAppBar` | app top bar — title, `leading`/`search`/`avatar` slots, action buttons with badges (and `variant: 'danger'` per action), sticky/glass variants |
 | `KBottomNav` | mobile bottom tab bar — icons, labels, badges/dots, active state, floating variant |
 
 ### Overlays (modal / drawer / sheet)
@@ -460,6 +461,7 @@ The optional **yekan-bakh** font can be bundled from the Nuxt app's
 | `KSparkline` | mini SVG trend line — fill gradient, dot, custom color |
 | `KSwiper` | dependency-free carousel — native scroll + snap (so touch/keyboard work for free), `per-page` number **or** `'auto'`, `breakpoints`, `direction="vertical"` + `height`, autoplay, `loop`, dots, `#controls` slot |
 | `KSwiperButton` | prev/next control for `KSwiper` — self-wires inside the swiper, follows the axis (chevrons flip in RTL, point up/down when vertical), auto-disables at the ends |
+| `KMasonry` | column masonry — `columns`, `gap`, optional variable heights (`minItemHeight`/`maxItemHeight`), and `stagger` (px) which pushes every other column down for the offset "wall" look. **Renders one column on the server and reflows after mount** (it starts at width 0), so a wall is fully in the SSR HTML but its columns settle on the client |
 | `KAssessmentWizard` | provider-agnostic assessment player — info → instructions → sections → result, per-section validation, scoring, countdown, result screen |
 | `KAssessmentContent` / `KAssessmentInput` / `KAssessmentOption` / `KAssessmentQuestion` / `KAssessmentResult` | the assessment building blocks (see [Assessment module](#assessment-module)) |
 | `KGauge` | radial dial gauge — 270° arc, auto thresholds (danger/warning), label |
